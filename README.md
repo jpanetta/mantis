@@ -19,3 +19,7 @@ Meson will automatically install
 [Catch2](https://github.com/catchorg/Catch2) (a header-only C++
 unit-testing library) and [specify](https://gitlab.com/hodge_star/specify)
 (a C++14 header-only, command-line argument processor).
+
+### License
+`mantis` is distributed under the
+[Mozilla Public License, v. 2.0](https://www.mozilla.org/media/MPL/2.0/index.815ca599c9df.txt).
