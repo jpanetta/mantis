@@ -111,6 +111,16 @@ class DoubleMantissa {
   Real values_[2];
 };
 
+template <typename Real>
+constexpr Real LogMax() {
+  return std::log(std::numeric_limits<Real>::max());
+}
+
+template <typename Real>
+constexpr Real LogOf2() {
+  return std::log(Real{2});
+}
+
 namespace double_mantissa {
 
 template <typename Real>
@@ -134,6 +144,9 @@ constexpr DoubleMantissa<Real> SignalingNan() {
                               Real{0}};
 }
 
+template <typename Real>
+DoubleMantissa<Real> LogOf2();
+
 }  // namespace double_mantissa
 
 // Returns the square of an extended-precision value.
@@ -154,6 +167,14 @@ DoubleMantissa<Real> MultiplyByPowerOfTwo(const DoubleMantissa<Real>& value,
 // double-mantissa values. The result is value * 2^exp.
 template <typename Real>
 DoubleMantissa<Real> LoadExponent(const DoubleMantissa<Real>& value, int exp);
+
+// Returns the exponential of the given positive double-mantissa value.
+template <typename Real>
+DoubleMantissa<Real> Exp(const DoubleMantissa<Real>& value);
+
+// Returns the (natural) log of the given positive double-mantissa value.
+template <typename Real>
+DoubleMantissa<Real> Log(const DoubleMantissa<Real>& value);
 
 }  // namespace mantis
 
@@ -229,8 +250,16 @@ std::ostream& operator<<(std::ostream& out,
 
 namespace std {
 
+// We specialize std::numeric_limits for each of the standard concrete instances
+// of DoubleMantissa<Real>, where Real is either float, double, or long double.
+//
+// We recall that IEEE compliance is lost, exponent properties are conserved,
+// and the number of digits in the significand/mantissa is doubled.
+
+// A specialization of std::numeric_limits for DoubleMantissa<float>.
 template <>
 class numeric_limits<mantis::DoubleMantissa<float>> {
+ public:
   static constexpr bool is_specialized = true;
   static constexpr bool is_signed = true;
   static constexpr bool is_integer = false;
@@ -244,7 +273,10 @@ class numeric_limits<mantis::DoubleMantissa<float>> {
       numeric_limits<float>::has_denorm_loss;
   static constexpr std::float_round_style round_style =
       numeric_limits<float>::round_style;
+
+  // The extension loses IEEE compliance.
   static constexpr bool is_iec559 = false;
+
   static constexpr bool is_bounded = true;
   static constexpr bool is_modulo = true;
   static constexpr int digits = 2 * numeric_limits<float>::digits;
@@ -252,14 +284,14 @@ class numeric_limits<mantis::DoubleMantissa<float>> {
   static constexpr int max_digits10 = ceil(digits * log10(2) + 1);
   static constexpr int radix = numeric_limits<float>::radix;
 
-  // TODO(Jack Poulson): min_exponent
-  // TODO(Jack Poulson): min_exponent10
-  // TODO(Jack Poulson): max_exponent
-  // TODO(Jack Poulson): max_exponent10
+  static constexpr int min_exponent = numeric_limits<float>::min_exponent;
+  static constexpr int min_exponent10 = numeric_limits<float>::min_exponent10;
+  static constexpr int max_exponent = numeric_limits<float>::max_exponent;
+  static constexpr int max_exponent10 = numeric_limits<float>::max_exponent10;
 
   static constexpr bool traps = numeric_limits<float>::traps;
-
-  // TODO(Jack Poulson): tinyness_before
+  static constexpr bool tinyness_before =
+      numeric_limits<float>::tinyness_before;
 
   static constexpr mantis::DoubleMantissa<float> epsilon();
   static constexpr mantis::DoubleMantissa<float> infinity();
@@ -267,8 +299,10 @@ class numeric_limits<mantis::DoubleMantissa<float>> {
   static constexpr mantis::DoubleMantissa<float> signaling_NaN();
 };
 
+// A specialization of std::numeric_limits for DoubleMantissa<double>.
 template <>
 class numeric_limits<mantis::DoubleMantissa<double>> {
+ public:
   static constexpr bool is_specialized = true;
   static constexpr bool is_signed = true;
   static constexpr bool is_integer = false;
@@ -290,14 +324,14 @@ class numeric_limits<mantis::DoubleMantissa<double>> {
   static constexpr int max_digits10 = ceil(digits * log10(2) + 1);
   static constexpr int radix = numeric_limits<double>::radix;
 
-  // TODO(Jack Poulson): min_exponent
-  // TODO(Jack Poulson): min_exponent10
-  // TODO(Jack Poulson): max_exponent
-  // TODO(Jack Poulson): max_exponent10
+  static constexpr int min_exponent = numeric_limits<double>::min_exponent;
+  static constexpr int min_exponent10 = numeric_limits<double>::min_exponent10;
+  static constexpr int max_exponent = numeric_limits<double>::max_exponent;
+  static constexpr int max_exponent10 = numeric_limits<double>::max_exponent10;
 
   static constexpr bool traps = numeric_limits<double>::traps;
-
-  // TODO(Jack Poulson): tinyness_before
+  static constexpr bool tinyness_before =
+      numeric_limits<double>::tinyness_before;
 
   static constexpr mantis::DoubleMantissa<double> epsilon();
   static constexpr mantis::DoubleMantissa<double> infinity();
@@ -305,8 +339,10 @@ class numeric_limits<mantis::DoubleMantissa<double>> {
   static constexpr mantis::DoubleMantissa<double> signaling_NaN();
 };
 
+// A specialization of std::numeric_limits for DoubleMantissa<long double>.
 template <>
 class numeric_limits<mantis::DoubleMantissa<long double>> {
+ public:
   static constexpr bool is_specialized = true;
   static constexpr bool is_signed = true;
   static constexpr bool is_integer = false;
@@ -330,14 +366,16 @@ class numeric_limits<mantis::DoubleMantissa<long double>> {
   static constexpr int max_digits10 = ceil(digits * log10(2) + 1);
   static constexpr int radix = numeric_limits<long double>::radix;
 
-  // TODO(Jack Poulson): min_exponent
-  // TODO(Jack Poulson): min_exponent10
-  // TODO(Jack Poulson): max_exponent
-  // TODO(Jack Poulson): max_exponent10
+  static constexpr int min_exponent = numeric_limits<long double>::min_exponent;
+  static constexpr int min_exponent10 =
+      numeric_limits<long double>::min_exponent10;
+  static constexpr int max_exponent = numeric_limits<long double>::max_exponent;
+  static constexpr int max_exponent10 =
+      numeric_limits<long double>::max_exponent10;
 
   static constexpr bool traps = numeric_limits<long double>::traps;
-
-  // TODO(Jack Poulson): tinyness_before
+  static constexpr bool tinyness_before =
+      numeric_limits<long double>::tinyness_before;
 
   static constexpr mantis::DoubleMantissa<long double> epsilon();
   static constexpr mantis::DoubleMantissa<long double> infinity();
@@ -346,8 +384,14 @@ class numeric_limits<mantis::DoubleMantissa<long double>> {
 };
 
 template <typename Real>
+mantis::DoubleMantissa<Real> exp(const mantis::DoubleMantissa<Real>& value);
+
+template <typename Real>
 mantis::DoubleMantissa<Real> ldexp(const mantis::DoubleMantissa<Real>& value,
                                    int exp);
+
+template <typename Real>
+mantis::DoubleMantissa<Real> log(const mantis::DoubleMantissa<Real>& value);
 
 template <typename Real>
 mantis::DoubleMantissa<Real> sqrt(const mantis::DoubleMantissa<Real>& value);

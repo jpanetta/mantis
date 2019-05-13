@@ -233,6 +233,35 @@ inline long double TwoSquare(const long double& x, long double* error) {
   return product;
 }
 
+// DO_NOT_SUBMIT
+#define X86
+#define FPU_GETCW(x) asm volatile("fnstcw %0" : "=m"(x));
+#define FPU_SETCW(x) asm volatile("fldcw %0" : : "m"(x));
+#define FPU_EXTENDED 0x0300
+#define FPU_DOUBLE 0x0200
+
+inline FPUFix::FPUFix() {
+#ifdef X86
+  volatile unsigned short control_word, new_control_word;
+  FPU_GETCW(control_word);
+  new_control_word = (control_word & ~FPU_EXTENDED) | FPU_DOUBLE;
+  FPU_SETCW(new_control_word);
+  if (control_word_) {
+    control_word_ = control_word;
+  }
+#endif  // ifdef X86
+}
+
+inline FPUFix::~FPUFix() {
+#ifdef X86
+  if (control_word_) {
+    int control_word;
+    control_word = control_word_;
+    FPU_SETCW(control_word);
+  }
+#endif  // ifdef X86
+}
+
 }  // namespace mantis
 
 #endif  // ifndef MANTIS_UTIL_IMPL_H_

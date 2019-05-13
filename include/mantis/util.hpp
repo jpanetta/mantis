@@ -108,6 +108,16 @@ float TwoSquare(const float& x, float* error);
 double TwoSquare(const double& x, double* error);
 long double TwoSquare(const long double& x, long double* error);
 
+class FPUFix {
+ public:
+  FPUFix();
+
+  ~FPUFix();
+
+ private:
+  unsigned int control_word_ = 0;
+};
+
 // References:
 //
 // [1] Yozo Hida, Xiaoye S. Li, and David H. Bailey,

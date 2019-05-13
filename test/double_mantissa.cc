@@ -13,6 +13,8 @@
 using mantis::DoubleMantissa;
 
 TEST_CASE("Add", "[Add]") {
+  mantis::FPUFix fpu_fix;
+
   DoubleMantissa<double> value(1., 2.);
   REQUIRE(value.Upper() == 1.);
   REQUIRE(value.Lower() == 2.);
@@ -31,6 +33,8 @@ TEST_CASE("Add", "[Add]") {
 }
 
 TEST_CASE("Subtract", "[Subtract]") {
+  mantis::FPUFix fpu_fix;
+
   DoubleMantissa<double> value(1., 2.);
   REQUIRE(value.Upper() == 1.);
   REQUIRE(value.Lower() == 2.);
@@ -49,6 +53,8 @@ TEST_CASE("Subtract", "[Subtract]") {
 }
 
 TEST_CASE("Multiply", "[Multiply]") {
+  mantis::FPUFix fpu_fix;
+
   const double eps = std::numeric_limits<double>::epsilon();
   const DoubleMantissa<double> x(3., 4e-20), y(4., 5e-20);
   const DoubleMantissa<double> z = x * y;
@@ -66,6 +72,8 @@ TEST_CASE("Multiply", "[Multiply]") {
 }
 
 TEST_CASE("Square", "[Square]") {
+  mantis::FPUFix fpu_fix;
+
   const double eps = std::numeric_limits<double>::epsilon();
   const DoubleMantissa<double> x(-3., 4e-20);
   const DoubleMantissa<double> z = mantis::Square(x);
@@ -77,6 +85,8 @@ TEST_CASE("Square", "[Square]") {
 }
 
 TEST_CASE("Divide", "[Divide]") {
+  mantis::FPUFix fpu_fix;
+
   const double eps = std::numeric_limits<double>::epsilon();
   const DoubleMantissa<double> x(3., 4e-20), y(4., 5e-20);
   const DoubleMantissa<double> z = x / y;
@@ -98,23 +108,61 @@ TEST_CASE("Divide", "[Divide]") {
 }
 
 TEST_CASE("Sqrt", "[Sqrt]") {
+  mantis::FPUFix fpu_fix;
   const double eps = std::numeric_limits<double>::epsilon();
-  const DoubleMantissa<double> x(3., 4e-20), y(4., 5e-20), z(0., 0.);
-  const DoubleMantissa<double> x_sqrt = std::sqrt(x);
-  const DoubleMantissa<double> y_sqrt = std::sqrt(y);
-  const DoubleMantissa<double> z_sqrt = std::sqrt(z);
 
-  const DoubleMantissa<double> x_error = x - mantis::Square(x_sqrt);
-  const DoubleMantissa<double> y_error = y - mantis::Square(y_sqrt);
-  const DoubleMantissa<double> z_error = z - mantis::Square(z_sqrt);
-  REQUIRE(std::abs(x_error.Upper()) <= 2 * eps * std::abs(x.Upper()));
-  REQUIRE(std::abs(x_error.Lower()) <= 2 * eps * std::abs(x.Lower()));
-  REQUIRE(std::abs(y_error.Upper()) <= 2 * eps * std::abs(y.Upper()));
-  REQUIRE(std::abs(y_error.Lower()) <= 2 * eps * std::abs(y.Lower()));
-  REQUIRE(std::abs(z_error.Upper()) <= 2 * eps * std::abs(z.Upper()));
-  REQUIRE(std::abs(z_error.Lower()) <= 2 * eps * std::abs(z.Lower()));
+  const std::vector<DoubleMantissa<double>> inputs{
+      DoubleMantissa<double>(3., 4e-20).Reduce(),
+      DoubleMantissa<double>(4., 5e-20).Reduce(), DoubleMantissa<double>(),
+  };
+
+  for (const DoubleMantissa<double>& x : inputs) {
+    const DoubleMantissa<double> x_sqrt = std::sqrt(x);
+    const DoubleMantissa<double> x_error = x - mantis::Square(x_sqrt);
+    REQUIRE(std::abs(x_error.Upper()) <= 2 * eps * std::abs(x.Upper()));
+  }
 
   const DoubleMantissa<double> neg_sqrt =
       std::sqrt(DoubleMantissa<double>(-1., 0.));
   REQUIRE(neg_sqrt.Upper() != neg_sqrt.Upper());
+}
+
+TEST_CASE("Exp", "[Exp]") {
+  mantis::FPUFix fpu_fix;
+  const DoubleMantissa<double> eps = mantis::double_mantissa::Epsilon<double>();
+
+  const std::vector<DoubleMantissa<double>> inputs{
+      DoubleMantissa<double>(3., 4e-20).Reduce(),
+      DoubleMantissa<double>(0.),
+      DoubleMantissa<double>(1.),
+      DoubleMantissa<double>(1e-8, 1e-30).Reduce(),
+      DoubleMantissa<double>(101., 1e-18).Reduce(),
+  };
+
+  for (const DoubleMantissa<double>& x : inputs) {
+    if (x.Upper() > 0) {
+      const DoubleMantissa<double> x_log = std::log(x);
+      const DoubleMantissa<double> x_log_exp = std::exp(x_log);
+      const DoubleMantissa<double> x_log_exp_error = x - x_log_exp;
+      const double upper_error = std::abs(x_log_exp_error.Upper());
+      const double tolerance =
+          5 * eps.Upper() * std::max(1., std::abs(x.Upper()));
+      REQUIRE(upper_error <= tolerance);
+    }
+
+    const DoubleMantissa<double> x_exp = std::exp(x);
+    const DoubleMantissa<double> x_exp_log = std::log(x_exp);
+    const DoubleMantissa<double> x_exp_log_error = x - x_exp_log;
+    const double upper_error = std::abs(x_exp_log_error.Upper());
+    const double tolerance =
+        5 * eps.Upper() * std::max(1., std::abs(x.Upper()));
+    REQUIRE(upper_error <= tolerance);
+  }
+
+  const DoubleMantissa<double> log_of_two =
+      mantis::double_mantissa::LogOf2<double>();
+  const DoubleMantissa<double> exp_of_log_of_two = std::exp(log_of_two);
+  const DoubleMantissa<double> exp_of_log_of_two_error =
+      DoubleMantissa<double>(2) - exp_of_log_of_two;
+  REQUIRE(std::abs(exp_of_log_of_two_error.Upper()) <= 4 * eps.Upper());
 }

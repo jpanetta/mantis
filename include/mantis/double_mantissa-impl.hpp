@@ -8,6 +8,8 @@
 #ifndef MANTIS_DOUBLE_MANTISSA_IMPL_H_
 #define MANTIS_DOUBLE_MANTISSA_IMPL_H_
 
+#include <iomanip>
+
 #include "mantis/double_mantissa.hpp"
 
 #include "mantis/util.hpp"
@@ -307,11 +309,219 @@ DoubleMantissa<Real> MultiplyByPowerOfTwo(const DoubleMantissa<Real>& value,
 }
 
 template <typename Real>
-mantis::DoubleMantissa<Real> LoadExponent(
-    const mantis::DoubleMantissa<Real>& value, int exp) {
-  return mantis::DoubleMantissa<Real>(std::ldexp(value.Upper(), exp),
-                                      std::ldexp(value.Lower(), exp));
+DoubleMantissa<Real> LoadExponent(const DoubleMantissa<Real>& value, int exp) {
+  return DoubleMantissa<Real>(std::ldexp(value.Upper(), exp),
+                              std::ldexp(value.Lower(), exp));
 }
+
+template <typename Real>
+DoubleMantissa<Real> Exp(const DoubleMantissa<Real>& value) {
+  // We roughly reproduce the range provided within the QD library of Hida et
+  // al., where the maximum double-precision exponent is set to 709 despite
+  // std::log(numeric_limits<double>::max()) = 709.783.
+  static constexpr Real log_max = LogMax<Real>();
+  static constexpr Real exp_max = log_max - Real{0.783};
+
+  if (value.Upper() <= -exp_max) {
+    // Underflow to zero.
+    return DoubleMantissa<Real>();
+  }
+  if (value.Upper() >= exp_max) {
+    // Overflow to infinity.
+    return double_mantissa::Infinity<Real>();
+  }
+  if (value.Upper() == Real{0}) {
+    return DoubleMantissa<Real>(Real{1});
+  }
+
+  // TODO(Jack Poulson): If the input is equal to one, return 'e'.
+
+  static const DoubleMantissa<Real> log_of_2 = double_mantissa::LogOf2<Real>();
+  const Real shift = std::floor(value.Upper() / log_of_2.Upper() + Real{0.5});
+
+  static constexpr int digits =
+      std::numeric_limits<DoubleMantissa<Real>>::digits;
+
+  // TODO(Jack Poulson): Determine the number of squarings based on precision.
+  const unsigned int num_squares = 9;
+
+  // TODO(Jack Poulson): Calculate a tighter upper bound on the number of terms.
+  // Cf. MPFR exponential discussion.
+  static constexpr int num_terms = digits / num_squares;
+
+  const Real scale = 1u << num_squares;
+  const Real inv_scale = Real{1} / scale;
+
+  DoubleMantissa<Real> r =
+      MultiplyByPowerOfTwo(value - log_of_2 * shift, inv_scale);
+
+  // Initialize r_power := r^2.
+  DoubleMantissa<Real> r_power = Square(r);
+
+  // Initialize iterate := r + (1/2!) r^2.
+  DoubleMantissa<Real> iterate = r + MultiplyByPowerOfTwo(r_power, Real{0.5});
+
+  // r_power := r^3.
+  r_power *= r;
+
+  // Compute the update term, (1 / 3!) r^3.
+  DoubleMantissa<Real> coefficient =
+      DoubleMantissa<Real>(1) / DoubleMantissa<Real>(6);
+  DoubleMantissa<Real> term = coefficient * r_power;
+
+  // iterate := r + (1 / 2!) r^2 + (1 / 3!) r^3.
+  iterate += term;
+
+  for (int j = 4; j < num_terms; ++j) {
+    // (r_power)_j = r^j.
+    r_power *= r;
+
+    // coefficient_j = 1 / j!.
+    coefficient /= Real(j);
+
+    // term_j = (1 / j!) r^j.
+    term = coefficient * r_power;
+
+    // iterate_j := r + (1/2!) r^2 + ... + (1/j!) r^j.
+    iterate += term;
+
+    // TODO(Jack Poulson): Break if the term is small enough.
+  }
+
+  // Convert z = exp(r) - 1 into exp(r)^{2^{num_squares}} - 1.
+  for (unsigned int j = 0; j < num_squares; ++j) {
+    // Given that our value represents the component of the exponential without
+    // the '1' term in the Taylor series, we recognize that
+    //
+    //   (x -1)^2 + 2 (x - 1) = x^2 - 1,
+    //
+    // so that our update formula squares while preserving the shift.
+    iterate = Square(iterate) + MultiplyByPowerOfTwo(iterate, Real{2});
+  }
+
+  // We are done rescaling, so add the first term of the series in.
+  iterate += Real{1};
+
+  // Return 2^{shift} exp(r)^{2^{num_squares}}.
+  iterate = LoadExponent(iterate, static_cast<int>(shift));
+
+  return iterate;
+}
+
+template <typename Real>
+DoubleMantissa<Real> Log(const DoubleMantissa<Real>& value) {
+  if (value.Upper() <= Real{0}) {
+    return double_mantissa::QuietNan<Real>();
+  }
+  if (value.Upper() == Real{1} && value.Lower() == Real{0}) {
+    return DoubleMantissa<Real>();
+  }
+
+  // As described by Hida et al., the basic setup is Newton's algorithm applied
+  // to the function f(x) = exp(x) - a. The result is an algorithm
+  //
+  //   x_{k + 1} = x_k - Df_{x_k}^{-1} f(x_k)
+  //             = x_k - (exp(x_k))^{-1} (exp(x_k) - a)
+  //             = x_k - (1 - a exp(-x_k))
+  //             = x_k + a exp(-x_k) - 1.
+  //
+  // It is argued that only one iteration is required due to the quadratic
+  // convergence properties of Newton's algorithm -- with the understanding
+  // that the original iterate is within the basin of convergence and accurate
+  // to roughly the precision of the single-mantissa representation.
+
+  DoubleMantissa<Real> x = std::log(value.Upper());
+
+  const int num_iter = 1;
+  for (int j = 0; j < num_iter; ++j) {
+    // TODO(Jack Poulson): Analyze whether this order of operations is ideal.
+    // Hopefully we can avoid catastrophic cancellation.
+    x += value * Exp(-x);
+    x -= Real{1};
+  }
+
+  return x;
+}
+
+namespace double_mantissa {
+
+template <typename Real>
+DoubleMantissa<Real> LogOf2() {
+  // Calculate log(2) via Eq. (30) from:
+  //
+  //   X. Gourdon and P. Sebah, "The logarithmic constant: log2", Jan. 2004.
+  //
+  // That is,
+  //
+  //   log(2) = (3/4) \sum_{j >= 0} (-1)^j \frac{(j!)^2}{2^j (2 j + 1)!}.
+  //
+  // We follow MPFR -- see Subsection 5.3, "The log2 constant", of
+  //
+  //   The MPFR Team, "The MPFR Library: Algorithms and Proofs",
+  //   URL: https://www.mpfr.org/algorithms.pdf
+  //
+  // by truncating after the first N = floor(w / 3) + 1 iterations, where w
+  // is the number of binary significant digits -- the "working precision".
+  constexpr int needed_digits =
+      std::numeric_limits<DoubleMantissa<Real>>::digits;
+  constexpr int num_terms = (needed_digits / 3) + 1;
+
+  // We precompute the numerator and denominator for the first five terms.
+  // The initial denominator is: prod_{j=1}^5 2 * (2 * j) * (2 * j + 1).
+  // The initial numerator is computed as in the iteration below, starting
+  // at j=1 with the state numerator=1.
+  constexpr unsigned int numerator5 = 1180509120uL;
+  constexpr unsigned int denominator5 = 1277337600uL;
+  constexpr unsigned int factorial5 = 120uL;  // 5! = 120
+
+  // Accumulate the remaining terms of the numerator and denominator.
+  //
+  // The j'th term in the series is related to the (j-1)'th term in the series
+  // via:
+  //
+  //   t_j = (j^2 / (2 * 2 j * (2j + 1))) t_{j - 1}.
+  //
+  // In order to ensure that the denominators of our summed terms from the
+  // series are consistent,
+  //
+  //       (0!)^2             (1!)^2
+  //  ----------------- + ----------------
+  //   2^0 (2 * 0 + 1)!   2^1 (2 * 1 + 1)!
+  DoubleMantissa<Real> numerator = numerator5;
+  DoubleMantissa<Real> denominator = denominator5;
+  DoubleMantissa<Real> factorial = factorial5;
+  int sign = -1;
+  for (int j = 6; j < num_terms; ++j) {
+    // Set sign := (-1)^j.
+    sign = -sign;
+
+    // Set factorial := j!.
+    factorial *= j;
+
+    // Set temp equal to the ratio of the j'th denominator to the (j-1)'th
+    // denominator, 2 * (2 * j) * (2 * j + 1), which holds for j >= 1.
+    DoubleMantissa<Real> temp = 2 * (2 * j) * (2 * j + 1);
+
+    // Rescale the fraction to account for the new denominator.
+    numerator *= temp;
+    denominator *= temp;
+
+    // Compute temp := (-1)^j (j!)^2
+    temp = factorial * factorial;
+    temp *= sign;
+
+    // Due to the multiplicative nesting property of the denominators in the
+    // series, we may directly accumulate this term into the numerator.
+    numerator += temp;
+  }
+  numerator *= 3;
+  denominator *= 4;
+
+  static const DoubleMantissa<Real> log_of_two = numerator / denominator;
+  return log_of_two;
+}
+
+}  // namespace double_mantissa
 
 }  // namespace mantis
 
@@ -417,7 +627,10 @@ mantis::DoubleMantissa<Real> operator/(const mantis::DoubleMantissa<Real>& x,
 template <typename Real>
 std::ostream& operator<<(std::ostream& out,
                          const mantis::DoubleMantissa<Real>& value) {
-  out << value.Upper() << " + " << value.Lower();
+  constexpr int max_digits10 =
+      std::numeric_limits<mantis::DoubleMantissa<Real>>::max_digits10;
+  out << std::setprecision(max_digits10) << value.Upper() << " + "
+      << value.Lower();
   return out;
 }
 
@@ -484,9 +697,19 @@ numeric_limits<mantis::DoubleMantissa<long double>>::signaling_NaN() {
 }
 
 template <typename Real>
+mantis::DoubleMantissa<Real> exp(const mantis::DoubleMantissa<Real>& value) {
+  return mantis::Exp(value);
+}
+
+template <typename Real>
 mantis::DoubleMantissa<Real> ldexp(const mantis::DoubleMantissa<Real>& value,
                                    int exp) {
   return mantis::LoadExponent(value, exp);
+}
+
+template <typename Real>
+mantis::DoubleMantissa<Real> log(const mantis::DoubleMantissa<Real>& value) {
+  return mantis::Log(value);
 }
 
 template <typename Real>
