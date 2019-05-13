@@ -27,6 +27,16 @@ example_deps = []
 # A list of C++ command-line arguments.
 cxx_args = []
 
+cpu_family = build_machine.cpu_family()
+if cpu_family == 'x86' or cpu_family == 'x86_64'
+  cxx_args += '-DX86'
+endif
+
+system = build_machine.system()
+if system == 'linux'
+  cxx_args += '-DLINUX'
+endif
+
 # Handle fast (Fortran-like) std::complex arithmetic.
 if cxx.get_id() == 'gcc'
   message('Using gcc')

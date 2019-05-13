@@ -233,15 +233,17 @@ inline long double TwoSquare(const long double& x, long double* error) {
   return product;
 }
 
-// DO_NOT_SUBMIT
-#define X86
+// TODO(Jack Poulson): Handle other architectural/system combinations.
+// We follow the basic approach of the QD library of Hida et al.
+#if defined(X86) && defined(LINUX)
 #define FPU_GETCW(x) asm volatile("fnstcw %0" : "=m"(x));
 #define FPU_SETCW(x) asm volatile("fldcw %0" : : "m"(x));
 #define FPU_EXTENDED 0x0300
 #define FPU_DOUBLE 0x0200
+#endif  // if defined(X86) && defined(LINUX)
 
 inline FPUFix::FPUFix() {
-#ifdef X86
+#if defined(X86) && defined(LINUX)
   volatile unsigned short control_word, new_control_word;
   FPU_GETCW(control_word);
   new_control_word = (control_word & ~FPU_EXTENDED) | FPU_DOUBLE;
@@ -249,17 +251,17 @@ inline FPUFix::FPUFix() {
   if (control_word_) {
     control_word_ = control_word;
   }
-#endif  // ifdef X86
+#endif  // if defined(X86) && defined(LINUX)
 }
 
 inline FPUFix::~FPUFix() {
-#ifdef X86
+#if defined(X86) && defined(LINUX)
   if (control_word_) {
     int control_word;
     control_word = control_word_;
     FPU_SETCW(control_word);
   }
-#endif  // ifdef X86
+#endif  // if defined(X86) && defined(LINUX)
 }
 
 }  // namespace mantis
