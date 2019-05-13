@@ -98,6 +98,24 @@ class DoubleMantissa {
   // Checks if the individual components vary.
   bool operator!=(const DoubleMantissa<Real>& value) const;
 
+  // TODO(Jack Poulson):
+  // operator int() const;
+
+  // TODO(Jack Poulson):
+  // operator long int() const;
+
+  // TODO(Jack Poulson):
+  // operator long long int() const;
+
+  // Casts the double-mantissa value into a float.
+  operator float() const;
+
+  // Casts the double-mantissa value into a double.
+  operator double() const;
+
+  // Casts the double-mantissa value into a long double.
+  operator long double() const;
+
   // Returns the approximate ratio x / y using one refinement.
   static DoubleMantissa<Real> FastDivide(const DoubleMantissa<Real>& x,
                                          const DoubleMantissa<Real>& y);
@@ -112,37 +130,24 @@ class DoubleMantissa {
 };
 
 template <typename Real>
-constexpr Real LogMax() {
-  return std::log(std::numeric_limits<Real>::max());
-}
+constexpr Real LogMax();
 
 template <typename Real>
-constexpr Real LogOf2() {
-  return std::log(Real{2});
-}
+constexpr Real LogOf2();
 
 namespace double_mantissa {
 
 template <typename Real>
-constexpr DoubleMantissa<Real> Epsilon() {
-  return std::pow(Real{2}, -2 * std::numeric_limits<Real>::digits);
-}
+constexpr DoubleMantissa<Real> Epsilon();
 
 template <typename Real>
-constexpr DoubleMantissa<Real> Infinity() {
-  return DoubleMantissa<Real>{std::numeric_limits<Real>::infinity(), Real{0}};
-}
+constexpr DoubleMantissa<Real> Infinity();
 
 template <typename Real>
-constexpr DoubleMantissa<Real> QuietNan() {
-  return DoubleMantissa<Real>{std::numeric_limits<Real>::quiet_NaN(), Real{0}};
-}
+constexpr DoubleMantissa<Real> QuietNan();
 
 template <typename Real>
-constexpr DoubleMantissa<Real> SignalingNan() {
-  return DoubleMantissa<Real>{std::numeric_limits<Real>::signaling_NaN(),
-                              Real{0}};
-}
+constexpr DoubleMantissa<Real> SignalingNan();
 
 template <typename Real>
 DoubleMantissa<Real> LogOf2();

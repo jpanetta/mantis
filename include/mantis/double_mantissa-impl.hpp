@@ -195,6 +195,21 @@ bool DoubleMantissa<Real>::operator!=(const DoubleMantissa<Real>& value) const {
 }
 
 template <typename Real>
+DoubleMantissa<Real>::operator float() const {
+  return Upper();
+}
+
+template <typename Real>
+DoubleMantissa<Real>::operator double() const {
+  return Upper();
+}
+
+template <typename Real>
+DoubleMantissa<Real>::operator long double() const {
+  return Upper();
+}
+
+template <typename Real>
 DoubleMantissa<Real> DoubleMantissa<Real>::FastDivide(
     const DoubleMantissa<Real>& x, const DoubleMantissa<Real>& y) {
   // See the QD library by Hida et al. for a similar implementation.
@@ -247,6 +262,16 @@ DoubleMantissa<Real>& DoubleMantissa<Real>::operator/=(
     const DoubleMantissa<Real>& value) {
   *this = Divide(*this, value);
   return *this;
+}
+
+template <typename Real>
+constexpr Real LogMax() {
+  return std::log(std::numeric_limits<Real>::max());
+}
+
+template <typename Real>
+constexpr Real LogOf2() {
+  return std::log(Real{2});
 }
 
 template <typename Real>
@@ -444,6 +469,27 @@ DoubleMantissa<Real> Log(const DoubleMantissa<Real>& value) {
 }
 
 namespace double_mantissa {
+
+template <typename Real>
+constexpr DoubleMantissa<Real> Epsilon() {
+  return std::pow(Real{2}, -2 * std::numeric_limits<Real>::digits);
+}
+
+template <typename Real>
+constexpr DoubleMantissa<Real> Infinity() {
+  return DoubleMantissa<Real>{std::numeric_limits<Real>::infinity(), Real{0}};
+}
+
+template <typename Real>
+constexpr DoubleMantissa<Real> QuietNan() {
+  return DoubleMantissa<Real>{std::numeric_limits<Real>::quiet_NaN(), Real{0}};
+}
+
+template <typename Real>
+constexpr DoubleMantissa<Real> SignalingNan() {
+  return DoubleMantissa<Real>{std::numeric_limits<Real>::signaling_NaN(),
+                              Real{0}};
+}
 
 template <typename Real>
 DoubleMantissa<Real> LogOf2() {
