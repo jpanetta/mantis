@@ -402,6 +402,8 @@ DoubleMantissa<Real> Exp(const DoubleMantissa<Real>& value) {
   // iterate := r + (1 / 2!) r^2 + (1 / 3!) r^3.
   iterate += term;
 
+  const Real tolerance =
+      std::numeric_limits<DoubleMantissa<Real>>::epsilon().Upper() * inv_scale;
   for (int j = 4; j < num_terms; ++j) {
     // (r_power)_j = r^j.
     r_power *= r;
@@ -415,7 +417,10 @@ DoubleMantissa<Real> Exp(const DoubleMantissa<Real>& value) {
     // iterate_j := r + (1/2!) r^2 + ... + (1/j!) r^j.
     iterate += term;
 
-    // TODO(Jack Poulson): Break if the term is small enough.
+    // Early-exit if the terms in the series have become sufficiently small.
+    if (std::abs(term.Upper()) <= tolerance) {
+      break;
+    }
   }
 
   // Convert z = exp(r) - 1 into exp(r)^{2^{num_squares}} - 1.
