@@ -159,10 +159,57 @@ TEST_CASE("Exp", "[Exp]") {
     REQUIRE(upper_error <= tolerance);
   }
 
-  const DoubleMantissa<double> log_of_two =
+  const DoubleMantissa<double> log_of_2 =
       mantis::double_mantissa::LogOf2<double>();
-  const DoubleMantissa<double> exp_of_log_of_two = std::exp(log_of_two);
-  const DoubleMantissa<double> exp_of_log_of_two_error =
-      DoubleMantissa<double>(2) - exp_of_log_of_two;
-  REQUIRE(std::abs(exp_of_log_of_two_error.Upper()) <= 4 * eps.Upper());
+  const DoubleMantissa<double> exp_of_log_of_2 = std::exp(log_of_2);
+  const DoubleMantissa<double> exp_of_log_of_2_error =
+      DoubleMantissa<double>(2) - exp_of_log_of_2;
+  REQUIRE(std::abs(exp_of_log_of_2_error.Upper()) <= 4 * eps.Upper());
+}
+
+TEST_CASE("Log10", "[Log10]") {
+  mantis::FPUFix fpu_fix;
+  const DoubleMantissa<double> eps = mantis::double_mantissa::Epsilon<double>();
+
+  const std::vector<std::pair<DoubleMantissa<double>, DoubleMantissa<double>>>
+      tests{
+          // We purposely pick a value that is representable exactly as a
+          // double,
+          // as the significand is 53-bits.
+          std::make_pair(DoubleMantissa<double>(1.e11),
+                         DoubleMantissa<double>(11.)),
+          std::make_pair(DoubleMantissa<double>(1.e2),
+                         DoubleMantissa<double>(2.)),
+          std::make_pair(
+              DoubleMantissa<double>(0),
+              std::numeric_limits<DoubleMantissa<double>>::quiet_NaN()),
+          std::make_pair(
+              DoubleMantissa<double>(-1),
+              std::numeric_limits<DoubleMantissa<double>>::quiet_NaN()),
+      };
+
+  for (const auto& pair : tests) {
+    const DoubleMantissa<double>& x = pair.first;
+    const DoubleMantissa<double>& x_log10_expected = pair.second;
+
+    const DoubleMantissa<double> x_log10 = std::log10(x);
+    const DoubleMantissa<double> x_log10_error = x_log10_expected - x_log10;
+    if (x.Upper() > 0) {
+      const double upper_error = std::abs(x_log10_error.Upper());
+      const double tolerance =
+          5 * eps.Upper() * std::max(1., std::abs(x_log10_expected.Upper()));
+      REQUIRE(upper_error <= tolerance);
+    } else {
+      REQUIRE(x_log10 != x_log10);
+    }
+  }
+
+  const DoubleMantissa<double> log_of_10 =
+      mantis::double_mantissa::LogOf10<double>();
+  const DoubleMantissa<double> exp_of_log_of_10 = std::exp(log_of_10);
+  const DoubleMantissa<double> exp_of_log_of_10_error =
+      DoubleMantissa<double>(10) - exp_of_log_of_10;
+  const double error = std::abs(exp_of_log_of_10_error.Upper());
+  const double tolerance = 4 * eps.Upper() * 10;
+  REQUIRE(error <= tolerance);
 }

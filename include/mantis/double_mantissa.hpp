@@ -135,6 +135,9 @@ constexpr Real LogMax();
 template <typename Real>
 constexpr Real LogOf2();
 
+template <typename Real>
+constexpr Real LogOf10();
+
 namespace double_mantissa {
 
 template <typename Real>
@@ -151,6 +154,9 @@ constexpr DoubleMantissa<Real> SignalingNan();
 
 template <typename Real>
 DoubleMantissa<Real> LogOf2();
+
+template <typename Real>
+DoubleMantissa<Real> LogOf10();
 
 }  // namespace double_mantissa
 
@@ -180,6 +186,10 @@ DoubleMantissa<Real> Exp(const DoubleMantissa<Real>& value);
 // Returns the (natural) log of the given positive double-mantissa value.
 template <typename Real>
 DoubleMantissa<Real> Log(const DoubleMantissa<Real>& value);
+
+// Returns the log base-10 of the given positive double-mantissa value.
+template <typename Real>
+DoubleMantissa<Real> Log10(const DoubleMantissa<Real>& value);
 
 }  // namespace mantis
 
@@ -397,6 +407,9 @@ mantis::DoubleMantissa<Real> ldexp(const mantis::DoubleMantissa<Real>& value,
 
 template <typename Real>
 mantis::DoubleMantissa<Real> log(const mantis::DoubleMantissa<Real>& value);
+
+template <typename Real>
+mantis::DoubleMantissa<Real> log10(const mantis::DoubleMantissa<Real>& value);
 
 template <typename Real>
 mantis::DoubleMantissa<Real> sqrt(const mantis::DoubleMantissa<Real>& value);

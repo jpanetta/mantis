@@ -275,6 +275,11 @@ constexpr Real LogOf2() {
 }
 
 template <typename Real>
+constexpr Real LogOf10() {
+  return std::log(Real{10});
+}
+
+template <typename Real>
 DoubleMantissa<Real> Square(const Real& value) {
   Real error;
   const Real upper = TwoSquare(value, &error);
@@ -468,6 +473,11 @@ DoubleMantissa<Real> Log(const DoubleMantissa<Real>& value) {
   return x;
 }
 
+template <typename Real>
+DoubleMantissa<Real> Log10(const DoubleMantissa<Real>& value) {
+  return Log(value) / double_mantissa::LogOf10<Real>();
+}
+
 namespace double_mantissa {
 
 template <typename Real>
@@ -563,8 +573,15 @@ DoubleMantissa<Real> LogOf2() {
   numerator *= 3;
   denominator *= 4;
 
-  static const DoubleMantissa<Real> log_of_two = numerator / denominator;
-  return log_of_two;
+  static const DoubleMantissa<Real> log_of_2 = numerator / denominator;
+  return log_of_2;
+}
+
+template <typename Real>
+DoubleMantissa<Real> LogOf10() {
+  // TODO(Jack Poulson): Switch to a fully-accurate representation.
+  static const DoubleMantissa<Real> log_of_10 = Log(DoubleMantissa<Real>(10));
+  return log_of_10;
 }
 
 }  // namespace double_mantissa
@@ -756,6 +773,11 @@ mantis::DoubleMantissa<Real> ldexp(const mantis::DoubleMantissa<Real>& value,
 template <typename Real>
 mantis::DoubleMantissa<Real> log(const mantis::DoubleMantissa<Real>& value) {
   return mantis::Log(value);
+}
+
+template <typename Real>
+mantis::DoubleMantissa<Real> log10(const mantis::DoubleMantissa<Real>& value) {
+  return mantis::Log10(value);
 }
 
 template <typename Real>
