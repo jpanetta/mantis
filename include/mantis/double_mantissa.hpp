@@ -130,13 +130,16 @@ class DoubleMantissa {
 };
 
 template <typename Real>
-constexpr Real LogMax();
+Real LogMax();
 
 template <typename Real>
-constexpr Real LogOf2();
+Real LogOf2();
 
 template <typename Real>
-constexpr Real LogOf10();
+Real LogOf10();
+
+template <typename Real>
+Real Pi();
 
 namespace double_mantissa {
 
@@ -156,7 +159,16 @@ template <typename Real>
 DoubleMantissa<Real> LogOf2();
 
 template <typename Real>
+DoubleMantissa<Real> ComputeLogOf2();
+
+template <typename Real>
 DoubleMantissa<Real> LogOf10();
+
+template <typename Real>
+DoubleMantissa<Real> Pi();
+
+template <typename Real>
+DoubleMantissa<Real> ComputePi();
 
 }  // namespace double_mantissa
 
