@@ -289,6 +289,12 @@ Real Pi() {
 }
 
 template <typename Real>
+Real EulerNumber() {
+  static const Real e = std::exp(Real{0});
+  return e;
+}
+
+template <typename Real>
 DoubleMantissa<Real> Square(const Real& value) {
   Real error;
   const Real upper = TwoSquare(value, &error);
@@ -320,11 +326,14 @@ DoubleMantissa<Real> SquareRoot(const DoubleMantissa<Real>& value) {
   //
   // As described in the QD library of Hida et al., given an initial
   // approximation 'x' of 1 / sqrt(a) -- though the comments in the source code
-  // contain a typo suggesting 'x' approximates sqrt(a) -- the square-root is
-  // computed as:
+  // contain a typo suggesting 'x' approximates sqrt(a) -- the square-root can
+  // be approximated as:
   //
   //   a * x + [a - (a * x)^2] * (x / 2).
   //
+  // While the QD library only performs one iteration, testing immediately
+  // revealed factor of four improvements in accuracy from a second iteration.
+  // We therefore do so by default and accept the performance penalty.
   if (value.Upper() == Real{0} && value.Lower() == Real{0}) {
     return value;
   }
@@ -333,11 +342,25 @@ DoubleMantissa<Real> SquareRoot(const DoubleMantissa<Real>& value) {
     return double_mantissa::QuietNan<Real>();
   }
 
-  const Real inv_sqrt = Real{1} / std::sqrt(value.Upper());
-  const Real left_term = value.Upper() * inv_sqrt;
-  const Real right_term =
-      (value - Square(left_term)).Upper() * (inv_sqrt / Real{2});
-  return DoubleMantissa<Real>(left_term, right_term).Reduce();
+  DoubleMantissa<Real> iterate;
+  {
+    const Real inv_sqrt = Real{1} / std::sqrt(value.Upper());
+    const Real left_term = value.Upper() * inv_sqrt;
+    const Real right_term =
+        (value - Square(left_term)).Upper() * (inv_sqrt / Real{2});
+    iterate = DoubleMantissa<Real>(left_term, right_term).Reduce();
+  }
+
+  const bool two_iterations = true;
+  if (two_iterations) {
+    iterate = DoubleMantissa<Real>(1) / iterate;
+    const Real left_term = value.Upper() * iterate.Upper();
+    const Real right_term =
+        (value - Square(left_term)).Upper() * (iterate.Upper() / Real{2});
+    iterate = DoubleMantissa<Real>(left_term, right_term).Reduce();
+  }
+
+  return iterate;
 }
 
 template <typename Real>
@@ -373,7 +396,9 @@ DoubleMantissa<Real> Exp(const DoubleMantissa<Real>& value) {
     return DoubleMantissa<Real>(Real{1});
   }
 
-  // TODO(Jack Poulson): If the input is equal to one, return 'e'.
+  // TODO(Jack Poulson): Consider returning a fully-precise result for
+  // e = exp(1). At the moment, we compute this constant by calling this
+  // routine.
 
   static const DoubleMantissa<Real> log_of_2 = double_mantissa::LogOf2<Real>();
   const Real shift = std::floor(value.Upper() / log_of_2.Upper() + Real{0.5});
@@ -473,10 +498,14 @@ DoubleMantissa<Real> Log(const DoubleMantissa<Real>& value) {
   // convergence properties of Newton's algorithm -- with the understanding
   // that the original iterate is within the basin of convergence and accurate
   // to roughly the precision of the single-mantissa representation.
-
+  //
+  // But, especially for large arguments, it has been observed that adding an
+  // additional iteration leads to about an order of magnitude increase in
+  // accuracy. We therefore accept the performance penalty for this extra
+  // digit of confidence.
   DoubleMantissa<Real> x = std::log(value.Upper());
 
-  const int num_iter = 1;
+  const int num_iter = 2;
   for (int j = 0; j < num_iter; ++j) {
     // TODO(Jack Poulson): Analyze whether this order of operations is ideal.
     // Hopefully we can avoid catastrophic cancellation.
@@ -490,6 +519,20 @@ DoubleMantissa<Real> Log(const DoubleMantissa<Real>& value) {
 template <typename Real>
 DoubleMantissa<Real> Log10(const DoubleMantissa<Real>& value) {
   return Log(value) / double_mantissa::LogOf10<Real>();
+}
+
+template <typename Real>
+DoubleMantissa<Real> Cos(const DoubleMantissa<Real>& value) {
+  // TODO(Jack Poulson): Implement cos.
+  std::cerr << "This routine is not yet written." << std::endl;
+  return value;
+}
+
+template <typename Real>
+DoubleMantissa<Real> Sin(const DoubleMantissa<Real>& value) {
+  // TODO(Jack Poulson): Implement sin.
+  std::cerr << "This routine is not yet written." << std::endl;
+  return value;
 }
 
 namespace double_mantissa {
@@ -548,19 +591,16 @@ DoubleMantissa<Real> ComputeLogOf2() {
   //
   // by truncating after the first N = floor(w / 3) + 1 iterations, where w
   // is the number of binary significant digits -- the "working precision".
+  //
+  // However, we do not have access to arbitrary-precision integer types, nor
+  // would we want to make use of dynamic memory allocation, so we cannot
+  // exactly store the (integer) numerator and denominator. And, in single-
+  // precision, it is easy to accidentally overflow in the later iterates.
   constexpr int needed_digits =
       std::numeric_limits<DoubleMantissa<Real>>::digits;
   constexpr int num_terms = (needed_digits / 3) + 1;
 
-  // We precompute the numerator and denominator for the first five terms.
-  // The initial denominator is: prod_{j=1}^5 2 * (2 * j) * (2 * j + 1).
-  // The initial numerator is computed as in the iteration below, starting
-  // at j=1 with the state numerator=1.
-  constexpr unsigned int numerator5 = 1180509120uL;
-  constexpr unsigned int denominator5 = 1277337600uL;
-  constexpr unsigned int factorial5 = 120uL;  // 5! = 120
-
-  // Accumulate the remaining terms of the numerator and denominator.
+  // Accumulate the terms of the series.
   //
   // The j'th term in the series is related to the (j-1)'th term in the series
   // via:
@@ -573,38 +613,21 @@ DoubleMantissa<Real> ComputeLogOf2() {
   //       (0!)^2             (1!)^2
   //  ----------------- + ----------------
   //   2^0 (2 * 0 + 1)!   2^1 (2 * 1 + 1)!
-  DoubleMantissa<Real> numerator = numerator5;
-  DoubleMantissa<Real> denominator = denominator5;
-  DoubleMantissa<Real> factorial = factorial5;
-  int sign = -1;
-  for (int j = 6; j < num_terms; ++j) {
-    // Set sign := (-1)^j.
-    sign = -sign;
+  DoubleMantissa<Real> iterate = Real{1};
+  DoubleMantissa<Real> term = Real{1};
+  for (int j = 1; j < num_terms; ++j) {
+    // Accumulate the term.
+    // Typically both real numbers are exactly represented.
+    term *= Real(j * j);
+    term /= Real(2 * (2 * j) * (2 * j + 1));
+    term *= -1;
 
-    // Set factorial := j!.
-    factorial *= j;
-
-    // Set temp equal to the ratio of the j'th denominator to the (j-1)'th
-    // denominator, 2 * (2 * j) * (2 * j + 1), which holds for j >= 1.
-    DoubleMantissa<Real> temp = 2 * (2 * j) * (2 * j + 1);
-
-    // Rescale the fraction to account for the new denominator.
-    numerator *= temp;
-    denominator *= temp;
-
-    // Compute temp := (-1)^j (j!)^2
-    temp = factorial * factorial;
-    temp *= sign;
-
-    // Due to the multiplicative nesting property of the denominators in the
-    // series, we may directly accumulate this term into the numerator.
-    numerator += temp;
+    iterate += term;
   }
-  numerator *= 3;
-  denominator *= 4;
+  iterate *= 3;
+  iterate /= 4;
 
-  const DoubleMantissa<Real> log_of_2 = numerator / denominator;
-  return log_of_2;
+  return iterate;
 }
 
 template <typename Real>
@@ -663,6 +686,12 @@ template <typename Real>
 DoubleMantissa<Real> Pi() {
   static const DoubleMantissa<Real> pi = ComputePi<Real>();
   return pi;
+}
+
+template <typename Real>
+DoubleMantissa<Real> EulerNumber() {
+  static const DoubleMantissa<Real> e = std::exp(DoubleMantissa<Real>(1));
+  return e;
 }
 
 }  // namespace double_mantissa
@@ -841,6 +870,11 @@ numeric_limits<mantis::DoubleMantissa<long double>>::signaling_NaN() {
 }
 
 template <typename Real>
+mantis::DoubleMantissa<Real> cos(const mantis::DoubleMantissa<Real>& value) {
+  return mantis::Cos(value);
+}
+
+template <typename Real>
 mantis::DoubleMantissa<Real> exp(const mantis::DoubleMantissa<Real>& value) {
   return mantis::Exp(value);
 }
@@ -859,6 +893,11 @@ mantis::DoubleMantissa<Real> log(const mantis::DoubleMantissa<Real>& value) {
 template <typename Real>
 mantis::DoubleMantissa<Real> log10(const mantis::DoubleMantissa<Real>& value) {
   return mantis::Log10(value);
+}
+
+template <typename Real>
+mantis::DoubleMantissa<Real> sin(const mantis::DoubleMantissa<Real>& value) {
+  return mantis::Sin(value);
 }
 
 template <typename Real>

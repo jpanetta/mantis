@@ -141,6 +141,9 @@ Real LogOf10();
 template <typename Real>
 Real Pi();
 
+template <typename Real>
+Real EulerNumber();
+
 namespace double_mantissa {
 
 template <typename Real>
@@ -170,6 +173,9 @@ DoubleMantissa<Real> Pi();
 template <typename Real>
 DoubleMantissa<Real> ComputePi();
 
+template <typename Real>
+DoubleMantissa<Real> EulerNumber();
+
 }  // namespace double_mantissa
 
 // Returns the square of an extended-precision value.
@@ -191,7 +197,7 @@ DoubleMantissa<Real> MultiplyByPowerOfTwo(const DoubleMantissa<Real>& value,
 template <typename Real>
 DoubleMantissa<Real> LoadExponent(const DoubleMantissa<Real>& value, int exp);
 
-// Returns the exponential of the given positive double-mantissa value.
+// Returns the exponential of the given double-mantissa value.
 template <typename Real>
 DoubleMantissa<Real> Exp(const DoubleMantissa<Real>& value);
 
@@ -202,6 +208,14 @@ DoubleMantissa<Real> Log(const DoubleMantissa<Real>& value);
 // Returns the log base-10 of the given positive double-mantissa value.
 template <typename Real>
 DoubleMantissa<Real> Log10(const DoubleMantissa<Real>& value);
+
+// Returns the sine of the given double-mantissa value.
+template <typename Real>
+DoubleMantissa<Real> Sin(const DoubleMantissa<Real>& value);
+
+// Returns the cosine of the given double-mantissa value.
+template <typename Real>
+DoubleMantissa<Real> Cos(const DoubleMantissa<Real>& value);
 
 }  // namespace mantis
 
@@ -411,6 +425,9 @@ class numeric_limits<mantis::DoubleMantissa<long double>> {
 };
 
 template <typename Real>
+mantis::DoubleMantissa<Real> cos(const mantis::DoubleMantissa<Real>& value);
+
+template <typename Real>
 mantis::DoubleMantissa<Real> exp(const mantis::DoubleMantissa<Real>& value);
 
 template <typename Real>
@@ -422,6 +439,9 @@ mantis::DoubleMantissa<Real> log(const mantis::DoubleMantissa<Real>& value);
 
 template <typename Real>
 mantis::DoubleMantissa<Real> log10(const mantis::DoubleMantissa<Real>& value);
+
+template <typename Real>
+mantis::DoubleMantissa<Real> sin(const mantis::DoubleMantissa<Real>& value);
 
 template <typename Real>
 mantis::DoubleMantissa<Real> sqrt(const mantis::DoubleMantissa<Real>& value);
