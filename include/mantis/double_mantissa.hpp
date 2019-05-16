@@ -178,6 +178,11 @@ DoubleMantissa<Real> EulerNumber();
 
 }  // namespace double_mantissa
 
+// Returns the absolute value of the double-mantissa value.
+// Like the other routines, it is assumed that the value is reduced.
+template <typename Real>
+DoubleMantissa<Real> Abs(const DoubleMantissa<Real>& value);
+
 // Returns the square of an extended-precision value.
 template <typename Real>
 DoubleMantissa<Real> Square(const DoubleMantissa<Real>& value);
@@ -216,6 +221,10 @@ DoubleMantissa<Real> Sin(const DoubleMantissa<Real>& value);
 // Returns the cosine of the given double-mantissa value.
 template <typename Real>
 DoubleMantissa<Real> Cos(const DoubleMantissa<Real>& value);
+
+// Returns the rounding of a double-mantissa value to the nearest integer.
+template <typename Real>
+DoubleMantissa<Real> Round(const DoubleMantissa<Real>& value);
 
 }  // namespace mantis
 
@@ -425,6 +434,9 @@ class numeric_limits<mantis::DoubleMantissa<long double>> {
 };
 
 template <typename Real>
+mantis::DoubleMantissa<Real> abs(const mantis::DoubleMantissa<Real>& value);
+
+template <typename Real>
 mantis::DoubleMantissa<Real> cos(const mantis::DoubleMantissa<Real>& value);
 
 template <typename Real>
@@ -439,6 +451,9 @@ mantis::DoubleMantissa<Real> log(const mantis::DoubleMantissa<Real>& value);
 
 template <typename Real>
 mantis::DoubleMantissa<Real> log10(const mantis::DoubleMantissa<Real>& value);
+
+template <typename Real>
+mantis::DoubleMantissa<Real> round(const mantis::DoubleMantissa<Real>& value);
 
 template <typename Real>
 mantis::DoubleMantissa<Real> sin(const mantis::DoubleMantissa<Real>& value);

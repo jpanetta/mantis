@@ -454,3 +454,154 @@ TEST_CASE("Log10 [double]", "[Log10 double]") {
     }
   }
 }
+
+TEST_CASE("Round [float]", "[Round float]") {
+  const DoubleMantissa<float> eps =
+      std::numeric_limits<DoubleMantissa<float>>::epsilon();
+  const std::vector<std::pair<DoubleMantissa<float>, DoubleMantissa<float>>>
+      tests{
+          std::make_pair(DoubleMantissa<float>(1.234e8f),
+                         DoubleMantissa<float>(1.234e8f)),
+          std::make_pair(DoubleMantissa<float>(101.34f),
+                         DoubleMantissa<float>(101.f)),
+          std::make_pair(DoubleMantissa<float>(-2.3f),
+                         DoubleMantissa<float>(-2.f)),
+          std::make_pair(DoubleMantissa<float>(2.3f),
+                         DoubleMantissa<float>(2.f)),
+          std::make_pair(DoubleMantissa<float>(2.5f),
+                         DoubleMantissa<float>(3.f)),
+          std::make_pair(DoubleMantissa<float>(2.4999f),
+                         DoubleMantissa<float>(2.f)),
+          std::make_pair(DoubleMantissa<float>(-2.5f),
+                         DoubleMantissa<float>(-3.f)),
+          std::make_pair(DoubleMantissa<float>(-2.4999f),
+                         DoubleMantissa<float>(-2.f)),
+          std::make_pair(DoubleMantissa<float>(2.f, -1e-20f),
+                         DoubleMantissa<float>(2.f)),
+          std::make_pair(DoubleMantissa<float>(75689432.5f, 1e-5f),
+                         DoubleMantissa<float>(75689433.f)),
+          std::make_pair(DoubleMantissa<float>(75689432.5f),
+                         DoubleMantissa<float>(75689433.f)),
+          std::make_pair(DoubleMantissa<float>(75689432.5f, -1e-5f),
+                         DoubleMantissa<float>(75689432.f)),
+          std::make_pair(DoubleMantissa<float>(-75689432.5f, 1e-5f),
+                         DoubleMantissa<float>(-75689432.f)),
+          std::make_pair(DoubleMantissa<float>(-75689432.5f),
+                         DoubleMantissa<float>(-75689433.f)),
+          std::make_pair(DoubleMantissa<float>(-75689432.5f, -1e-5f),
+                         DoubleMantissa<float>(-75689433.f)),
+      };
+
+  for (const auto& pair : tests) {
+    const DoubleMantissa<float>& x = pair.first;
+    const DoubleMantissa<float>& x_round_expected = pair.second;
+
+    const DoubleMantissa<float> x_round = std::round(x);
+    const DoubleMantissa<float> x_round_error = x_round_expected - x_round;
+    const float upper_error = std::abs(x_round_error.Upper());
+    const float tolerance =
+        eps.Upper() * std::max(1.f, std::abs(x_round_expected.Upper()));
+    REQUIRE(upper_error <= tolerance);
+  }
+}
+
+TEST_CASE("Round [double]", "[Round double]") {
+  mantis::FPUFix fpu_fix;
+  const DoubleMantissa<double> eps =
+      std::numeric_limits<DoubleMantissa<double>>::epsilon();
+  const std::vector<std::pair<DoubleMantissa<double>, DoubleMantissa<double>>>
+      tests{
+          std::make_pair(DoubleMantissa<double>(1.234e8),
+                         DoubleMantissa<double>(1.234e8)),
+          std::make_pair(DoubleMantissa<double>(101.34),
+                         DoubleMantissa<double>(101.)),
+          std::make_pair(DoubleMantissa<double>(-2.3),
+                         DoubleMantissa<double>(-2.)),
+          std::make_pair(DoubleMantissa<double>(2.3),
+                         DoubleMantissa<double>(2.)),
+          std::make_pair(DoubleMantissa<double>(2.5),
+                         DoubleMantissa<double>(3.)),
+          std::make_pair(DoubleMantissa<double>(2.4999),
+                         DoubleMantissa<double>(2.)),
+          std::make_pair(DoubleMantissa<double>(-2.5),
+                         DoubleMantissa<double>(-3.)),
+          std::make_pair(DoubleMantissa<double>(-2.4999),
+                         DoubleMantissa<double>(-2.)),
+          std::make_pair(DoubleMantissa<double>(2., -1e-20),
+                         DoubleMantissa<double>(2.)),
+          std::make_pair(DoubleMantissa<double>(75689432.5, 1e-5),
+                         DoubleMantissa<double>(75689433.)),
+          std::make_pair(DoubleMantissa<double>(75689432.5),
+                         DoubleMantissa<double>(75689433.)),
+          std::make_pair(DoubleMantissa<double>(75689432.5, -1e-5),
+                         DoubleMantissa<double>(75689432.)),
+          std::make_pair(DoubleMantissa<double>(-75689432.5, 1e-5),
+                         DoubleMantissa<double>(-75689432.)),
+          std::make_pair(DoubleMantissa<double>(-75689432.5),
+                         DoubleMantissa<double>(-75689433.)),
+          std::make_pair(DoubleMantissa<double>(-75689432.5, -1e-5),
+                         DoubleMantissa<double>(-75689433.)),
+      };
+
+  for (const auto& pair : tests) {
+    const DoubleMantissa<double>& x = pair.first;
+    const DoubleMantissa<double>& x_round_expected = pair.second;
+
+    const DoubleMantissa<double> x_round = std::round(x);
+    const DoubleMantissa<double> x_round_error = x_round_expected - x_round;
+    const double upper_error = std::abs(x_round_error.Upper());
+    const double tolerance =
+        eps.Upper() * std::max(1., std::abs(x_round_expected.Upper()));
+    if (upper_error > tolerance) {
+      // DO_NOT_SUBMIT
+      std::cout << "x: " << x << ", x_round: " << x_round
+                << ", upper_error: " << upper_error
+                << ", tolerance: " << tolerance << std::endl;
+    }
+    REQUIRE(upper_error <= tolerance);
+  }
+}
+
+TEST_CASE("Abs [double]", "[Abs double]") {
+  mantis::FPUFix fpu_fix;
+  const DoubleMantissa<double> eps =
+      std::numeric_limits<DoubleMantissa<double>>::epsilon();
+  const std::vector<std::pair<DoubleMantissa<double>, DoubleMantissa<double>>>
+      tests{
+          std::make_pair(DoubleMantissa<double>(1.234e8),
+                         DoubleMantissa<double>(1.234e8)),
+          std::make_pair(DoubleMantissa<double>(101.34),
+                         DoubleMantissa<double>(101.34)),
+          std::make_pair(DoubleMantissa<double>(-2.3),
+                         DoubleMantissa<double>(2.3)),
+          std::make_pair(DoubleMantissa<double>(2.3),
+                         DoubleMantissa<double>(2.3)),
+          std::make_pair(DoubleMantissa<double>(2., -1e-20),
+                         DoubleMantissa<double>(2., -1e-20)),
+          std::make_pair(DoubleMantissa<double>(75689432.5, 1e-5),
+                         DoubleMantissa<double>(75689432.5, 1e-5)),
+          std::make_pair(DoubleMantissa<double>(75689432.5, -1e-5),
+                         DoubleMantissa<double>(75689432.5, -1e-5)),
+          std::make_pair(DoubleMantissa<double>(-75689432.5, 1e-5),
+                         DoubleMantissa<double>(75689432.5, -1e-5)),
+          std::make_pair(DoubleMantissa<double>(-75689432.5, -1e-5),
+                         DoubleMantissa<double>(75689432.5, 1e-5)),
+      };
+
+  for (const auto& pair : tests) {
+    const DoubleMantissa<double>& x = pair.first;
+    const DoubleMantissa<double>& x_abs_expected = pair.second;
+
+    const DoubleMantissa<double> x_abs = std::abs(x);
+    const DoubleMantissa<double> x_abs_error = x_abs_expected - x_abs;
+    const double upper_error = std::abs(x_abs_error.Upper());
+    const double tolerance =
+        eps.Upper() * std::max(1., std::abs(x_abs_expected.Upper()));
+    if (upper_error > tolerance) {
+      std::cout << "x: " << x << ", abs(x): " << x_abs
+                << ", upper_error: " << upper_error
+                << ", tolerance: " << tolerance << std::endl;
+    }
+    REQUIRE(upper_error <= tolerance);
+  }
+}

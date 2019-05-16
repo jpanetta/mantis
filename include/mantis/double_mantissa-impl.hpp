@@ -522,6 +522,11 @@ DoubleMantissa<Real> Log10(const DoubleMantissa<Real>& value) {
 }
 
 template <typename Real>
+DoubleMantissa<Real> Abs(const DoubleMantissa<Real>& value) {
+  return value.Upper() < Real(0) ? -value : value;
+}
+
+template <typename Real>
 DoubleMantissa<Real> Cos(const DoubleMantissa<Real>& value) {
   // TODO(Jack Poulson): Implement cos.
   std::cerr << "This routine is not yet written." << std::endl;
@@ -533,6 +538,29 @@ DoubleMantissa<Real> Sin(const DoubleMantissa<Real>& value) {
   // TODO(Jack Poulson): Implement sin.
   std::cerr << "This routine is not yet written." << std::endl;
   return value;
+}
+
+template <typename Real>
+DoubleMantissa<Real> Round(const DoubleMantissa<Real>& value) {
+  DoubleMantissa<Real> rounded_value(std::round(value.Upper()));
+  if (rounded_value.Upper() == value.Upper()) {
+    // The upper component is already rounded to an integer, so round the
+    // lower component.
+    rounded_value.Lower() = std::round(value.Lower());
+    rounded_value.Reduce();
+  } else if (std::abs(rounded_value.Upper() - value.Upper()) == Real(0.5)) {
+    // Resolve the tie based on the low word, which we know must round to zero.
+    // NOTE: It appears that QD incorrectly rounds ties when the upper word
+    // is negative.
+    if (value.Upper() > 0 && value.Lower() < Real(0)) {
+      // Values such as 2.5 - eps, eps > 0, should round to 2 rather than 3.
+      rounded_value.Upper() -= Real(1);
+    } else if (value.Upper() < 0 && value.Lower() > Real(0)) {
+      // Values such as -2.5 + eps, eps > 0< should round to -2 rather than -3.
+      rounded_value.Upper() += Real(1);
+    }
+  }
+  return rounded_value;
 }
 
 namespace double_mantissa {
@@ -870,6 +898,11 @@ numeric_limits<mantis::DoubleMantissa<long double>>::signaling_NaN() {
 }
 
 template <typename Real>
+mantis::DoubleMantissa<Real> abs(const mantis::DoubleMantissa<Real>& value) {
+  return mantis::Abs(value);
+}
+
+template <typename Real>
 mantis::DoubleMantissa<Real> cos(const mantis::DoubleMantissa<Real>& value) {
   return mantis::Cos(value);
 }
@@ -893,6 +926,11 @@ mantis::DoubleMantissa<Real> log(const mantis::DoubleMantissa<Real>& value) {
 template <typename Real>
 mantis::DoubleMantissa<Real> log10(const mantis::DoubleMantissa<Real>& value) {
   return mantis::Log10(value);
+}
+
+template <typename Real>
+mantis::DoubleMantissa<Real> round(const mantis::DoubleMantissa<Real>& value) {
+  return mantis::Round(value);
 }
 
 template <typename Real>
