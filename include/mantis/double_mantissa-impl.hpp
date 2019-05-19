@@ -195,6 +195,30 @@ bool DoubleMantissa<Real>::operator!=(const DoubleMantissa<Real>& value) const {
 }
 
 template <typename Real>
+bool DoubleMantissa<Real>::operator<(const DoubleMantissa<Real>& value) const {
+  return Upper() < value.Upper() ||
+         (Upper() == value.Upper() && Lower() < value.Lower());
+}
+
+template <typename Real>
+bool DoubleMantissa<Real>::operator<=(const DoubleMantissa<Real>& value) const {
+  return Upper() < value.Upper() ||
+         (Upper() == value.Upper() && Lower() <= value.Lower());
+}
+
+template <typename Real>
+bool DoubleMantissa<Real>::operator>(const DoubleMantissa<Real>& value) const {
+  return Upper() > value.Upper() ||
+         (Upper() == value.Upper() && Lower() > value.Lower());
+}
+
+template <typename Real>
+bool DoubleMantissa<Real>::operator>=(const DoubleMantissa<Real>& value) const {
+  return Upper() > value.Upper() ||
+         (Upper() == value.Upper() && Lower() >= value.Lower());
+}
+
+template <typename Real>
 DoubleMantissa<Real>::operator float() const {
   return Upper();
 }
@@ -966,6 +990,146 @@ DoubleMantissa<Real> Tan(const DoubleMantissa<Real>& value) {
 }
 
 template <typename Real>
+DoubleMantissa<Real> ArcTan(const DoubleMantissa<Real>& tan_theta) {
+  return ArcTan2(tan_theta, DoubleMantissa<Real>(1));
+}
+
+template <typename Real>
+DoubleMantissa<Real> Hypot(const DoubleMantissa<Real>& x,
+                           const DoubleMantissa<Real>& y) {
+  const DoubleMantissa<Real> x_abs = Abs(x);
+  const DoubleMantissa<Real> y_abs = Abs(y);
+
+  const DoubleMantissa<Real>& a = y_abs > x_abs ? x : y;
+  const DoubleMantissa<Real>& b = y_abs > x_abs ? y : x;
+  const DoubleMantissa<Real>& a_abs = y_abs > x_abs ? x_abs : y_abs;
+
+  if (a.Upper() == Real(0)) {
+    return DoubleMantissa<Real>();
+  }
+
+  const DoubleMantissa<Real> t = b / a;
+  return a_abs * SquareRoot(Real(1) + Square(t));
+}
+
+template <typename Real>
+DoubleMantissa<Real> ArcTan2(const DoubleMantissa<Real>& y,
+                             const DoubleMantissa<Real>& x) {
+  static const DoubleMantissa<Real> pi = double_mantissa::Pi<Real>();
+  static const DoubleMantissa<Real> half_pi =
+      MultiplyByPowerOfTwo(pi, Real(0.5));
+  static const DoubleMantissa<Real> quarter_pi =
+      MultiplyByPowerOfTwo(pi, Real(0.25));
+  static const DoubleMantissa<Real> three_quarters_pi = Real(3) * quarter_pi;
+
+  if (x.Upper() == Real(0)) {
+    if (y.Upper() == Real(0)) {
+      // Every value of theta works equally well for the origin.
+      return double_mantissa::QuietNan<Real>();
+    }
+
+    // We are on the y axis.
+    return y.Upper() > Real(0) ? half_pi : -half_pi;
+  } else if (y.Upper() == Real(0)) {
+    // We are on the x axis.
+    return x.Upper() > Real(0) ? DoubleMantissa<Real>() : pi;
+  }
+
+  if (x == y) {
+    // We are on the 45 degree line in the upper-right or lower-left quadrant.
+    return y.Upper() > Real(0) ? quarter_pi : -three_quarters_pi;
+  }
+
+  if (x == -y) {
+    // We are on the 135 degree line in the upper-left or lower-right quadrant.
+    return y.Upper() > Real(0) ? three_quarters_pi : -quarter_pi;
+  }
+
+  // We can directly compute the unique allowable radius, r := || (x, y) ||_2.
+  // NOTE: While the QD library of Hida et al. uses the naive formula, we make
+  // use of the hypot function -- whose zero branch could be avoided -- to
+  // more carefully compute the result.
+  const DoubleMantissa<Real> radius = Hypot(x, y);
+
+  // Project our point to the unit circle.
+  const DoubleMantissa<Real> x_unit = x / radius;
+  const DoubleMantissa<Real> y_unit = y / radius;
+
+  // Initialize with the single-mantissa result.
+  DoubleMantissa<Real> theta = std::atan2(y.Upper(), x.Upper());
+
+  // While the QD library uses a single iteration, it is often observed that
+  // an additional iteration leads to almost an extra digit of accuracy.
+  const int num_iterations = 2;
+
+  DoubleMantissa<Real> sin_theta, cos_theta;
+  if (std::abs(x.Upper()) > std::abs(y.Upper())) {
+    // Apply Newton's method to the function
+    //
+    //   f(theta) = sin(theta) - y_unit,
+    //
+    // which leads to the update
+    //
+    //   theta_{k + 1} = theta_k - Df_{theta_k}^{-1}(f(theta_k))
+    //                 = theta_k - (cos(theta_k))^{-1} (sin(theta_k) - y_unit)
+    //                 = theta_k + (y_unit - sin(theta_k)) / cos(theta_k).
+    //
+    for (int iteration = 0; iteration < num_iterations; ++iteration) {
+      SinCos(theta, &sin_theta, &cos_theta);
+      theta += (y_unit - sin_theta) / cos_theta;
+    }
+  } else {
+    // Apply Newton's method to the function
+    //
+    //   f(theta) = cos(theta) - x_unit,
+    //
+    // which leads to the update
+    //
+    //   theta_{k + 1} = theta_k - Df_{theta_k}^{-1}(f(theta_k))
+    //                 = theta_k - (-sin(theta_k))^{-1} (cos(theta_k) -
+    //                 x_unit)
+    //                 = theta_k - (x_unit - cos(theta_k)) / sin(theta_k).
+    for (int iteration = 0; iteration < num_iterations; ++iteration) {
+      SinCos(theta, &sin_theta, &cos_theta);
+      theta -= (x_unit - cos_theta) / sin_theta;
+    }
+  }
+
+  return theta;
+}
+
+template <typename Real>
+DoubleMantissa<Real> ArcSin(const DoubleMantissa<Real>& sin_theta) {
+  const DoubleMantissa<Real> abs_sin_theta = Abs(sin_theta);
+  if (abs_sin_theta.Upper() > Real(1)) {
+    return double_mantissa::QuietNan<Real>();
+  }
+  if (abs_sin_theta.Upper() == Real(1) && abs_sin_theta.Lower() == Real(0)) {
+    static const DoubleMantissa<Real> half_pi =
+        MultiplyByPowerOfTwo(double_mantissa::Pi<Real>(), Real(0.5));
+    return sin_theta.Upper() > 0 ? half_pi : -half_pi;
+  }
+
+  const DoubleMantissa<Real> cos_theta = SinCosDualMagnitude(sin_theta);
+  return ArcTan2(sin_theta, cos_theta);
+}
+
+template <typename Real>
+DoubleMantissa<Real> ArcCos(const DoubleMantissa<Real>& cos_theta) {
+  const DoubleMantissa<Real> abs_cos_theta = Abs(cos_theta);
+  if (abs_cos_theta.Upper() > Real(1)) {
+    return double_mantissa::QuietNan<Real>();
+  }
+  if (abs_cos_theta.Upper() == Real(1) && abs_cos_theta.Lower() == Real(0)) {
+    static const DoubleMantissa<Real> pi = double_mantissa::Pi<Real>();
+    return cos_theta.Upper() > 0 ? DoubleMantissa<Real>() : pi;
+  }
+
+  const DoubleMantissa<Real> sin_theta = SinCosDualMagnitude(cos_theta);
+  return ArcTan2(sin_theta, cos_theta);
+}
+
+template <typename Real>
 DoubleMantissa<Real> Round(const DoubleMantissa<Real>& value) {
   DoubleMantissa<Real> rounded_value(std::round(value.Upper()));
   if (rounded_value.Upper() == value.Upper()) {
@@ -974,14 +1138,16 @@ DoubleMantissa<Real> Round(const DoubleMantissa<Real>& value) {
     rounded_value.Lower() = std::round(value.Lower());
     rounded_value.Reduce();
   } else if (std::abs(rounded_value.Upper() - value.Upper()) == Real(0.5)) {
-    // Resolve the tie based on the low word, which we know must round to zero.
+    // Resolve the tie based on the low word, which we know must round to
+    // zero.
     // NOTE: It appears that QD incorrectly rounds ties when the upper word
     // is negative.
     if (value.Upper() > 0 && value.Lower() < Real(0)) {
       // Values such as 2.5 - eps, eps > 0, should round to 2 rather than 3.
       rounded_value.Upper() -= Real(1);
     } else if (value.Upper() < 0 && value.Lower() > Real(0)) {
-      // Values such as -2.5 + eps, eps > 0< should round to -2 rather than -3.
+      // Values such as -2.5 + eps, eps > 0< should round to -2 rather than
+      // -3.
       rounded_value.Upper() += Real(1);
     }
   }
@@ -1325,6 +1491,27 @@ numeric_limits<mantis::DoubleMantissa<long double>>::signaling_NaN() {
 template <typename Real>
 mantis::DoubleMantissa<Real> abs(const mantis::DoubleMantissa<Real>& value) {
   return mantis::Abs(value);
+}
+
+template <typename Real>
+mantis::DoubleMantissa<Real> acos(const mantis::DoubleMantissa<Real>& value) {
+  return mantis::ArcCos(value);
+}
+
+template <typename Real>
+mantis::DoubleMantissa<Real> asin(const mantis::DoubleMantissa<Real>& value) {
+  return mantis::ArcSin(value);
+}
+
+template <typename Real>
+mantis::DoubleMantissa<Real> atan(const mantis::DoubleMantissa<Real>& value) {
+  return mantis::ArcTan(value);
+}
+
+template <typename Real>
+mantis::DoubleMantissa<Real> atan2(const mantis::DoubleMantissa<Real>& y,
+                                   const mantis::DoubleMantissa<Real>& x) {
+  return mantis::ArcTan2(y, x);
 }
 
 template <typename Real>

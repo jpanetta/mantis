@@ -593,23 +593,86 @@ TEST_CASE("SinCos [double]", "[SinCos double]") {
   mantis::FPUFix fpu_fix;
   const DoubleMantissa<double> eps =
       std::numeric_limits<DoubleMantissa<double>>::epsilon();
+  const DoubleMantissa<double> pi = mantis::double_mantissa::Pi<double>();
+  const DoubleMantissa<double> two_pi = 2. * pi;
+  const DoubleMantissa<double> half_pi = 0.5 * pi;
+
   const std::vector<DoubleMantissa<double>> inputs{
-      DoubleMantissa<double>(0.),       DoubleMantissa<double>(0.01),
-      DoubleMantissa<double>(0.02),     DoubleMantissa<double>(0.04),
-      DoubleMantissa<double>(0.06),     DoubleMantissa<double>(0.1),
-      DoubleMantissa<double>(0.2),      DoubleMantissa<double>(0.3),
+      DoubleMantissa<double>(0.),       DoubleMantissa<double>(1.) / 100.,
+      DoubleMantissa<double>(1.) / 50., DoubleMantissa<double>(1.) / 25.,
+      DoubleMantissa<double>(0.06),     DoubleMantissa<double>(1.) / 10.,
+      DoubleMantissa<double>(1.) / 5.,  DoubleMantissa<double>(0.3),
       DoubleMantissa<double>(0.4),      DoubleMantissa<double>(0.5),
-      DoubleMantissa<double>(1.0),      DoubleMantissa<double>(3.14159),
+      DoubleMantissa<double>(1.),       DoubleMantissa<double>(3.14159),
       DoubleMantissa<double>(-3.14159), DoubleMantissa<double>(6.28318),
   };
 
-  for (const auto& x : inputs) {
-    const DoubleMantissa<double> s = std::sin(x);
-    const DoubleMantissa<double> c = std::cos(x);
+  for (const auto& theta : inputs) {
+    const DoubleMantissa<double> sin_theta = std::sin(theta);
+    const DoubleMantissa<double> cos_theta = std::cos(theta);
     const DoubleMantissa<double> error =
-        DoubleMantissa<double>(1.) - Square(s) - Square(c);
+        DoubleMantissa<double>(1.) - Square(sin_theta) - Square(cos_theta);
     REQUIRE(std::abs(error.Upper()) <= 2. * eps.Upper());
 
-    // TODO(Jack Poulson): Add more substantial checks.
+    // Push theta into (-pi, pi].
+    DoubleMantissa<double> theta_reduced = theta;
+    while (theta_reduced > pi) {
+      theta_reduced -= two_pi;
+    }
+    while (theta_reduced <= -pi) {
+      theta_reduced += two_pi;
+    }
+
+    // Push theta_sin_reduced into [-pi/2, pi/2].
+    DoubleMantissa<double> theta_sin_reduced = theta_reduced;
+    if (theta_reduced > half_pi) {
+      theta_sin_reduced = pi - theta_reduced;
+    }
+    if (theta_reduced < -half_pi) {
+      theta_sin_reduced = -pi - theta_reduced;
+    }
+
+    // Push theta_cos_reduced into [0, pi].
+    const DoubleMantissa<double> theta_cos_reduced = std::abs(theta_reduced);
+
+    // TODO(Jack Poulson): Come up with a more principled error tolerance. The
+    // error grows substantially near the boundaries.
+    const DoubleMantissa<double> arc_sin_sin_theta = std::asin(sin_theta);
+    const double arc_sin_sin_theta_double = std::asin(std::sin(theta.Upper()));
+    const double arc_sin_sin_theta_double_error =
+        std::abs(arc_sin_sin_theta_double - theta_sin_reduced);
+    const DoubleMantissa<double> arc_sin_sin_theta_error =
+        theta_sin_reduced - arc_sin_sin_theta;
+    const double arc_sin_sin_theta_tol = std::max(
+        4. * eps.Upper(), 2. * std::pow(arc_sin_sin_theta_double_error, 2.));
+    REQUIRE(std::abs(arc_sin_sin_theta_error.Upper()) <= arc_sin_sin_theta_tol);
+
+    // TODO(Jack Poulson): Come up with a more principled error tolerance. The
+    // error grows substantially near the boundaries.
+    const DoubleMantissa<double> arc_cos_cos_theta = std::acos(cos_theta);
+    const double arc_cos_cos_theta_double = std::acos(std::cos(theta.Upper()));
+    const DoubleMantissa<double> arc_cos_cos_theta_error =
+        theta_cos_reduced - arc_cos_cos_theta;
+    const double arc_cos_cos_theta_double_error =
+        std::abs(arc_cos_cos_theta_double - theta_cos_reduced.Upper());
+    const double arc_cos_cos_theta_tol = std::max(
+        4. * eps.Upper(), 2. * std::pow(arc_cos_cos_theta_double_error, 2.));
+    REQUIRE(std::abs(arc_cos_cos_theta_error.Upper()) <= arc_cos_cos_theta_tol);
+
+    // TODO(Jack Poulson): Come up with a more principled error tolerance. The
+    // error grows substantially near the boundaries.
+    const DoubleMantissa<double> arc_tan_sin_cos_theta =
+        std::atan2(sin_theta, cos_theta);
+    const DoubleMantissa<double> arc_tan_sin_cos_theta_error =
+        theta_sin_reduced - arc_tan_sin_cos_theta;
+    const double arc_tan_sin_cos_theta_double =
+        std::atan2(std::sin(theta), std::cos(theta));
+    const double arc_tan_sin_cos_theta_double_error =
+        std::abs(arc_tan_sin_cos_theta_double - theta_sin_reduced.Upper());
+    const double arc_tan_sin_cos_theta_tol =
+        std::max(4. * eps.Upper(),
+                 2. * std::pow(arc_tan_sin_cos_theta_double_error, 2.));
+    REQUIRE(std::abs(arc_tan_sin_cos_theta_error.Upper()) <=
+            arc_tan_sin_cos_theta_tol);
   }
 }

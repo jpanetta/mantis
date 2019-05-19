@@ -112,11 +112,23 @@ class DoubleMantissa {
   // Divides the current state by a double-mantissa value.
   DoubleMantissa<Real>& operator/=(const DoubleMantissa<Real>& value);
 
-  // Checks if the individual components are equivalent.
+  // Returns true if the individual components are equivalent.
   bool operator==(const DoubleMantissa<Real>& value) const;
 
-  // Checks if the individual components vary.
+  // Returns true if the individual components vary.
   bool operator!=(const DoubleMantissa<Real>& value) const;
+
+  // Returns true if this class's data is less than the given value.
+  bool operator<(const DoubleMantissa<Real>& value) const;
+
+  // Returns true if this class's data is <= than the given value.
+  bool operator<=(const DoubleMantissa<Real>& value) const;
+
+  // Returns true if this class's data is greater than the given value.
+  bool operator>(const DoubleMantissa<Real>& value) const;
+
+  // Returns true if this class's data is >= than the given value.
+  bool operator>=(const DoubleMantissa<Real>& value) const;
 
   // TODO(Jack Poulson):
   // operator int() const;
@@ -260,6 +272,33 @@ void SinCos(const DoubleMantissa<Real>& value, DoubleMantissa<Real>* s,
 // Returns the tangent of the given double-mantissa value.
 template <typename Real>
 DoubleMantissa<Real> Tan(const DoubleMantissa<Real>& value);
+
+// Returns the inverse tangent of the double-mantissa value.
+template <typename Real>
+DoubleMantissa<Real> ArcTan(const DoubleMantissa<Real>& tan_theta);
+
+// Returns the two-argument inverse tangent of the double-mantissa value.
+// The result of theta = arctan2(y, x) is such that, for some r > 0,
+//   x = r cos(theta), y = r sin(theta).
+template <typename Real>
+DoubleMantissa<Real> ArcTan2(const DoubleMantissa<Real>& y,
+                             const DoubleMantissa<Real>& x);
+
+// Returns the inverse cosine of the double-mantissa value.
+template <typename Real>
+DoubleMantissa<Real> ArcCos(const DoubleMantissa<Real>& cos_theta);
+
+// Returns the inverse sine of the double-mantissa value.
+template <typename Real>
+DoubleMantissa<Real> ArcSin(const DoubleMantissa<Real>& sin_theta);
+
+// Returns the two-norm of (x, y) in a manner which avoids unnecessary underflow
+// or overflow. The replacement of the naive computation is
+//     r = sqrt(x^2 + y^2)
+//       = |max_abs(x, y)| sqrt(1 + (min_abs(x, y) / max_abs(x, y))^2).
+template <typename Real>
+DoubleMantissa<Real> Hypot(const DoubleMantissa<Real>& x,
+                           const DoubleMantissa<Real>& y);
 
 // Returns the rounding of a double-mantissa value to the nearest integer.
 template <typename Real>
@@ -474,6 +513,19 @@ class numeric_limits<mantis::DoubleMantissa<long double>> {
 
 template <typename Real>
 mantis::DoubleMantissa<Real> abs(const mantis::DoubleMantissa<Real>& value);
+
+template <typename Real>
+mantis::DoubleMantissa<Real> acos(const mantis::DoubleMantissa<Real>& value);
+
+template <typename Real>
+mantis::DoubleMantissa<Real> asin(const mantis::DoubleMantissa<Real>& value);
+
+template <typename Real>
+mantis::DoubleMantissa<Real> atan(const mantis::DoubleMantissa<Real>& value);
+
+template <typename Real>
+mantis::DoubleMantissa<Real> atan2(const mantis::DoubleMantissa<Real>& y,
+                                   const mantis::DoubleMantissa<Real>& x);
 
 template <typename Real>
 mantis::DoubleMantissa<Real> cos(const mantis::DoubleMantissa<Real>& value);
