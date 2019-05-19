@@ -302,12 +302,6 @@ TEST_CASE("Exp [float]", "[Exp float]") {
       const float upper_error = std::abs(x_exp_log_error.Upper());
       const float tolerance =
           3 * eps.Upper() * std::max(1.f, std::abs(x.Upper()));
-      // DO_NOT_SUBMIT
-      if (upper_error > tolerance) {
-        std::cout << "x: " << x << ", x_exp: " << x_exp
-                  << ", upper_error: " << upper_error
-                  << ", tolerance: " << tolerance << std::endl;
-      }
       REQUIRE(upper_error <= tolerance);
     }
   }
@@ -552,12 +546,6 @@ TEST_CASE("Round [double]", "[Round double]") {
     const double upper_error = std::abs(x_round_error.Upper());
     const double tolerance =
         eps.Upper() * std::max(1., std::abs(x_round_expected.Upper()));
-    if (upper_error > tolerance) {
-      // DO_NOT_SUBMIT
-      std::cout << "x: " << x << ", x_round: " << x_round
-                << ", upper_error: " << upper_error
-                << ", tolerance: " << tolerance << std::endl;
-    }
     REQUIRE(upper_error <= tolerance);
   }
 }
@@ -597,11 +585,31 @@ TEST_CASE("Abs [double]", "[Abs double]") {
     const double upper_error = std::abs(x_abs_error.Upper());
     const double tolerance =
         eps.Upper() * std::max(1., std::abs(x_abs_expected.Upper()));
-    if (upper_error > tolerance) {
-      std::cout << "x: " << x << ", abs(x): " << x_abs
-                << ", upper_error: " << upper_error
-                << ", tolerance: " << tolerance << std::endl;
-    }
     REQUIRE(upper_error <= tolerance);
+  }
+}
+
+TEST_CASE("SinCos [double]", "[SinCos double]") {
+  mantis::FPUFix fpu_fix;
+  const DoubleMantissa<double> eps =
+      std::numeric_limits<DoubleMantissa<double>>::epsilon();
+  const std::vector<DoubleMantissa<double>> inputs{
+      DoubleMantissa<double>(0.),       DoubleMantissa<double>(0.01),
+      DoubleMantissa<double>(0.02),     DoubleMantissa<double>(0.04),
+      DoubleMantissa<double>(0.06),     DoubleMantissa<double>(0.1),
+      DoubleMantissa<double>(0.2),      DoubleMantissa<double>(0.3),
+      DoubleMantissa<double>(0.4),      DoubleMantissa<double>(0.5),
+      DoubleMantissa<double>(1.0),      DoubleMantissa<double>(3.14159),
+      DoubleMantissa<double>(-3.14159), DoubleMantissa<double>(6.28318),
+  };
+
+  for (const auto& x : inputs) {
+    const DoubleMantissa<double> s = std::sin(x);
+    const DoubleMantissa<double> c = std::cos(x);
+    const DoubleMantissa<double> error =
+        DoubleMantissa<double>(1.) - Square(s) - Square(c);
+    REQUIRE(std::abs(error.Upper()) <= 2. * eps.Upper());
+
+    // TODO(Jack Poulson): Add more substantial checks.
   }
 }

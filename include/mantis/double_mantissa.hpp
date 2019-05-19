@@ -10,8 +10,25 @@
 
 #include <cmath>
 #include <limits>
+#include <type_traits>
 
 namespace mantis {
+
+// For overloading function definitions using type traits. For example:
+//
+//   template<typename T, typename=EnableIf<std::is_integral<T>>>
+//   int Log(T value);
+//
+//   template<typename T, typename=DisableIf<std::is_integral<T>>>
+//   double Log(T value);
+//
+// would lead to the 'Log' function returning an 'int' for any integral type
+// and a 'double' for any non-integral type.
+template <typename Condition, class T = void>
+using EnableIf = typename std::enable_if<Condition::value, T>::type;
+
+template <typename Condition, class T = void>
+using DisableIf = typename std::enable_if<!Condition::value, T>::type;
 
 // A class which concatenates the mantissas of two real floating-point values
 // in order to produce a datatype whose mantissa is twice the length of one of
@@ -34,6 +51,9 @@ namespace mantis {
 template <typename Real>
 class DoubleMantissa {
  public:
+  // Create a typedef to the underlying base representation.
+  typedef Real Base;
+
   // Initializes the double-mantissa scalar to zero.
   constexpr DoubleMantissa();
 
@@ -130,50 +150,60 @@ class DoubleMantissa {
 };
 
 template <typename Real>
+struct IsDoubleMantissa {
+  static const bool value = false;
+};
+
+template <typename Real>
+struct IsDoubleMantissa<DoubleMantissa<Real>> {
+  static const bool value = true;
+};
+
+template <typename Real, typename = DisableIf<IsDoubleMantissa<Real>>>
 Real LogMax();
 
-template <typename Real>
+template <typename Real, typename = DisableIf<IsDoubleMantissa<Real>>>
 Real LogOf2();
 
-template <typename Real>
+template <typename Real, typename = DisableIf<IsDoubleMantissa<Real>>>
 Real LogOf10();
 
-template <typename Real>
+template <typename Real, typename = DisableIf<IsDoubleMantissa<Real>>>
 Real Pi();
 
-template <typename Real>
+template <typename Real, typename = DisableIf<IsDoubleMantissa<Real>>>
 Real EulerNumber();
 
 namespace double_mantissa {
 
-template <typename Real>
+template <typename Real, typename = DisableIf<IsDoubleMantissa<Real>>>
 constexpr DoubleMantissa<Real> Epsilon();
 
-template <typename Real>
+template <typename Real, typename = DisableIf<IsDoubleMantissa<Real>>>
 constexpr DoubleMantissa<Real> Infinity();
 
-template <typename Real>
+template <typename Real, typename = DisableIf<IsDoubleMantissa<Real>>>
 constexpr DoubleMantissa<Real> QuietNan();
 
-template <typename Real>
+template <typename Real, typename = DisableIf<IsDoubleMantissa<Real>>>
 constexpr DoubleMantissa<Real> SignalingNan();
 
-template <typename Real>
+template <typename Real, typename = DisableIf<IsDoubleMantissa<Real>>>
 DoubleMantissa<Real> LogOf2();
 
-template <typename Real>
+template <typename Real, typename = DisableIf<IsDoubleMantissa<Real>>>
 DoubleMantissa<Real> ComputeLogOf2();
 
-template <typename Real>
+template <typename Real, typename = DisableIf<IsDoubleMantissa<Real>>>
 DoubleMantissa<Real> LogOf10();
 
-template <typename Real>
+template <typename Real, typename = DisableIf<IsDoubleMantissa<Real>>>
 DoubleMantissa<Real> Pi();
 
-template <typename Real>
+template <typename Real, typename = DisableIf<IsDoubleMantissa<Real>>>
 DoubleMantissa<Real> ComputePi();
 
-template <typename Real>
+template <typename Real, typename = DisableIf<IsDoubleMantissa<Real>>>
 DoubleMantissa<Real> EulerNumber();
 
 }  // namespace double_mantissa
@@ -221,6 +251,15 @@ DoubleMantissa<Real> Sin(const DoubleMantissa<Real>& value);
 // Returns the cosine of the given double-mantissa value.
 template <typename Real>
 DoubleMantissa<Real> Cos(const DoubleMantissa<Real>& value);
+
+// Fills the sine and cosine of the given double-mantissa value.
+template <typename Real>
+void SinCos(const DoubleMantissa<Real>& value, DoubleMantissa<Real>* s,
+            DoubleMantissa<Real>* c);
+
+// Returns the tangent of the given double-mantissa value.
+template <typename Real>
+DoubleMantissa<Real> Tan(const DoubleMantissa<Real>& value);
 
 // Returns the rounding of a double-mantissa value to the nearest integer.
 template <typename Real>
@@ -460,6 +499,9 @@ mantis::DoubleMantissa<Real> sin(const mantis::DoubleMantissa<Real>& value);
 
 template <typename Real>
 mantis::DoubleMantissa<Real> sqrt(const mantis::DoubleMantissa<Real>& value);
+
+template <typename Real>
+mantis::DoubleMantissa<Real> tan(const mantis::DoubleMantissa<Real>& value);
 
 }  // namespace std
 
