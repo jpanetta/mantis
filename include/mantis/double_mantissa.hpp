@@ -298,15 +298,27 @@ DoubleMantissa<Real> ArcSin(const DoubleMantissa<Real>& sin_theta);
 
 // Returns the hyperbolic sine of the given double-mantissa value.
 template <typename Real>
-DoubleMantissa<Real> HyperbolicSin(const DoubleMantissa<Real>& value);
+DoubleMantissa<Real> HyperbolicSin(const DoubleMantissa<Real>& x);
 
 // Returns the hyperbolic cosine of the given double-mantissa value.
 template <typename Real>
-DoubleMantissa<Real> HyperbolicCos(const DoubleMantissa<Real>& value);
+DoubleMantissa<Real> HyperbolicCos(const DoubleMantissa<Real>& x);
 
 // Returns the hyperbolic tangent of the given double-mantissa value.
 template <typename Real>
-DoubleMantissa<Real> HyperbolicTan(const DoubleMantissa<Real>& value);
+DoubleMantissa<Real> HyperbolicTan(const DoubleMantissa<Real>& x);
+
+// Returns the inverse hyperbolic sine of the given double-mantissa value.
+template <typename Real>
+DoubleMantissa<Real> ArcHyperbolicSin(const DoubleMantissa<Real>& sinh_x);
+
+// Returns the inverse hyperbolic cosine of the given double-mantissa value.
+template <typename Real>
+DoubleMantissa<Real> ArcHyperbolicCos(const DoubleMantissa<Real>& cosh_x);
+
+// Returns the inverse hyperbolic tangent of the given double-mantissa value.
+template <typename Real>
+DoubleMantissa<Real> ArcHyperbolicTan(const DoubleMantissa<Real>& tanh_x);
 
 // Returns the two-norm of (x, y) in a manner which avoids unnecessary underflow
 // or overflow. The replacement of the naive computation is
@@ -534,7 +546,13 @@ template <typename Real>
 mantis::DoubleMantissa<Real> acos(const mantis::DoubleMantissa<Real>& value);
 
 template <typename Real>
+mantis::DoubleMantissa<Real> acosh(const mantis::DoubleMantissa<Real>& value);
+
+template <typename Real>
 mantis::DoubleMantissa<Real> asin(const mantis::DoubleMantissa<Real>& value);
+
+template <typename Real>
+mantis::DoubleMantissa<Real> asinh(const mantis::DoubleMantissa<Real>& value);
 
 template <typename Real>
 mantis::DoubleMantissa<Real> atan(const mantis::DoubleMantissa<Real>& value);
@@ -542,6 +560,9 @@ mantis::DoubleMantissa<Real> atan(const mantis::DoubleMantissa<Real>& value);
 template <typename Real>
 mantis::DoubleMantissa<Real> atan2(const mantis::DoubleMantissa<Real>& y,
                                    const mantis::DoubleMantissa<Real>& x);
+
+template <typename Real>
+mantis::DoubleMantissa<Real> atanh(const mantis::DoubleMantissa<Real>& value);
 
 template <typename Real>
 mantis::DoubleMantissa<Real> cos(const mantis::DoubleMantissa<Real>& value);

@@ -1214,6 +1214,63 @@ DoubleMantissa<Real> HyperbolicTan(const DoubleMantissa<Real>& value) {
 }
 
 template <typename Real>
+DoubleMantissa<Real> ArcHyperbolicSin(const DoubleMantissa<Real>& sinh_x) {
+  // Combine the identities:
+  //
+  //   cosh(x) = sqrt(1 + sinh^2(x)),
+  //
+  //   cosh(x) + sinh(x) = exp(x),
+  //
+  // to convert sinh(x) into x.
+  const DoubleMantissa<Real> cosh_x = SquareRoot(Real(1) + Square(sinh_x));
+  return Log(sinh_x + cosh_x);
+}
+
+template <typename Real>
+DoubleMantissa<Real> ArcHyperbolicCos(const DoubleMantissa<Real>& cosh_x) {
+  if (cosh_x.Upper() < Real(1)) {
+    return double_mantissa::QuietNan<Real>();
+  }
+
+  // Combine the identities:
+  //
+  //   sinh(x) = sqrt(cosh^2(x) - 1),
+  //
+  //   cosh(x) + sinh(x) = exp(x),
+  //
+  // to convert cosh(x) into x.
+  const DoubleMantissa<Real> sinh_x = SquareRoot(Square(cosh_x) - Real(1));
+  return Log(sinh_x + cosh_x);
+}
+
+template <typename Real>
+DoubleMantissa<Real> ArcHyperbolicTan(const DoubleMantissa<Real>& tanh_x) {
+  if (Abs(tanh_x.Upper()) >= Real(1)) {
+    return double_mantissa::QuietNan<Real>();
+  }
+
+  // tanh(x) = sinh(x) / cosh(x)
+  //         =  (exp(x) - exp(-x)) / (exp(x) + exp(-x)).
+  //
+  // Then
+  //
+  //   1 + tanh(x) = 2 exp(x) / (exp(x) + exp(-x)),
+  //
+  //   1 - tanh(x) = 2 exp(-x) / (exp(x) + exp(-x)).
+  //
+  // Thus,
+  //
+  //   (1 + tanh(x)) / (1 - tanh(x)) = exp(2 x),
+  //
+  // yielding the inversion formula:
+  //
+  //   atanh(x) = (1 / 2) log((1 + x) / (1 - x)).
+  //
+  return MultiplyByPowerOfTwo(Log((Real(1) + tanh_x) / (Real(1) - tanh_x)),
+                              Real(0.5));
+}
+
+template <typename Real>
 DoubleMantissa<Real> Round(const DoubleMantissa<Real>& value) {
   DoubleMantissa<Real> rounded_value(std::round(value.Upper()));
   if (rounded_value.Upper() == value.Upper()) {
@@ -1583,8 +1640,18 @@ mantis::DoubleMantissa<Real> acos(const mantis::DoubleMantissa<Real>& value) {
 }
 
 template <typename Real>
+mantis::DoubleMantissa<Real> acosh(const mantis::DoubleMantissa<Real>& value) {
+  return mantis::ArcHyperbolicCos(value);
+}
+
+template <typename Real>
 mantis::DoubleMantissa<Real> asin(const mantis::DoubleMantissa<Real>& value) {
   return mantis::ArcSin(value);
+}
+
+template <typename Real>
+mantis::DoubleMantissa<Real> asinh(const mantis::DoubleMantissa<Real>& value) {
+  return mantis::ArcHyperbolicSin(value);
 }
 
 template <typename Real>
@@ -1596,6 +1663,11 @@ template <typename Real>
 mantis::DoubleMantissa<Real> atan2(const mantis::DoubleMantissa<Real>& y,
                                    const mantis::DoubleMantissa<Real>& x) {
   return mantis::ArcTan2(y, x);
+}
+
+template <typename Real>
+mantis::DoubleMantissa<Real> atanh(const mantis::DoubleMantissa<Real>& value) {
+  return mantis::ArcHyperbolicTan(value);
 }
 
 template <typename Real>
