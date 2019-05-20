@@ -1560,8 +1560,7 @@ mantis::DoubleMantissa<Real> operator/(const mantis::DoubleMantissa<Real>& x,
 template <typename Real>
 std::ostream& operator<<(std::ostream& out,
                          const mantis::DoubleMantissa<Real>& value) {
-  constexpr int max_digits10 =
-      std::numeric_limits<mantis::DoubleMantissa<Real>>::max_digits10;
+  constexpr int max_digits10 = std::numeric_limits<Real>::max_digits10;
   out << std::setprecision(max_digits10) << value.Upper() << " + "
       << value.Lower();
   return out;
