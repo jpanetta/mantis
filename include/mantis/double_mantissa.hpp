@@ -225,6 +225,10 @@ DoubleMantissa<Real> EulerNumber();
 template <typename Real>
 DoubleMantissa<Real> Abs(const DoubleMantissa<Real>& value);
 
+// Returns the inverse of an extended-precision value.
+template <typename Real>
+DoubleMantissa<Real> Inverse(const DoubleMantissa<Real>& value);
+
 // Returns the square of an extended-precision value.
 template <typename Real>
 DoubleMantissa<Real> Square(const DoubleMantissa<Real>& value);
@@ -291,6 +295,18 @@ DoubleMantissa<Real> ArcCos(const DoubleMantissa<Real>& cos_theta);
 // Returns the inverse sine of the double-mantissa value.
 template <typename Real>
 DoubleMantissa<Real> ArcSin(const DoubleMantissa<Real>& sin_theta);
+
+// Returns the hyperbolic sine of the given double-mantissa value.
+template <typename Real>
+DoubleMantissa<Real> HyperbolicSin(const DoubleMantissa<Real>& value);
+
+// Returns the hyperbolic cosine of the given double-mantissa value.
+template <typename Real>
+DoubleMantissa<Real> HyperbolicCos(const DoubleMantissa<Real>& value);
+
+// Returns the hyperbolic tangent of the given double-mantissa value.
+template <typename Real>
+DoubleMantissa<Real> HyperbolicTan(const DoubleMantissa<Real>& value);
 
 // Returns the two-norm of (x, y) in a manner which avoids unnecessary underflow
 // or overflow. The replacement of the naive computation is
@@ -531,6 +547,9 @@ template <typename Real>
 mantis::DoubleMantissa<Real> cos(const mantis::DoubleMantissa<Real>& value);
 
 template <typename Real>
+mantis::DoubleMantissa<Real> cosh(const mantis::DoubleMantissa<Real>& value);
+
+template <typename Real>
 mantis::DoubleMantissa<Real> exp(const mantis::DoubleMantissa<Real>& value);
 
 template <typename Real>
@@ -550,10 +569,16 @@ template <typename Real>
 mantis::DoubleMantissa<Real> sin(const mantis::DoubleMantissa<Real>& value);
 
 template <typename Real>
+mantis::DoubleMantissa<Real> sinh(const mantis::DoubleMantissa<Real>& value);
+
+template <typename Real>
 mantis::DoubleMantissa<Real> sqrt(const mantis::DoubleMantissa<Real>& value);
 
 template <typename Real>
 mantis::DoubleMantissa<Real> tan(const mantis::DoubleMantissa<Real>& value);
+
+template <typename Real>
+mantis::DoubleMantissa<Real> tanh(const mantis::DoubleMantissa<Real>& value);
 
 }  // namespace std
 

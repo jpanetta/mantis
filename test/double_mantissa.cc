@@ -589,7 +589,7 @@ TEST_CASE("Abs [double]", "[Abs double]") {
   }
 }
 
-TEST_CASE("SinCos [double]", "[SinCos double]") {
+TEST_CASE("Trig [double]", "[Trig double]") {
   mantis::FPUFix fpu_fix;
   const DoubleMantissa<double> eps =
       std::numeric_limits<DoubleMantissa<double>>::epsilon();
@@ -610,9 +610,11 @@ TEST_CASE("SinCos [double]", "[SinCos double]") {
   for (const auto& theta : inputs) {
     const DoubleMantissa<double> sin_theta = std::sin(theta);
     const DoubleMantissa<double> cos_theta = std::cos(theta);
-    const DoubleMantissa<double> error =
+
+    // Test that cos^2(theta) + sin^2(theta) = 1.
+    const DoubleMantissa<double> unit_error =
         DoubleMantissa<double>(1.) - Square(sin_theta) - Square(cos_theta);
-    REQUIRE(std::abs(error.Upper()) <= 2. * eps.Upper());
+    REQUIRE(std::abs(unit_error.Upper()) <= 2. * eps.Upper());
 
     // Push theta into (-pi, pi].
     DoubleMantissa<double> theta_reduced = theta;
@@ -674,5 +676,59 @@ TEST_CASE("SinCos [double]", "[SinCos double]") {
                  2. * std::pow(arc_tan_sin_cos_theta_double_error, 2.));
     REQUIRE(std::abs(arc_tan_sin_cos_theta_error.Upper()) <=
             arc_tan_sin_cos_theta_tol);
+  }
+}
+
+TEST_CASE("HypTrig [double]", "[HypTrig double]") {
+  mantis::FPUFix fpu_fix;
+  const DoubleMantissa<double> eps =
+      std::numeric_limits<DoubleMantissa<double>>::epsilon();
+
+  const std::vector<DoubleMantissa<double>> inputs{
+      DoubleMantissa<double>(0.),       DoubleMantissa<double>(1.) / 100.,
+      DoubleMantissa<double>(1.) / 50., DoubleMantissa<double>(1.) / 25.,
+      DoubleMantissa<double>(0.06),     DoubleMantissa<double>(1.) / 10.,
+      DoubleMantissa<double>(1.) / 5.,  DoubleMantissa<double>(0.3),
+      DoubleMantissa<double>(0.4),      DoubleMantissa<double>(0.5),
+      DoubleMantissa<double>(1.),       DoubleMantissa<double>(3.14159),
+      DoubleMantissa<double>(-3.14159), DoubleMantissa<double>(6.28318),
+  };
+
+  for (const auto& theta : inputs) {
+    const DoubleMantissa<double> sinh_theta = std::sinh(theta);
+    const DoubleMantissa<double> cosh_theta = std::cosh(theta);
+    const DoubleMantissa<double> exp_theta = std::exp(theta);
+
+    // Test that cosh^2(theta) - sinh^2(theta) = 1.
+    const DoubleMantissa<double> unit_error =
+        DoubleMantissa<double>(1.) + Square(sinh_theta) - Square(cosh_theta);
+    const double unit_tolerance =
+        2. * eps.Upper() * std::max(1., std::max(Square(sinh_theta).Upper(),
+                                                 Square(cosh_theta).Upper()));
+    if (std::abs(unit_error.Upper()) > unit_tolerance) {
+      std::cout << "theta: " << theta << ", sinh(theta): " << sinh_theta
+                << ", cosh(theta): " << cosh_theta
+                << ", unit_error: " << unit_error
+                << ", tolerance: " << unit_tolerance << std::endl;
+    }
+    REQUIRE(std::abs(unit_error.Upper()) <= unit_tolerance);
+
+    // Test that cosh(theta) + sinh(theta) = exp(theta).
+    const DoubleMantissa<double> exp_error =
+        exp_theta - cosh_theta - sinh_theta;
+    const double exp_tolerance =
+        2. * eps.Upper() *
+        std::max(exp_theta.Upper(), std::max(std::abs(cosh_theta.Upper()),
+                                             std::abs(sinh_theta.Upper())));
+    REQUIRE(std::abs(exp_error.Upper()) <= exp_tolerance);
+
+    // Test that cosh(theta) - sinh(theta) = exp(-theta).
+    const DoubleMantissa<double> inv_exp_error =
+        Inverse(exp_theta) - cosh_theta + sinh_theta;
+    const double inv_exp_tolerance =
+        2. * eps.Upper() * std::max(Inverse(exp_theta).Upper(),
+                                    std::max(std::abs(cosh_theta.Upper()),
+                                             std::abs(sinh_theta.Upper())));
+    REQUIRE(std::abs(inv_exp_error.Upper()) <= inv_exp_tolerance);
   }
 }

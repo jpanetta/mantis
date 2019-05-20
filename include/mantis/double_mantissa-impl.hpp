@@ -319,6 +319,11 @@ Real EulerNumber() {
 }
 
 template <typename Real>
+DoubleMantissa<Real> Inverse(const DoubleMantissa<Real>& value) {
+  return Real(1) / value;
+}
+
+template <typename Real>
 DoubleMantissa<Real> Square(const Real& value) {
   Real error;
   const Real upper = TwoSquare(value, &error);
@@ -1130,6 +1135,85 @@ DoubleMantissa<Real> ArcCos(const DoubleMantissa<Real>& cos_theta) {
 }
 
 template <typename Real>
+DoubleMantissa<Real> HyperbolicSin(const DoubleMantissa<Real>& value) {
+  if (value.Upper() == Real(0)) {
+    return DoubleMantissa<Real>(Real(0));
+  }
+
+  // We use the same switching point as the QD library of Hida et al.
+  const Real kDirectFormulaThresh = Real(0.05);
+  if (std::abs(value.Upper()) > kDirectFormulaThresh) {
+    const DoubleMantissa<Real> exp_value = Exp(value);
+    return MultiplyByPowerOfTwo(exp_value - Inverse(exp_value), Real(0.5));
+  }
+
+  // We fall back to a truncation of the Taylor series:
+  //
+  //   sinh(x) = x + (1 / 3!) x^3 + (1 / 5!) x^5 + ...
+  //           = \sum_{n = 0}^{\infty} x^{2 n + 1} / (2 n + 1)!.
+  //
+  const DoubleMantissa<Real> epsilon =
+      std::numeric_limits<DoubleMantissa<Real>>::epsilon();
+  const Real term_threshold = std::abs(value.Upper()) * epsilon.Upper();
+
+  // The powers of x increase by x^2 in each term.
+  const DoubleMantissa<Real> power_ratio = Square(value);
+
+  // Initialize the partial sum as the first term, x.
+  DoubleMantissa<Real> term = value;
+  DoubleMantissa<Real> iterate = value;
+
+  for (int m = 3;; m += 2) {
+    term *= power_ratio;
+    term /= Real((m - 1) * m);
+    iterate += term;
+    if (std::abs(term.Upper()) <= term_threshold) {
+      break;
+    }
+  }
+
+  return iterate;
+}
+
+template <typename Real>
+DoubleMantissa<Real> HyperbolicCos(const DoubleMantissa<Real>& value) {
+  if (value.Upper() == Real(0)) {
+    return DoubleMantissa<Real>(Real(1));
+  }
+
+  // Use the defining formula.
+  const DoubleMantissa<Real> exp_value = Exp(value);
+  return MultiplyByPowerOfTwo(exp_value + Inverse(exp_value), Real(0.5));
+}
+
+template <typename Real>
+DoubleMantissa<Real> HyperbolicTan(const DoubleMantissa<Real>& value) {
+  if (value.Upper() == Real(0)) {
+    return DoubleMantissa<Real>(Real(0));
+  }
+
+  // We use the same switching point as the QD library of Hida et al.
+  const Real kDirectFormulaThresh = Real(0.05);
+  if (Abs(value) > kDirectFormulaThresh) {
+    const DoubleMantissa<Real> exp_value = Exp(value);
+    const DoubleMantissa<Real> inv_exp_value = Inverse(exp_value);
+    return (exp_value - inv_exp_value) / (exp_value + inv_exp_value);
+  }
+
+  // Fall back to a careful calculation of hyperbolic sine.
+  const DoubleMantissa<Real> sinh_value = HyperbolicSin(value);
+
+  // Convert the calculation of sinh into cosh using the identity:
+  //
+  //   cosh^2(x) - sinh^2(x) = 1.
+  //
+  const DoubleMantissa<Real> cosh_value =
+      SquareRoot(Real(1) + Square(sinh_value));
+
+  return sinh_value / cosh_value;
+}
+
+template <typename Real>
 DoubleMantissa<Real> Round(const DoubleMantissa<Real>& value) {
   DoubleMantissa<Real> rounded_value(std::round(value.Upper()));
   if (rounded_value.Upper() == value.Upper()) {
@@ -1520,6 +1604,11 @@ mantis::DoubleMantissa<Real> cos(const mantis::DoubleMantissa<Real>& value) {
 }
 
 template <typename Real>
+mantis::DoubleMantissa<Real> cosh(const mantis::DoubleMantissa<Real>& value) {
+  return mantis::HyperbolicCos(value);
+}
+
+template <typename Real>
 mantis::DoubleMantissa<Real> exp(const mantis::DoubleMantissa<Real>& value) {
   return mantis::Exp(value);
 }
@@ -1551,6 +1640,11 @@ mantis::DoubleMantissa<Real> sin(const mantis::DoubleMantissa<Real>& value) {
 }
 
 template <typename Real>
+mantis::DoubleMantissa<Real> sinh(const mantis::DoubleMantissa<Real>& value) {
+  return mantis::HyperbolicSin(value);
+}
+
+template <typename Real>
 mantis::DoubleMantissa<Real> sqrt(const mantis::DoubleMantissa<Real>& value) {
   return mantis::SquareRoot(value);
 }
@@ -1558,6 +1652,11 @@ mantis::DoubleMantissa<Real> sqrt(const mantis::DoubleMantissa<Real>& value) {
 template <typename Real>
 mantis::DoubleMantissa<Real> tan(const mantis::DoubleMantissa<Real>& value) {
   return mantis::Tan(value);
+}
+
+template <typename Real>
+mantis::DoubleMantissa<Real> tanh(const mantis::DoubleMantissa<Real>& value) {
+  return mantis::HyperbolicTan(value);
 }
 
 }  // namespace std
