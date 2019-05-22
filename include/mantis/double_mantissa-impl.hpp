@@ -219,6 +219,26 @@ bool DoubleMantissa<Real>::operator>=(const DoubleMantissa<Real>& value) const {
 }
 
 template <typename Real>
+DoubleMantissa<Real>::operator int() const {
+  const DoubleMantissa<Real> floored_value = Floor(*this);
+  return int(floored_value.Upper()) + int(floored_value.Lower());
+}
+
+template <typename Real>
+DoubleMantissa<Real>::operator long int() const {
+  const DoubleMantissa<Real> floored_value = Floor(*this);
+  return static_cast<long int>(floored_value.Upper()) +
+         static_cast<long int>(floored_value.Lower());
+}
+
+template <typename Real>
+DoubleMantissa<Real>::operator long long int() const {
+  const DoubleMantissa<Real> floored_value = Floor(*this);
+  return static_cast<long long int>(floored_value.Upper()) +
+         static_cast<long long int>(floored_value.Lower());
+}
+
+template <typename Real>
 DoubleMantissa<Real>::operator float() const {
   return Upper();
 }
@@ -1268,6 +1288,18 @@ DoubleMantissa<Real> ArcHyperbolicTan(const DoubleMantissa<Real>& tanh_x) {
   //
   return MultiplyByPowerOfTwo(Log((Real(1) + tanh_x) / (Real(1) - tanh_x)),
                               Real(0.5));
+}
+
+template <typename Real>
+DoubleMantissa<Real> Floor(const DoubleMantissa<Real>& value) {
+  DoubleMantissa<Real> floored_value(std::floor(value.Upper()));
+  if (floored_value.Upper() == value.Upper()) {
+    // The upper component is already floored to an integer, so floor the
+    // lower component.
+    floored_value.Lower() = std::floor(value.Lower());
+    floored_value.Reduce();
+  }
+  return floored_value;
 }
 
 template <typename Real>

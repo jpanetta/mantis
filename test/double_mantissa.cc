@@ -732,3 +732,39 @@ TEST_CASE("HypTrig [double]", "[HypTrig double]") {
     REQUIRE(std::abs(inv_exp_error.Upper()) <= inv_exp_tolerance);
   }
 }
+
+TEST_CASE("Floor [double]", "[Floor double]") {
+  mantis::FPUFix fpu_fix;
+  const DoubleMantissa<double> eps =
+      std::numeric_limits<DoubleMantissa<double>>::epsilon();
+
+  const std::vector<std::pair<DoubleMantissa<double>, DoubleMantissa<double>>>
+      tests{
+          std::make_pair(DoubleMantissa<double>(0.),
+                         DoubleMantissa<double>(0.)),
+          std::make_pair(DoubleMantissa<double>(0.01),
+                         DoubleMantissa<double>(0.)),
+          std::make_pair(DoubleMantissa<double>(-3.14159),
+                         DoubleMantissa<double>(-4.)),
+          std::make_pair(DoubleMantissa<double>(12345678901234500., 12.3),
+                         DoubleMantissa<double>(12345678901234500., 12.)),
+          std::make_pair(DoubleMantissa<double>(3.14159),
+                         DoubleMantissa<double>(3.)),
+      };
+
+  for (const auto& pair : tests) {
+    const DoubleMantissa<double>& x = pair.first;
+    const DoubleMantissa<double>& x_floor_expected = pair.second;
+    const DoubleMantissa<double> x_floor = mantis::Floor(x);
+    const DoubleMantissa<double> x_floor_error = x_floor - x_floor_expected;
+    const double tolerance = 2. * eps * std::abs(x_floor_expected.Upper());
+    REQUIRE(std::abs(x_floor_error.Upper()) <= tolerance);
+  }
+
+  REQUIRE(static_cast<int>(DoubleMantissa<double>(0.01)) == 0);
+  REQUIRE(static_cast<int>(DoubleMantissa<double>(-0.1)) == -1);
+  REQUIRE(static_cast<int>(DoubleMantissa<double>(10.1)) == 10);
+
+  REQUIRE(static_cast<long long int>(DoubleMantissa<double>(
+              12345678901234500., 67.5)) == 12345678901234567LL);
+}

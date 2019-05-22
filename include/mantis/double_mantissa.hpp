@@ -130,14 +130,14 @@ class DoubleMantissa {
   // Returns true if this class's data is >= than the given value.
   bool operator>=(const DoubleMantissa<Real>& value) const;
 
-  // TODO(Jack Poulson):
-  // operator int() const;
+  // Return the flooring of the value into a int.
+  operator int() const;
 
-  // TODO(Jack Poulson):
-  // operator long int() const;
+  // Return the flooring of the value into a long int.
+  operator long int() const;
 
-  // TODO(Jack Poulson):
-  // operator long long int() const;
+  // Return the flooring of the value into a long long int.
+  operator long long int() const;
 
   // Casts the double-mantissa value into a float.
   operator float() const;
@@ -327,6 +327,10 @@ DoubleMantissa<Real> ArcHyperbolicTan(const DoubleMantissa<Real>& tanh_x);
 template <typename Real>
 DoubleMantissa<Real> Hypot(const DoubleMantissa<Real>& x,
                            const DoubleMantissa<Real>& y);
+
+// Returns the rounding of a double-mantissa value to the floored integer.
+template <typename Real>
+DoubleMantissa<Real> Floor(const DoubleMantissa<Real>& value);
 
 // Returns the rounding of a double-mantissa value to the nearest integer.
 template <typename Real>
