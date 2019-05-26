@@ -8,9 +8,16 @@
 #define CATCH_CONFIG_MAIN
 #include <iostream>
 #include <limits>
+#include <tuple>
 #include "catch2/catch.hpp"
 #include "mantis.hpp"
+using mantis::DecimalScientificNotation;
 using mantis::DoubleMantissa;
+
+constexpr unsigned char operator"" _uchar(
+    unsigned long long int value) noexcept {
+  return static_cast<unsigned char>(value);
+}
 
 TEST_CASE("Add [float]", "[Add float]") {
   DoubleMantissa<float> value(1.f, 2.f);
@@ -767,4 +774,119 @@ TEST_CASE("Floor [double]", "[Floor double]") {
 
   REQUIRE(static_cast<long long int>(DoubleMantissa<double>(
               12345678901234500., 67.5)) == 12345678901234567LL);
+}
+
+TEST_CASE("ScientificNotation [double]", "[ScientificNotation double]") {
+  mantis::FPUFix fpu_fix;
+
+  const std::vector<
+      std::tuple<DoubleMantissa<double>, int, DecimalScientificNotation>>
+      tests{
+          std::make_tuple(
+              DoubleMantissa<double>(3.14159), 5,
+              DecimalScientificNotation{
+                  true, 0, std::vector<unsigned char>{3_uchar, 1_uchar, 4_uchar,
+                                                      1_uchar, 6_uchar}}),
+          std::make_tuple(
+              DoubleMantissa<double>(3.14159), 4,
+              DecimalScientificNotation{
+                  true, 0, std::vector<unsigned char>{3_uchar, 1_uchar, 4_uchar,
+                                                      2_uchar}}),
+          std::make_tuple(
+              DoubleMantissa<double>(-3.14159), 5,
+              DecimalScientificNotation{
+                  false, 0,
+                  std::vector<unsigned char>{3_uchar, 1_uchar, 4_uchar, 1_uchar,
+                                             6_uchar}}),
+          std::make_tuple(
+              DoubleMantissa<double>(113.1238), 6,
+              DecimalScientificNotation{
+                  true, 2,
+                  std::vector<unsigned char>{1_uchar, 1_uchar, 3_uchar, 1_uchar,
+                                             2_uchar, 4_uchar}}),
+          std::make_tuple(
+              DoubleMantissa<double>(1.131238e49), 6,
+              DecimalScientificNotation{
+                  true, 49,
+                  std::vector<unsigned char>{1_uchar, 1_uchar, 3_uchar, 1_uchar,
+                                             2_uchar, 4_uchar}}),
+          std::make_tuple(
+              DoubleMantissa<double>(1.131238e204), 6,
+              DecimalScientificNotation{
+                  true,
+                  204, std::vector<unsigned char>{1_uchar, 1_uchar, 3_uchar,
+                                                  1_uchar, 2_uchar, 4_uchar}}),
+          std::make_tuple(
+              DoubleMantissa<double>(0.001131238), 6,
+              DecimalScientificNotation{
+                  true, -3,
+                  std::vector<unsigned char>{1_uchar, 1_uchar, 3_uchar, 1_uchar,
+                                             2_uchar, 4_uchar}}),
+          std::make_tuple(
+              DoubleMantissa<double>(1.131238e-300), 6,
+              DecimalScientificNotation{
+                  true, -300,
+                  std::vector<unsigned char>{1_uchar, 1_uchar, 3_uchar, 1_uchar,
+                                             2_uchar, 4_uchar}}),
+          std::make_tuple(
+              DoubleMantissa<double>(9.9999999), 5,
+              DecimalScientificNotation{
+                  true, 1, std::vector<unsigned char>{1_uchar, 0_uchar, 0_uchar,
+                                                      0_uchar, 0_uchar}}),
+          std::make_tuple(
+              DoubleMantissa<double>(), 6,
+              DecimalScientificNotation{
+                  true, 0,
+                  std::vector<unsigned char>{0_uchar, 0_uchar, 0_uchar, 0_uchar,
+                                             0_uchar, 0_uchar}}),
+          std::make_tuple(
+              mantis::double_mantissa::QuietNan<double>(), 8,
+              DecimalScientificNotation{
+                  true, 0, std::vector<unsigned char>{'n', 'a', 'n'}}),
+          std::make_tuple(
+              mantis::double_mantissa::Infinity<double>(), 8,
+              DecimalScientificNotation{
+                  true, 0, std::vector<unsigned char>{'i', 'n', 'f'}}),
+          std::make_tuple(
+              -mantis::double_mantissa::Infinity<double>(), 8,
+              DecimalScientificNotation{
+                  false, 0, std::vector<unsigned char>{'i', 'n', 'f'}}),
+      };
+
+  // The maximum number of digits required for an exact decimal round-trip.
+  const int max_digits10 =
+      std::numeric_limits<DoubleMantissa<double>>::max_digits10;
+
+  // The double-mantissa epsilon.
+  const double epsilon = std::numeric_limits<DoubleMantissa<double>>::epsilon();
+
+  for (const auto& tuple : tests) {
+    const DoubleMantissa<double> value = std::get<0>(tuple);
+    const int num_digits = std::get<1>(tuple);
+    const DecimalScientificNotation expected_rep = std::get<2>(tuple);
+
+    const DecimalScientificNotation rep =
+        value.DecimalScientificNotation(num_digits);
+    REQUIRE(rep.positive == expected_rep.positive);
+    REQUIRE(rep.exponent == expected_rep.exponent);
+    REQUIRE(rep.digits.size() == expected_rep.digits.size());
+    for (unsigned digit = 0; digit < rep.digits.size(); ++digit) {
+      REQUIRE(rep.digits[digit] == expected_rep.digits[digit]);
+    }
+
+    if (std::isfinite(value)) {
+      const DecimalScientificNotation full_rep =
+          value.DecimalScientificNotation(max_digits10);
+      DoubleMantissa<double> value_reformed;
+      value_reformed.FromDecimalScientificNotation(full_rep);
+
+      const DoubleMantissa<double> error = value - value_reformed;
+
+      // TODO(Jack Poulson): Improve implementation of conversions so that
+      // the coefficient can be lowered or give an explanation of why such a
+      // large value is acceptable.
+      const double tolerance = 3. * epsilon * std::abs(value.Upper());
+      REQUIRE(std::abs(error.Upper()) <= tolerance);
+    }
+  }
 }

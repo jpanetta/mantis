@@ -9,6 +9,7 @@
 #define MANTIS_DOUBLE_MANTISSA_IMPL_H_
 
 #include <iomanip>
+#include <string>
 
 #include "mantis/double_mantissa.hpp"
 
@@ -251,6 +252,138 @@ DoubleMantissa<Real>::operator double() const {
 template <typename Real>
 DoubleMantissa<Real>::operator long double() const {
   return Upper();
+}
+
+template <typename Real>
+mantis::DecimalScientificNotation
+DoubleMantissa<Real>::DecimalScientificNotation(int num_digits) const {
+  DoubleMantissa<Real> value = *this;
+
+  mantis::DecimalScientificNotation rep;
+
+  // Testing the negation of negativity also functions for NaN.
+  rep.positive = !(value < DoubleMantissa<Real>());
+
+  value = Abs(value);
+  if (value.Upper() == Real(0) && value.Lower() == Real(0)) {
+    rep.exponent = 0;
+    rep.digits.resize(num_digits);
+    return rep;
+  }
+  if (std::isinf(*this)) {
+    rep.exponent = 0;
+    rep.digits = std::vector<unsigned char>{'i', 'n', 'f'};
+    return rep;
+  }
+  if (std::isnan(*this)) {
+    rep.exponent = 0;
+    rep.digits = std::vector<unsigned char>{'n', 'a', 'n'};
+    return rep;
+  }
+
+  rep.exponent = Floor(Log10(value));
+
+  // TODO(Jack Poulson): Replace with single multiply by 'Pow'.
+  // value *= Pow(DoubleMantissa<Real>(10), -rep.exponent);
+  if (rep.exponent > 0) {
+    for (int i = 0; i < rep.exponent; ++i) {
+      value /= Real(10);
+    }
+  } else if (rep.exponent < 0) {
+    for (int i = 0; i < -rep.exponent; ++i) {
+      value *= Real(10);
+    }
+  }
+
+  while (value >= DoubleMantissa<Real>(10)) {
+    ++rep.exponent;
+    value /= Real(10);
+  }
+  while (value < DoubleMantissa<Real>(1)) {
+    --rep.exponent;
+    value *= Real(10);
+  }
+
+  // We round the very last digit and floor the rest.
+  rep.digits.resize(num_digits);
+  for (int digit = 0; digit < num_digits - 1; ++digit) {
+    const DoubleMantissa<Real> floored_value = Floor(value);
+    const int floored_value_int = int(floored_value);
+    rep.digits[digit] = floored_value_int;
+    value -= floored_value;
+    value *= Real(10);
+  }
+  if (num_digits > 0) {
+    const DoubleMantissa<Real> rounded_value = Round(value);
+    const int rounded_value_int = int(rounded_value);
+    rep.digits[num_digits - 1] = rounded_value_int;
+  }
+
+  // Handle any carries.
+  for (int digit = num_digits - 1; digit > 0; --digit) {
+    if (rep.digits[digit] > 9) {
+      // TODO(Jack Poulson): Assert that digit == 10.
+      ++rep.digits[digit - 1];
+      rep.digits[digit] = 0;
+    }
+  }
+  if (num_digits > 0 && rep.digits[0] > 9) {
+    // Shift all values right one and set the first two to 1 and 0.
+    ++rep.exponent;
+    for (int digit = num_digits - 1; digit > 0; --digit) {
+      rep.digits[digit] = rep.digits[digit - 1];
+    }
+    if (num_digits > 1) {
+      rep.digits[1] = 0;
+    }
+    rep.digits[0] = 1;
+  }
+
+  return rep;
+}
+
+template <typename Real>
+DoubleMantissa<Real>& DoubleMantissa<Real>::FromDecimalScientificNotation(
+    const mantis::DecimalScientificNotation& rep) {
+  *this = DoubleMantissa<Real>();
+
+  // Specially handle NaN and +-infinity.
+  if (rep.digits.size() == 3 && rep.digits[0] == 'i') {
+    *this = std::numeric_limits<DoubleMantissa<Real>>::infinity();
+    *this = -*this;
+    return *this;
+  } else if (rep.digits.size() == 3 && rep.digits[0] == 'n') {
+    *this = std::numeric_limits<DoubleMantissa<Real>>::quiet_NaN();
+    return *this;
+  }
+
+  // Load in the digits, least significant first. At the end of the loop, we
+  // should have a value that is either 0 or in the interval [1, 10).
+  for (int digit = rep.digits.size() - 1; digit >= 0; --digit) {
+    *this += Real(rep.digits[digit]);
+    if (digit > 0) {
+      *this /= Real(10);
+    }
+  }
+
+  // Incorporate the exponent.
+  // value *= Pow(DoubleMantissa<Real>(10), rep.exponent);
+  if (rep.exponent > 0) {
+    for (int i = 0; i < rep.exponent; ++i) {
+      *this *= Real(10);
+    }
+  } else if (rep.exponent < 0) {
+    for (int i = 0; i < -rep.exponent; ++i) {
+      *this /= Real(10);
+    }
+  }
+
+  // Incorporate the sign.
+  if (!rep.positive) {
+    *this = -*this;
+  }
+
+  return *this;
 }
 
 template <typename Real>
@@ -1592,9 +1725,33 @@ mantis::DoubleMantissa<Real> operator/(const mantis::DoubleMantissa<Real>& x,
 template <typename Real>
 std::ostream& operator<<(std::ostream& out,
                          const mantis::DoubleMantissa<Real>& value) {
-  constexpr int max_digits10 = std::numeric_limits<Real>::max_digits10;
-  out << std::setprecision(max_digits10) << value.Upper() << " + "
-      << value.Lower();
+  constexpr int max_digits10 =
+      std::numeric_limits<mantis::DoubleMantissa<Real>>::max_digits10;
+  const mantis::DecimalScientificNotation rep =
+      value.DecimalScientificNotation(max_digits10);
+
+  std::string s;
+  if (!rep.positive) {
+    s += '-';
+  }
+  if (rep.digits.size() == 3 && rep.digits[0] == 'i') {
+    s += "inf";
+  } else if (rep.digits.size() == 3 && rep.digits[0] == 'n') {
+    s += "nan";
+  } else {
+    s += std::to_string(unsigned(rep.digits[0]));
+    s += '.';
+    for (unsigned digit = 1; digit < rep.digits.size(); ++digit) {
+      s += std::to_string(unsigned(rep.digits[digit]));
+    }
+    if (rep.exponent != 0) {
+      s += 'e';
+      s += std::to_string(rep.exponent);
+    }
+  }
+
+  out << s;
+
   return out;
 }
 
@@ -1714,6 +1871,21 @@ mantis::DoubleMantissa<Real> cosh(const mantis::DoubleMantissa<Real>& value) {
 template <typename Real>
 mantis::DoubleMantissa<Real> exp(const mantis::DoubleMantissa<Real>& value) {
   return mantis::Exp(value);
+}
+
+template <typename Real>
+bool isfinite(const mantis::DoubleMantissa<Real>& value) {
+  return isfinite(value.Upper()) && isfinite(value.Lower());
+}
+
+template <typename Real>
+bool isinf(const mantis::DoubleMantissa<Real>& value) {
+  return isinf(value.Upper()) || isinf(value.Lower());
+}
+
+template <typename Real>
+bool isnan(const mantis::DoubleMantissa<Real>& value) {
+  return isnan(value.Upper()) || isnan(value.Lower());
 }
 
 template <typename Real>

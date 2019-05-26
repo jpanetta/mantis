@@ -30,6 +30,36 @@ using EnableIf = typename std::enable_if<Condition::value, T>::type;
 template <typename Condition, class T = void>
 using DisableIf = typename std::enable_if<!Condition::value, T>::type;
 
+// A structure for the decimal scientific notation representation of a
+// floating-point value. It makes use of the standard scientific notation:
+//
+//   d_0 . d_1 d_2 ... d_{n - 1} x 10^{exponent},
+//
+// where each d_j lives in [0, 9] and 'exponent' is an integer.
+// We contiguously store the decimal digits with this implied format. For
+// example, to represent the first several digits of pi, we would have:
+//
+//   exponent = 0,
+//   d_0 = 3, d_1 = 1, d_2 = 4, d_3 = 1, d_4 = 5, d_5 = 9, ...
+//
+// To represent 152.4, we would have
+//
+//   exponent = 2,
+//   d_0 = 1, d_1 = 5, d_2 = 2, d_3 = 4.
+//
+// Special values, such as NaN or +-infinity, should be specially handled
+// rather than using this structure.
+struct DecimalScientificNotation {
+  // The sign of the value.
+  bool positive = true;
+
+  // The exponent of the scientific notation of the value.
+  int exponent = 0;
+
+  // Each entry contains a value in the range 0 to 9.
+  std::vector<unsigned char> digits;
+};
+
 // A class which concatenates the mantissas of two real floating-point values
 // in order to produce a datatype whose mantissa is twice the length of one of
 // the two components. The typical case is for the underlying datatype to be
@@ -147,6 +177,14 @@ class DoubleMantissa {
 
   // Casts the double-mantissa value into a long double.
   operator long double() const;
+
+  // Convert the double-mantissa value into scientific notation.
+  mantis::DecimalScientificNotation DecimalScientificNotation(
+      int num_digits) const;
+
+  // Fills this double-mantissa value using a decimal scientific representation.
+  DoubleMantissa<Real>& FromDecimalScientificNotation(
+      const mantis::DecimalScientificNotation& rep);
 
   // Returns the approximate ratio x / y using one refinement.
   static DoubleMantissa<Real> FastDivide(const DoubleMantissa<Real>& x,
@@ -576,6 +614,15 @@ mantis::DoubleMantissa<Real> cosh(const mantis::DoubleMantissa<Real>& value);
 
 template <typename Real>
 mantis::DoubleMantissa<Real> exp(const mantis::DoubleMantissa<Real>& value);
+
+template <typename Real>
+bool isfinite(const mantis::DoubleMantissa<Real>& value);
+
+template <typename Real>
+bool isinf(const mantis::DoubleMantissa<Real>& value);
+
+template <typename Real>
+bool isnan(const mantis::DoubleMantissa<Real>& value);
 
 template <typename Real>
 mantis::DoubleMantissa<Real> ldexp(const mantis::DoubleMantissa<Real>& value,
