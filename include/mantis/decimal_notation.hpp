@@ -5,16 +5,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-#ifndef MANTIS_SCIENTIFIC_NOTATION_H_
-#define MANTIS_SCIENTIFIC_NOTATION_H_
+#ifndef MANTIS_DECIMAL_NOTATION_H_
+#define MANTIS_DECIMAL_NOTATION_H_
 
 #include <string>
 #include <vector>
 
 namespace mantis {
 
-// A structure for the decimal scientific notation representation of a
-// floating-point value. It makes use of the standard scientific notation:
+// A structure for the scientific decimal notation representation of a
+// floating-point value. It makes use of the standard decimal notation:
 //
 //   +- d_0 . d_1 d_2 ... d_{n - 1} x 10^{exponent},
 //
@@ -46,22 +46,22 @@ namespace mantis {
 //
 // and negative infinity has 'positive' equal to false.
 //
-struct ScientificNotation {
+struct DecimalNotation {
   // The sign of the value.
   bool positive = true;
 
-  // The exponent of the scientific notation of the value.
+  // The exponent of the decimal notation of the value.
   int exponent = 0;
 
   // Each entry contains a value in the range 0 to 9, except in the cases of
   // NaN and +-infinity.
   std::vector<unsigned char> digits;
 
-  // Returns a string for the decimal scientific notation.
+  // Returns a string for the decimal notation.
   std::string ToString() const;
 
-  // Fills this class by converting a string in decimal scientific notation.
-  ScientificNotation& FromString(const std::string& rep);
+  // Fills this class by converting a string in decimal notation.
+  DecimalNotation& FromString(const std::string& rep);
 };
 
 }  // namespace std
@@ -70,6 +70,6 @@ struct ScientificNotation {
 constexpr unsigned char operator"" _uchar(
     unsigned long long int value) noexcept;
 
-#include "mantis/scientific_notation-impl.hpp"
+#include "mantis/decimal_notation-impl.hpp"
 
-#endif  // ifndef MANTIS_SCIENTIFIC_NOTATION_H_
+#endif  // ifndef MANTIS_DECIMAL_NOTATION_H_

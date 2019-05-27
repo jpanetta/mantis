@@ -11,7 +11,8 @@
 #include <cmath>
 #include <limits>
 
-#include "mantis/scientific_notation.hpp"
+#include "mantis/binary_notation.hpp"
+#include "mantis/decimal_notation.hpp"
 #include "mantis/util.hpp"
 
 namespace mantis {
@@ -52,8 +53,11 @@ class DoubleMantissa {
   // Copy constructor.
   DoubleMantissa(const DoubleMantissa<Real>& value);
 
+  // Constructs from binary notation.
+  DoubleMantissa(const BinaryNotation& rep);
+
   // Constructs from the decimal scientific notation.
-  DoubleMantissa(const ScientificNotation& rep);
+  DoubleMantissa(const DecimalNotation& rep);
 
   // Constructs from a string decimal representation.
   DoubleMantissa(const std::string& rep);
@@ -140,11 +144,17 @@ class DoubleMantissa {
   // Casts the double-mantissa value into a long double.
   operator long double() const;
 
+  // Convert the double-mantissa value into binary notation.
+  BinaryNotation ToBinary(int num_digits) const;
+
   // Convert the double-mantissa value into scientific notation.
-  ScientificNotation ToScientificNotation(int num_digits) const;
+  DecimalNotation ToDecimal(int num_digits) const;
+
+  // Fills this double-mantissa value using a binary representation.
+  DoubleMantissa<Real>& FromBinary(const BinaryNotation& rep);
 
   // Fills this double-mantissa value using a decimal scientific representation.
-  DoubleMantissa<Real>& FromScientificNotation(const ScientificNotation& rep);
+  DoubleMantissa<Real>& FromDecimal(const DecimalNotation& rep);
 
   // Returns the approximate ratio x / y using one refinement.
   static DoubleMantissa<Real> FastDivide(const DoubleMantissa<Real>& x,

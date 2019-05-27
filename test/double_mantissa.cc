@@ -11,8 +11,9 @@
 #include <tuple>
 #include "catch2/catch.hpp"
 #include "mantis.hpp"
+using mantis::BinaryNotation;
+using mantis::DecimalNotation;
 using mantis::DoubleMantissa;
-using mantis::ScientificNotation;
 
 TEST_CASE("Add [float]", "[Add float]") {
   DoubleMantissa<float> value(1.f, 2.f);
@@ -869,76 +870,192 @@ TEST_CASE("Power [double]", "[Power double]") {
   }
 }
 
-TEST_CASE("ScientificNotation [double]", "[ScientificNotation double]") {
+TEST_CASE("BinaryNotation [double]", "[BinaryNotation double]") {
   mantis::FPUFix fpu_fix;
 
-  const std::vector<std::tuple<DoubleMantissa<double>, int, ScientificNotation>>
+  const std::vector<std::tuple<DoubleMantissa<double>, int, BinaryNotation>>
+      tests{
+          std::make_tuple(
+              DoubleMantissa<double>(1.), 5,
+              BinaryNotation{
+                  true, 1, std::vector<unsigned char>{1_uchar, 0_uchar, 0_uchar,
+                                                      0_uchar, 0_uchar}}),
+          std::make_tuple(
+              DoubleMantissa<double>(2.), 5,
+              BinaryNotation{
+                  true, 2, std::vector<unsigned char>{1_uchar, 0_uchar, 0_uchar,
+                                                      0_uchar, 0_uchar}}),
+          std::make_tuple(
+              DoubleMantissa<double>(-4.), 5,
+              BinaryNotation{false, 3,
+                             std::vector<unsigned char>{
+                                 1_uchar, 0_uchar, 0_uchar, 0_uchar, 0_uchar}}),
+          std::make_tuple(DoubleMantissa<double>(),
+                          6, BinaryNotation{true, 0,
+                                            std::vector<unsigned char>{
+                                                0_uchar, 0_uchar, 0_uchar,
+                                                0_uchar, 0_uchar, 0_uchar}}),
+          std::make_tuple(
+              DoubleMantissa<double>(-1.) / 4., 5,
+              BinaryNotation{false, -1,
+                             std::vector<unsigned char>{
+                                 1_uchar, 0_uchar, 0_uchar, 0_uchar, 0_uchar}}),
+
+          std::make_tuple(
+              mantis::double_mantissa::QuietNan<double>(), 8,
+              BinaryNotation{true, 0,
+                             std::vector<unsigned char>{'n', 'a', 'n'}}),
+          std::make_tuple(
+              mantis::double_mantissa::Infinity<double>(), 8,
+              BinaryNotation{true, 0,
+                             std::vector<unsigned char>{'i', 'n', 'f'}}),
+          std::make_tuple(
+              -mantis::double_mantissa::Infinity<double>(), 8,
+              BinaryNotation{false, 0,
+                             std::vector<unsigned char>{'i', 'n', 'f'}}),
+      };
+
+  // The maximum number of digits required for an exact binary round-trip.
+  const int digits = std::numeric_limits<DoubleMantissa<double>>::digits;
+
+  // The double-mantissa epsilon.
+  const double epsilon = std::numeric_limits<DoubleMantissa<double>>::epsilon();
+
+  for (const auto& test : tests) {
+    const DoubleMantissa<double> value = std::get<0>(test);
+    const int num_digits = std::get<1>(test);
+    const BinaryNotation expected_rep = std::get<2>(test);
+
+    const BinaryNotation rep = value.ToBinary(num_digits);
+    REQUIRE(rep.positive == expected_rep.positive);
+    REQUIRE(rep.exponent == expected_rep.exponent);
+    REQUIRE(rep.digits.size() == expected_rep.digits.size());
+    for (unsigned digit = 0; digit < rep.digits.size(); ++digit) {
+      REQUIRE(rep.digits[digit] == expected_rep.digits[digit]);
+    }
+
+    if (std::isfinite(value)) {
+      const BinaryNotation full_rep = value.ToBinary(digits);
+      const DoubleMantissa<double> value_reformed(full_rep);
+
+      const DoubleMantissa<double> error = value - value_reformed;
+      const double tolerance = epsilon * std::abs(value.Upper());
+      REQUIRE(std::abs(error.Upper()) <= tolerance);
+    }
+  }
+
+  const std::vector<std::pair<std::string, BinaryNotation>> string_tests{
+      std::make_pair(
+          "1000", BinaryNotation{true, 4,
+                                 std::vector<unsigned char>{1_uchar, 0_uchar,
+                                                            0_uchar, 0_uchar}}),
+      std::make_pair("1000e5",
+                     BinaryNotation{true, 9,
+                                    std::vector<unsigned char>{
+                                        1_uchar, 0_uchar, 0_uchar, 0_uchar}}),
+      std::make_pair(".1000e5",
+                     BinaryNotation{true, 5,
+                                    std::vector<unsigned char>{
+                                        1_uchar, 0_uchar, 0_uchar, 0_uchar}}),
+      std::make_pair("0.1000e5", BinaryNotation{true, 6,
+                                                std::vector<unsigned char>{
+                                                    0_uchar, 1_uchar, 0_uchar,
+                                                    0_uchar, 0_uchar}}),
+      std::make_pair("101.1011e4",
+                     BinaryNotation{true, 7,
+                                    std::vector<unsigned char>{
+                                        1_uchar, 0_uchar, 1_uchar, 1_uchar,
+                                        0_uchar, 1_uchar, 1_uchar}}),
+      std::make_pair("-101.1011e4",
+                     BinaryNotation{false, 7,
+                                    std::vector<unsigned char>{
+                                        1_uchar, 0_uchar, 1_uchar, 1_uchar,
+                                        0_uchar, 1_uchar, 1_uchar}}),
+  };
+
+  for (const auto& test : string_tests) {
+    const std::string& input = test.first;
+    const BinaryNotation& expected_rep = test.second;
+
+    BinaryNotation rep;
+    rep.FromString(input);
+    REQUIRE(rep.positive == expected_rep.positive);
+    REQUIRE(rep.exponent == expected_rep.exponent);
+    REQUIRE(rep.digits.size() == expected_rep.digits.size());
+    for (unsigned digit = 0; digit < rep.digits.size(); ++digit) {
+      REQUIRE(rep.digits[digit] == expected_rep.digits[digit]);
+    }
+  }
+}
+
+TEST_CASE("DecimalNotation [double]", "[DecimalNotation double]") {
+  mantis::FPUFix fpu_fix;
+
+  const std::vector<std::tuple<DoubleMantissa<double>, int, DecimalNotation>>
       tests{
           std::make_tuple(
               DoubleMantissa<double>(3.14159), 5,
-              ScientificNotation{
+              DecimalNotation{
                   true, 0, std::vector<unsigned char>{3_uchar, 1_uchar, 4_uchar,
                                                       1_uchar, 6_uchar}}),
           std::make_tuple(
               DoubleMantissa<double>(3.14159), 4,
-              ScientificNotation{
+              DecimalNotation{
                   true, 0, std::vector<unsigned char>{3_uchar, 1_uchar, 4_uchar,
                                                       2_uchar}}),
           std::make_tuple(DoubleMantissa<double>(-3.14159), 5,
-                          ScientificNotation{false, 0,
+                          DecimalNotation{false, 0,
+                                          std::vector<unsigned char>{
+                                              3_uchar, 1_uchar, 4_uchar,
+                                              1_uchar, 6_uchar}}),
+          std::make_tuple(DoubleMantissa<double>(113.1238),
+                          6, DecimalNotation{true, 2,
                                              std::vector<unsigned char>{
-                                                 3_uchar, 1_uchar, 4_uchar,
-                                                 1_uchar, 6_uchar}}),
-          std::make_tuple(
-              DoubleMantissa<double>(113.1238), 6,
-              ScientificNotation{
-                  true, 2,
-                  std::vector<unsigned char>{1_uchar, 1_uchar, 3_uchar, 1_uchar,
-                                             2_uchar, 4_uchar}}),
+                                                 1_uchar, 1_uchar, 3_uchar,
+                                                 1_uchar, 2_uchar, 4_uchar}}),
           std::make_tuple(DoubleMantissa<double>(1.131238e49), 6,
-                          ScientificNotation{true, 49,
-                                             std::vector<unsigned char>{
-                                                 1_uchar, 1_uchar, 3_uchar,
-                                                 1_uchar, 2_uchar, 4_uchar}}),
+                          DecimalNotation{true, 49,
+                                          std::vector<unsigned char>{
+                                              1_uchar, 1_uchar, 3_uchar,
+                                              1_uchar, 2_uchar, 4_uchar}}),
           std::make_tuple(DoubleMantissa<double>(1.131238e204), 6,
-                          ScientificNotation{true, 204,
-                                             std::vector<unsigned char>{
-                                                 1_uchar, 1_uchar, 3_uchar,
-                                                 1_uchar, 2_uchar, 4_uchar}}),
+                          DecimalNotation{true, 204,
+                                          std::vector<unsigned char>{
+                                              1_uchar, 1_uchar, 3_uchar,
+                                              1_uchar, 2_uchar, 4_uchar}}),
           std::make_tuple(DoubleMantissa<double>(0.001131238), 6,
-                          ScientificNotation{true, -3,
-                                             std::vector<unsigned char>{
-                                                 1_uchar, 1_uchar, 3_uchar,
-                                                 1_uchar, 2_uchar, 4_uchar}}),
+                          DecimalNotation{true, -3,
+                                          std::vector<unsigned char>{
+                                              1_uchar, 1_uchar, 3_uchar,
+                                              1_uchar, 2_uchar, 4_uchar}}),
           std::make_tuple(
               DoubleMantissa<double>(1.131238e-300), 6,
-              ScientificNotation{
+              DecimalNotation{
                   true, -300,
                   std::vector<unsigned char>{1_uchar, 1_uchar, 3_uchar, 1_uchar,
                                              2_uchar, 4_uchar}}),
           std::make_tuple(
               DoubleMantissa<double>(9.9999999), 5,
-              ScientificNotation{
+              DecimalNotation{
                   true, 1, std::vector<unsigned char>{1_uchar, 0_uchar, 0_uchar,
                                                       0_uchar, 0_uchar}}),
-          std::make_tuple(
-              DoubleMantissa<double>(), 6,
-              ScientificNotation{
-                  true, 0,
-                  std::vector<unsigned char>{0_uchar, 0_uchar, 0_uchar, 0_uchar,
-                                             0_uchar, 0_uchar}}),
+          std::make_tuple(DoubleMantissa<double>(),
+                          6, DecimalNotation{true, 0,
+                                             std::vector<unsigned char>{
+                                                 0_uchar, 0_uchar, 0_uchar,
+                                                 0_uchar, 0_uchar, 0_uchar}}),
           std::make_tuple(
               mantis::double_mantissa::QuietNan<double>(), 8,
-              ScientificNotation{true, 0,
-                                 std::vector<unsigned char>{'n', 'a', 'n'}}),
+              DecimalNotation{true, 0,
+                              std::vector<unsigned char>{'n', 'a', 'n'}}),
           std::make_tuple(
               mantis::double_mantissa::Infinity<double>(), 8,
-              ScientificNotation{true, 0,
-                                 std::vector<unsigned char>{'i', 'n', 'f'}}),
+              DecimalNotation{true, 0,
+                              std::vector<unsigned char>{'i', 'n', 'f'}}),
           std::make_tuple(
               -mantis::double_mantissa::Infinity<double>(), 8,
-              ScientificNotation{false, 0,
-                                 std::vector<unsigned char>{'i', 'n', 'f'}}),
+              DecimalNotation{false, 0,
+                              std::vector<unsigned char>{'i', 'n', 'f'}}),
       };
 
   // The maximum number of digits required for an exact decimal round-trip.
@@ -951,9 +1068,9 @@ TEST_CASE("ScientificNotation [double]", "[ScientificNotation double]") {
   for (const auto& test : tests) {
     const DoubleMantissa<double> value = std::get<0>(test);
     const int num_digits = std::get<1>(test);
-    const ScientificNotation expected_rep = std::get<2>(test);
+    const DecimalNotation expected_rep = std::get<2>(test);
 
-    const ScientificNotation rep = value.ToScientificNotation(num_digits);
+    const DecimalNotation rep = value.ToDecimal(num_digits);
     REQUIRE(rep.positive == expected_rep.positive);
     REQUIRE(rep.exponent == expected_rep.exponent);
     REQUIRE(rep.digits.size() == expected_rep.digits.size());
@@ -962,8 +1079,7 @@ TEST_CASE("ScientificNotation [double]", "[ScientificNotation double]") {
     }
 
     if (std::isfinite(value)) {
-      const ScientificNotation full_rep =
-          value.ToScientificNotation(max_digits10);
+      const DecimalNotation full_rep = value.ToDecimal(max_digits10);
       const DoubleMantissa<double> value_reformed(full_rep);
 
       const DoubleMantissa<double> error = value - value_reformed;
@@ -972,87 +1088,85 @@ TEST_CASE("ScientificNotation [double]", "[ScientificNotation double]") {
     }
   }
 
-  const std::vector<std::pair<std::string, ScientificNotation>> string_tests{
+  const std::vector<std::pair<std::string, DecimalNotation>> string_tests{
       std::make_pair(
           "3.14159",
-          ScientificNotation{
+          DecimalNotation{
               true, 0, std::vector<unsigned char>{3_uchar, 1_uchar, 4_uchar,
                                                   1_uchar, 5_uchar, 9_uchar}}),
       std::make_pair(
           "+3.14159",
-          ScientificNotation{
+          DecimalNotation{
               true, 0, std::vector<unsigned char>{3_uchar, 1_uchar, 4_uchar,
                                                   1_uchar, 5_uchar, 9_uchar}}),
+      std::make_pair("-3.14159",
+                     DecimalNotation{false, 0,
+                                     std::vector<unsigned char>{
+                                         3_uchar, 1_uchar, 4_uchar, 1_uchar,
+                                         5_uchar, 9_uchar}}),
+      std::make_pair("3.14159e2",
+                     DecimalNotation{true, 2,
+                                     std::vector<unsigned char>{
+                                         3_uchar, 1_uchar, 4_uchar, 1_uchar,
+                                         5_uchar, 9_uchar}}),
+      std::make_pair("3.14159E2",
+                     DecimalNotation{true, 2,
+                                     std::vector<unsigned char>{
+                                         3_uchar, 1_uchar, 4_uchar, 1_uchar,
+                                         5_uchar, 9_uchar}}),
+      std::make_pair("-3.14159e2",
+                     DecimalNotation{false, 2,
+                                     std::vector<unsigned char>{
+                                         3_uchar, 1_uchar, 4_uchar, 1_uchar,
+                                         5_uchar, 9_uchar}}),
+      std::make_pair("-3.14159E2",
+                     DecimalNotation{false, 2,
+                                     std::vector<unsigned char>{
+                                         3_uchar, 1_uchar, 4_uchar, 1_uchar,
+                                         5_uchar, 9_uchar}}),
+      std::make_pair("3.14159e-2",
+                     DecimalNotation{true, -2,
+                                     std::vector<unsigned char>{
+                                         3_uchar, 1_uchar, 4_uchar, 1_uchar,
+                                         5_uchar, 9_uchar}}),
       std::make_pair(
-          "-3.14159",
-          ScientificNotation{
+          "-3.14159e-2",
+          DecimalNotation{
               false,
-              0, std::vector<unsigned char>{3_uchar, 1_uchar, 4_uchar, 1_uchar,
-                                            5_uchar, 9_uchar}}),
-      std::make_pair(
-          "3.14159e2",
-          ScientificNotation{
-              true, 2, std::vector<unsigned char>{3_uchar, 1_uchar, 4_uchar,
-                                                  1_uchar, 5_uchar, 9_uchar}}),
-      std::make_pair(
-          "3.14159E2",
-          ScientificNotation{
-              true, 2, std::vector<unsigned char>{3_uchar, 1_uchar, 4_uchar,
-                                                  1_uchar, 5_uchar, 9_uchar}}),
-      std::make_pair(
-          "-3.14159e2",
-          ScientificNotation{
-              false, 2, std::vector<unsigned char>{3_uchar, 1_uchar, 4_uchar,
+              -2, std::vector<unsigned char>{3_uchar, 1_uchar, 4_uchar, 1_uchar,
+                                             5_uchar, 9_uchar}}),
+      std::make_pair("314159", DecimalNotation{true, 5,
+                                               std::vector<unsigned char>{
+                                                   3_uchar, 1_uchar, 4_uchar,
                                                    1_uchar, 5_uchar, 9_uchar}}),
-      std::make_pair(
-          "-3.14159E2",
-          ScientificNotation{
-              false, 2, std::vector<unsigned char>{3_uchar, 1_uchar, 4_uchar,
-                                                   1_uchar, 5_uchar, 9_uchar}}),
-      std::make_pair(
-          "3.14159e-2",
-          ScientificNotation{
-              true, -2, std::vector<unsigned char>{3_uchar, 1_uchar, 4_uchar,
-                                                   1_uchar, 5_uchar, 9_uchar}}),
-      std::make_pair(
-          "-3.14159e-2", ScientificNotation{false, -2,
-                                            std::vector<unsigned char>{
-                                                3_uchar, 1_uchar, 4_uchar,
-                                                1_uchar, 5_uchar, 9_uchar}}),
-      std::make_pair(
-          "314159",
-          ScientificNotation{
-              true, 5, std::vector<unsigned char>{3_uchar, 1_uchar, 4_uchar,
-                                                  1_uchar, 5_uchar, 9_uchar}}),
-      std::make_pair(
-          "-314159",
-          ScientificNotation{
-              false, 5, std::vector<unsigned char>{3_uchar, 1_uchar, 4_uchar,
-                                                   1_uchar, 5_uchar, 9_uchar}}),
+      std::make_pair("-314159",
+                     DecimalNotation{false, 5,
+                                     std::vector<unsigned char>{
+                                         3_uchar, 1_uchar, 4_uchar, 1_uchar,
+                                         5_uchar, 9_uchar}}),
       std::make_pair(".314159",
-                     ScientificNotation{true, 0,
-                                        std::vector<unsigned char>{
-                                            0_uchar, 3_uchar, 1_uchar, 4_uchar,
-                                            1_uchar, 5_uchar, 9_uchar}}),
-      std::make_pair(
-          "+.314159", ScientificNotation{true, 0,
-                                         std::vector<unsigned char>{
-                                             0_uchar, 3_uchar, 1_uchar, 4_uchar,
-                                             1_uchar, 5_uchar, 9_uchar}}),
-      std::make_pair(
-          "-.314159",
-          ScientificNotation{
-              false,
-              0, std::vector<unsigned char>{0_uchar, 3_uchar, 1_uchar, 4_uchar,
-                                            1_uchar, 5_uchar, 9_uchar}}),
+                     DecimalNotation{true, 0,
+                                     std::vector<unsigned char>{
+                                         0_uchar, 3_uchar, 1_uchar, 4_uchar,
+                                         1_uchar, 5_uchar, 9_uchar}}),
+      std::make_pair("+.314159",
+                     DecimalNotation{true, 0,
+                                     std::vector<unsigned char>{
+                                         0_uchar, 3_uchar, 1_uchar, 4_uchar,
+                                         1_uchar, 5_uchar, 9_uchar}}),
+      std::make_pair("-.314159",
+                     DecimalNotation{false, 0,
+                                     std::vector<unsigned char>{
+                                         0_uchar, 3_uchar, 1_uchar, 4_uchar,
+                                         1_uchar, 5_uchar, 9_uchar}}),
 
   };
 
   for (const auto& test : string_tests) {
     const std::string& input = test.first;
-    const ScientificNotation& expected_rep = test.second;
+    const DecimalNotation& expected_rep = test.second;
 
-    ScientificNotation rep;
+    DecimalNotation rep;
     rep.FromString(input);
     REQUIRE(rep.positive == expected_rep.positive);
     REQUIRE(rep.exponent == expected_rep.exponent);

@@ -11,8 +11,15 @@
 
 template <typename Real>
 void RunTest() {
+  const int num_bits =
+      std::numeric_limits<mantis::DoubleMantissa<Real>>::digits;
+  const mantis::DoubleMantissa<Real> epsilon =
+      std::numeric_limits<mantis::DoubleMantissa<Real>>::epsilon();
+  std::cout << "num bits: " << num_bits << ", epsilon: " << epsilon
+            << std::endl;
+
   const mantis::DoubleMantissa<Real> x("1.2345678901234567890123456789012e1");
-  const mantis::ScientificNotation y_rep{true, 1, std::vector<unsigned char>{
+  const mantis::DecimalNotation y_decimal{true, 1, std::vector<unsigned char>{
       1_uchar,
       2_uchar,
       3_uchar,
@@ -45,7 +52,7 @@ void RunTest() {
       0_uchar,
       1_uchar,
       2_uchar}};
-  const mantis::DoubleMantissa<Real> y(y_rep);
+  const mantis::DoubleMantissa<Real> y(y_decimal);
   const mantis::DoubleMantissa<Real> z = x - y;
   std::cout << "x: " << x << ",\ny: " << y << ",\nx - y: " << z << std::endl;
 
@@ -56,9 +63,8 @@ void RunTest() {
             << x_exp_log << ",\nx - log(exp(x)): " << x_exp_log_error
             << std::endl;
 
-  const mantis::DoubleMantissa<Real> epsilon =
-      std::numeric_limits<mantis::DoubleMantissa<Real>>::epsilon();
-  std::cout << "epsilon: " << epsilon << std::endl;
+  const mantis::BinaryNotation x_binary = x.ToBinary(num_bits);
+  std::cout << "x binary: " << x_binary.ToString() << std::endl;
 }
 
 int main(int argc, char* argv[]) {

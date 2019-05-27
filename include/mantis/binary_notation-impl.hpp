@@ -5,14 +5,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-#ifndef MANTIS_SCIENTIFIC_NOTATION_IMPL_H_
-#define MANTIS_SCIENTIFIC_NOTATION_IMPL_H_
+#ifndef MANTIS_BINARY_NOTATION_IMPL_H_
+#define MANTIS_BINARY_NOTATION_IMPL_H_
 
-#include "mantis/scientific_notation.hpp"
+#include "mantis/binary_notation.hpp"
 
 namespace mantis {
 
-inline std::string ScientificNotation::ToString() const {
+inline std::string BinaryNotation::ToString() const {
   std::string s;
   if (!positive) {
     s += '-';
@@ -22,9 +22,8 @@ inline std::string ScientificNotation::ToString() const {
   } else if (digits.size() == 3 && digits[0] == 'n') {
     s += "nan";
   } else {
-    s += std::to_string(unsigned(digits[0]));
-    s += '.';
-    for (unsigned digit = 1; digit < digits.size(); ++digit) {
+    s += "0.";
+    for (unsigned digit = 0; digit < digits.size(); ++digit) {
       s += std::to_string(unsigned(digits[digit]));
     }
     if (exponent != 0) {
@@ -35,8 +34,7 @@ inline std::string ScientificNotation::ToString() const {
   return s;
 }
 
-inline ScientificNotation& ScientificNotation::FromString(
-    const std::string& rep) {
+inline BinaryNotation& BinaryNotation::FromString(const std::string& rep) {
   positive = true;
   exponent = 0;
   digits.clear();
@@ -68,19 +66,16 @@ inline ScientificNotation& ScientificNotation::FromString(
   const std::string::size_type period_pos = value_string.find('.');
   const bool have_period = period_pos != std::string::npos;
   if (have_period) {
+    num_digits = value_string.size() - 1;
+    digits.resize(num_digits);
     if (period_pos == 0) {
-      // The number is of the form .1234, so there is an implicit zero.
+      // The number is of the form .0101, so there is an implicit zero.
       exponent = 0;
-      num_digits = value_string.size();
-      digits.resize(num_digits);
-      digits[0] = 0;
-      for (unsigned digit = 1; digit < num_digits; ++digit) {
-        digits[digit] = value_string[digit] - '0';
+      for (unsigned digit = 0; digit < num_digits; ++digit) {
+        digits[digit] = value_string[digit + 1] - '0';
       }
     } else {
-      exponent = period_pos - 1;
-      num_digits = value_string.size() - 1;
-      digits.resize(num_digits);
+      exponent = period_pos;
       for (unsigned digit = 0; digit < num_digits; ++digit) {
         if (digit < period_pos) {
           digits[digit] = value_string[digit] - '0';
@@ -91,14 +86,14 @@ inline ScientificNotation& ScientificNotation::FromString(
     }
   } else {
     num_digits = value_string.size();
-    exponent = num_digits - 1;
+    exponent = num_digits;
     digits.resize(num_digits);
     for (unsigned digit = 0; digit < num_digits; ++digit) {
       digits[digit] = value_string[digit] - '0';
     }
   }
 
-  // TODO(Jack Poulson): Ensure each digit is in [0, 9].
+  // TODO(Jack Poulson): Ensure each digit is in [0, 1].
 
   if (exp_pos != std::string::npos) {
     const std::string exp_string = rep.substr(exp_pos + 1);
@@ -108,11 +103,6 @@ inline ScientificNotation& ScientificNotation::FromString(
   return *this;
 }
 
-}  // namespace std
+}  // namespace mantis
 
-constexpr unsigned char operator"" _uchar(
-    unsigned long long int value) noexcept {
-  return static_cast<unsigned char>(value);
-}
-
-#endif  // ifndef MANTIS_SCIENTIFIC_NOTATION_IMPL_H_
+#endif  // ifndef MANTIS_BINARY_NOTATION_IMPL_H_
