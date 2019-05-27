@@ -712,12 +712,6 @@ TEST_CASE("HypTrig [double]", "[HypTrig double]") {
     const double unit_tolerance =
         2. * eps.Upper() * std::max(1., std::max(Square(sinh_theta).Upper(),
                                                  Square(cosh_theta).Upper()));
-    if (std::abs(unit_error.Upper()) > unit_tolerance) {
-      std::cout << "theta: " << theta << ", sinh(theta): " << sinh_theta
-                << ", cosh(theta): " << cosh_theta
-                << ", unit_error: " << unit_error
-                << ", tolerance: " << unit_tolerance << std::endl;
-    }
     REQUIRE(std::abs(unit_error.Upper()) <= unit_tolerance);
 
     // Test that cosh(theta) + sinh(theta) = exp(theta).
