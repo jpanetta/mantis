@@ -1,3 +1,5 @@
+![](./images/mantis-50pct.png)
+
 [**mantis**](https://gitlab.com/hodge_star/mantis) is a
 [C++14](https://en.wikipedia.org/wiki/C%2B%2B14), header-only implementation of
 double-mantissa arithmetic.
