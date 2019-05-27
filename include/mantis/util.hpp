@@ -10,6 +10,22 @@
 
 namespace mantis {
 
+// For overloading function definitions using type traits. For example:
+//
+//   template<typename T, typename=EnableIf<std::is_integral<T>>>
+//   int Foo(T value);
+//
+//   template<typename T, typename=DisableIf<std::is_integral<T>>>
+//   double Foo(T value);
+//
+// would lead to the 'Foo' function returning an 'int' for any integral type
+// and a 'double' for any non-integral type.
+template <typename Condition, class T = void>
+using EnableIf = typename std::enable_if<Condition::value, T>::type;
+
+template <typename Condition, class T = void>
+using DisableIf = typename std::enable_if<!Condition::value, T>::type;
+
 // Performs a -- preferably fused -- multiply and add of the form: x * y + z.
 template <typename Real>
 Real MultiplyAdd(const Real& x, const Real& y, const Real& z);
