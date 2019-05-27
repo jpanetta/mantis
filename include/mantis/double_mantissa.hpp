@@ -62,7 +62,7 @@ using DisableIf = typename std::enable_if<!Condition::value, T>::type;
 //   d: ['i', 'n', 'f'],
 //
 // and negative infinity has 'positive' equal to false.
-//   
+//
 struct DecimalScientificNotation {
   // The sign of the value.
   bool positive = true;
@@ -73,6 +73,12 @@ struct DecimalScientificNotation {
   // Each entry contains a value in the range 0 to 9, except in the cases of
   // NaN and +-infinity.
   std::vector<unsigned char> digits;
+
+  // Returns a string for the decimal scientific notation.
+  std::string ToString() const;
+
+  // Fills this class by converting a string in decimal scientific notation.
+  DecimalScientificNotation& FromString(const std::string& rep);
 };
 
 // A class which concatenates the mantissas of two real floating-point values
@@ -110,6 +116,12 @@ class DoubleMantissa {
 
   // Copy constructor.
   DoubleMantissa(const DoubleMantissa<Real>& value);
+
+  // Constructs from the decimal scientific notation.
+  DoubleMantissa(const DecimalScientificNotation& rep);
+
+  // Constructs from a string decimal representation.
+  DoubleMantissa(const std::string& rep);
 
   // Returns a reference to the larger half of the double-mantissa value.
   Real& Upper();
