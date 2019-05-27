@@ -64,6 +64,11 @@ if not have_fma_intrinsic and cxx.get_id() == 'xlc'
   endif
 endif
 
+if get_option('ieee_sum')
+  # Use the more accurate, but slower, summation mechanism.
+  cxx_args += '-DMANTIS_IEEE_SUM'
+endif
+
 # Test if specify is installed.
 found_specify = cxx.has_header('specify.hpp')
 if not found_specify

@@ -140,7 +140,7 @@ DoubleMantissa<Real>& DoubleMantissa<Real>::operator-=(
   Real lower_diff = TwoDiff(Lower(), value.Lower(), &lower_error);
 
   upper_error += lower_diff;
-  new_upper = QuickTwoSum(upper_diff, upper_error, &upper_error);
+  upper_diff = QuickTwoSum(upper_diff, upper_error, &upper_error);
 
   upper_error += lower_error;
   Upper() = QuickTwoSum(upper_diff, upper_error, &Lower());
