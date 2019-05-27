@@ -66,6 +66,10 @@ struct ScientificNotation {
 
 }  // namespace std
 
+// A string literal for unsigned char.
+constexpr unsigned char operator"" _uchar(
+    unsigned long long int value) noexcept;
+
 #include "mantis/scientific_notation-impl.hpp"
 
 #endif  // ifndef MANTIS_SCIENTIFIC_NOTATION_H_

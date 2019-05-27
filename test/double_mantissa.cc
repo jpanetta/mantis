@@ -14,11 +14,6 @@
 using mantis::DoubleMantissa;
 using mantis::ScientificNotation;
 
-constexpr unsigned char operator"" _uchar(
-    unsigned long long int value) noexcept {
-  return static_cast<unsigned char>(value);
-}
-
 TEST_CASE("Add [float]", "[Add float]") {
   DoubleMantissa<float> value(1.f, 2.f);
   REQUIRE(value.Upper() == 1.f);

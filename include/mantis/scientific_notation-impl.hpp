@@ -110,4 +110,9 @@ inline ScientificNotation& ScientificNotation::FromString(
 
 }  // namespace std
 
+constexpr unsigned char operator"" _uchar(
+    unsigned long long int value) noexcept {
+  return static_cast<unsigned char>(value);
+}
+
 #endif  // ifndef MANTIS_SCIENTIFIC_NOTATION_IMPL_H_

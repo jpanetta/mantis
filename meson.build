@@ -82,3 +82,11 @@ double_mantissa_test_exe = executable(
     dependencies : deps + test_deps,
     cpp_args : cxx_args)
 test('Double mantissa tests', double_mantissa_test_exe)
+
+# A basic usage of Mantis.
+basic_exe = executable(
+    'basic',
+    ['example/basic.cc', 'include/mantis.hpp'],
+    include_directories : include_dir,
+    dependencies : deps + example_deps,
+    cpp_args : cxx_args)
