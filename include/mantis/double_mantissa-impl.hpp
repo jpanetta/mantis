@@ -17,7 +17,7 @@
 
 namespace mantis {
 
-inline std::string DecimalScientificNotation::ToString() const {
+inline std::string ScientificNotation::ToString() const {
   std::string s;
   if (!positive) {
     s += '-';
@@ -40,7 +40,7 @@ inline std::string DecimalScientificNotation::ToString() const {
   return s;
 }
 
-inline DecimalScientificNotation& DecimalScientificNotation::FromString(
+inline ScientificNotation& ScientificNotation::FromString(
     const std::string& rep) {
   positive = true;
   exponent = 0;
@@ -130,16 +130,15 @@ DoubleMantissa<Real>::DoubleMantissa(const DoubleMantissa<Real>& value)
     : values_{value.Upper(), value.Lower()} {}
 
 template <typename Real>
-DoubleMantissa<Real>::DoubleMantissa(
-    const mantis::DecimalScientificNotation& rep) {
-  FromDecimalScientificNotation(rep);
+DoubleMantissa<Real>::DoubleMantissa(const ScientificNotation& rep) {
+  FromScientificNotation(rep);
 }
 
 template <typename Real>
 DoubleMantissa<Real>::DoubleMantissa(const std::string& rep) {
-  mantis::DecimalScientificNotation decimal_rep;
-  decimal_rep.FromString(rep);
-  FromDecimalScientificNotation(decimal_rep);
+  ScientificNotation scientific;
+  scientific.FromString(rep);
+  FromScientificNotation(scientific);
 }
 
 template <typename Real>
@@ -364,11 +363,11 @@ DoubleMantissa<Real>::operator long double() const {
 }
 
 template <typename Real>
-mantis::DecimalScientificNotation
-DoubleMantissa<Real>::DecimalScientificNotation(int num_digits) const {
+ScientificNotation DoubleMantissa<Real>::ToScientificNotation(
+    int num_digits) const {
   DoubleMantissa<Real> value = *this;
 
-  mantis::DecimalScientificNotation rep;
+  ScientificNotation rep;
 
   // Testing the negation of negativity also functions for NaN.
   rep.positive = !(value < DoubleMantissa<Real>());
@@ -441,8 +440,8 @@ DoubleMantissa<Real>::DecimalScientificNotation(int num_digits) const {
 }
 
 template <typename Real>
-DoubleMantissa<Real>& DoubleMantissa<Real>::FromDecimalScientificNotation(
-    const mantis::DecimalScientificNotation& rep) {
+DoubleMantissa<Real>& DoubleMantissa<Real>::FromScientificNotation(
+    const ScientificNotation& rep) {
   *this = DoubleMantissa<Real>();
 
   // Specially handle NaN and +-infinity.
@@ -1865,8 +1864,8 @@ std::ostream& operator<<(std::ostream& out,
                          const mantis::DoubleMantissa<Real>& value) {
   constexpr int max_digits10 =
       std::numeric_limits<mantis::DoubleMantissa<Real>>::max_digits10;
-  const mantis::DecimalScientificNotation rep =
-      value.DecimalScientificNotation(max_digits10);
+  const mantis::ScientificNotation rep =
+      value.ToScientificNotation(max_digits10);
   out << rep.ToString();
   return out;
 }

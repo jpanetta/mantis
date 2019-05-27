@@ -63,7 +63,7 @@ using DisableIf = typename std::enable_if<!Condition::value, T>::type;
 //
 // and negative infinity has 'positive' equal to false.
 //
-struct DecimalScientificNotation {
+struct ScientificNotation {
   // The sign of the value.
   bool positive = true;
 
@@ -78,7 +78,7 @@ struct DecimalScientificNotation {
   std::string ToString() const;
 
   // Fills this class by converting a string in decimal scientific notation.
-  DecimalScientificNotation& FromString(const std::string& rep);
+  ScientificNotation& FromString(const std::string& rep);
 };
 
 // A class which concatenates the mantissas of two real floating-point values
@@ -118,7 +118,7 @@ class DoubleMantissa {
   DoubleMantissa(const DoubleMantissa<Real>& value);
 
   // Constructs from the decimal scientific notation.
-  DoubleMantissa(const DecimalScientificNotation& rep);
+  DoubleMantissa(const ScientificNotation& rep);
 
   // Constructs from a string decimal representation.
   DoubleMantissa(const std::string& rep);
@@ -206,12 +206,10 @@ class DoubleMantissa {
   operator long double() const;
 
   // Convert the double-mantissa value into scientific notation.
-  mantis::DecimalScientificNotation DecimalScientificNotation(
-      int num_digits) const;
+  ScientificNotation ToScientificNotation(int num_digits) const;
 
   // Fills this double-mantissa value using a decimal scientific representation.
-  DoubleMantissa<Real>& FromDecimalScientificNotation(
-      const mantis::DecimalScientificNotation& rep);
+  DoubleMantissa<Real>& FromScientificNotation(const ScientificNotation& rep);
 
   // Returns the approximate ratio x / y using one refinement.
   static DoubleMantissa<Real> FastDivide(const DoubleMantissa<Real>& x,
