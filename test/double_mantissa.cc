@@ -389,9 +389,9 @@ TEST_CASE("Log10 [float]", "[Log10 float]") {
               std::numeric_limits<DoubleMantissa<float>>::quiet_NaN()),
       };
 
-  for (const auto& pair : tests) {
-    const DoubleMantissa<float>& x = pair.first;
-    const DoubleMantissa<float>& x_log10_expected = pair.second;
+  for (const auto& test : tests) {
+    const DoubleMantissa<float>& x = test.first;
+    const DoubleMantissa<float>& x_log10_expected = test.second;
 
     const DoubleMantissa<float> x_log10 = std::log10(x);
     const DoubleMantissa<float> x_log10_error = x_log10_expected - x_log10;
@@ -439,9 +439,9 @@ TEST_CASE("Log10 [double]", "[Log10 double]") {
               std::numeric_limits<DoubleMantissa<double>>::quiet_NaN()),
       };
 
-  for (const auto& pair : tests) {
-    const DoubleMantissa<double>& x = pair.first;
-    const DoubleMantissa<double>& x_log10_expected = pair.second;
+  for (const auto& test : tests) {
+    const DoubleMantissa<double>& x = test.first;
+    const DoubleMantissa<double>& x_log10_expected = test.second;
 
     const DoubleMantissa<double> x_log10 = std::log10(x);
     const DoubleMantissa<double> x_log10_error = x_log10_expected - x_log10;
@@ -493,9 +493,9 @@ TEST_CASE("Round [float]", "[Round float]") {
                          DoubleMantissa<float>(-75689433.f)),
       };
 
-  for (const auto& pair : tests) {
-    const DoubleMantissa<float>& x = pair.first;
-    const DoubleMantissa<float>& x_round_expected = pair.second;
+  for (const auto& test : tests) {
+    const DoubleMantissa<float>& x = test.first;
+    const DoubleMantissa<float>& x_round_expected = test.second;
 
     const DoubleMantissa<float> x_round = std::round(x);
     const DoubleMantissa<float> x_round_error = x_round_expected - x_round;
@@ -544,9 +544,9 @@ TEST_CASE("Round [double]", "[Round double]") {
                          DoubleMantissa<double>(-75689433.)),
       };
 
-  for (const auto& pair : tests) {
-    const DoubleMantissa<double>& x = pair.first;
-    const DoubleMantissa<double>& x_round_expected = pair.second;
+  for (const auto& test : tests) {
+    const DoubleMantissa<double>& x = test.first;
+    const DoubleMantissa<double>& x_round_expected = test.second;
 
     const DoubleMantissa<double> x_round = std::round(x);
     const DoubleMantissa<double> x_round_error = x_round_expected - x_round;
@@ -583,9 +583,9 @@ TEST_CASE("Abs [double]", "[Abs double]") {
                          DoubleMantissa<double>(75689432.5, 1e-5)),
       };
 
-  for (const auto& pair : tests) {
-    const DoubleMantissa<double>& x = pair.first;
-    const DoubleMantissa<double>& x_abs_expected = pair.second;
+  for (const auto& test : tests) {
+    const DoubleMantissa<double>& x = test.first;
+    const DoubleMantissa<double>& x_abs_expected = test.second;
 
     const DoubleMantissa<double> x_abs = std::abs(x);
     const DoubleMantissa<double> x_abs_error = x_abs_expected - x_abs;
@@ -759,10 +759,10 @@ TEST_CASE("Floor [double]", "[Floor double]") {
                          DoubleMantissa<double>(3.)),
       };
 
-  for (const auto& pair : tests) {
-    const DoubleMantissa<double>& x = pair.first;
-    const DoubleMantissa<double>& x_floor_expected = pair.second;
-    const DoubleMantissa<double> x_floor = mantis::Floor(x);
+  for (const auto& test : tests) {
+    const DoubleMantissa<double>& x = test.first;
+    const DoubleMantissa<double>& x_floor_expected = test.second;
+    const DoubleMantissa<double> x_floor = std::floor(x);
     const DoubleMantissa<double> x_floor_error = x_floor - x_floor_expected;
     const double tolerance = 2. * eps * std::abs(x_floor_expected.Upper());
     REQUIRE(std::abs(x_floor_error.Upper()) <= tolerance);
@@ -774,6 +774,110 @@ TEST_CASE("Floor [double]", "[Floor double]") {
 
   REQUIRE(static_cast<long long int>(DoubleMantissa<double>(
               12345678901234500., 67.5)) == 12345678901234567LL);
+}
+
+TEST_CASE("IntegerPower [double]", "[IntegerPower double]") {
+  mantis::FPUFix fpu_fix;
+
+  const std::vector<
+      std::tuple<DoubleMantissa<double>, int, DoubleMantissa<double>>>
+      tests{
+          std::make_tuple(DoubleMantissa<double>(10.), 0,
+                          DoubleMantissa<double>(1.)),
+          std::make_tuple(DoubleMantissa<double>(10.), 1,
+                          DoubleMantissa<double>(10.)),
+          std::make_tuple(DoubleMantissa<double>(10.), -1,
+                          DoubleMantissa<double>(1.) / 10.),
+          std::make_tuple(DoubleMantissa<double>(10.), 3,
+                          DoubleMantissa<double>(1e3)),
+          std::make_tuple(DoubleMantissa<double>(10.), -3,
+                          DoubleMantissa<double>(1.) / 1e3),
+          std::make_tuple(DoubleMantissa<double>(10.), 15,
+                          DoubleMantissa<double>(1e15)),
+          std::make_tuple(DoubleMantissa<double>(10.), -15,
+                          DoubleMantissa<double>(1.) / 1e15),
+          std::make_tuple(DoubleMantissa<double>(0.), 0,
+                          mantis::double_mantissa::QuietNan<double>()),
+      };
+
+  const double epsilon = std::numeric_limits<DoubleMantissa<double>>::epsilon();
+  for (const auto& test : tests) {
+    const DoubleMantissa<double>& value = std::get<0>(test);
+    const int exponent = std::get<1>(test);
+    const DoubleMantissa<double>& expected_result = std::get<2>(test);
+    const DoubleMantissa<double> result = std::pow(value, exponent);
+
+    if (std::isfinite(expected_result)) {
+      const DoubleMantissa<double> error = expected_result - result;
+      const double tolerance = epsilon * std::abs(expected_result.Upper());
+      REQUIRE(std::abs(error.Upper()) <= tolerance);
+    } else if (std::isnan(expected_result)) {
+      REQUIRE(std::isnan(result));
+    } else if (std::isinf(expected_result)) {
+      REQUIRE(result == expected_result);
+    }
+  }
+}
+
+TEST_CASE("Power [double]", "[Power double]") {
+  mantis::FPUFix fpu_fix;
+
+  const std::vector<std::tuple<DoubleMantissa<double>, DoubleMantissa<double>,
+                               DoubleMantissa<double>>>
+      tests{
+          std::make_tuple(DoubleMantissa<double>(10.),
+                          DoubleMantissa<double>(0.),
+                          DoubleMantissa<double>(1.)),
+          std::make_tuple(DoubleMantissa<double>(16.),
+                          DoubleMantissa<double>(0.5),
+                          DoubleMantissa<double>(4.)),
+          std::make_tuple(DoubleMantissa<double>(16.),
+                          DoubleMantissa<double>(1.5),
+                          DoubleMantissa<double>(64.)),
+          std::make_tuple(DoubleMantissa<double>(1000.),
+                          DoubleMantissa<double>(1.) / 3.,
+                          DoubleMantissa<double>(10.)),
+          std::make_tuple(DoubleMantissa<double>(10.),
+                          DoubleMantissa<double>(1.),
+                          DoubleMantissa<double>(10.)),
+          std::make_tuple(DoubleMantissa<double>(10.),
+                          DoubleMantissa<double>(-1.),
+                          DoubleMantissa<double>(1.) / 10.),
+          std::make_tuple(DoubleMantissa<double>(10.),
+                          DoubleMantissa<double>(3.),
+                          DoubleMantissa<double>(1e3)),
+          std::make_tuple(DoubleMantissa<double>(10.),
+                          DoubleMantissa<double>(-3.),
+                          DoubleMantissa<double>(1.) / 1e3),
+          std::make_tuple(DoubleMantissa<double>(10.),
+                          DoubleMantissa<double>(15.),
+                          DoubleMantissa<double>(1e15)),
+          std::make_tuple(DoubleMantissa<double>(10.),
+                          DoubleMantissa<double>(-15.),
+                          DoubleMantissa<double>(1.) / 1e15),
+          std::make_tuple(DoubleMantissa<double>(0.),
+                          DoubleMantissa<double>(0.),
+                          mantis::double_mantissa::QuietNan<double>()),
+      };
+
+  const double epsilon = std::numeric_limits<DoubleMantissa<double>>::epsilon();
+  for (const auto& test : tests) {
+    const DoubleMantissa<double>& value = std::get<0>(test);
+    const DoubleMantissa<double>& exponent = std::get<1>(test);
+    const DoubleMantissa<double>& expected_result = std::get<2>(test);
+    const DoubleMantissa<double> result = std::pow(value, exponent);
+
+    if (std::isfinite(expected_result)) {
+      const DoubleMantissa<double> error = expected_result - result;
+      const double tolerance =
+          1.5 * epsilon * std::abs(expected_result.Upper());
+      REQUIRE(std::abs(error.Upper()) <= tolerance);
+    } else if (std::isnan(expected_result)) {
+      REQUIRE(std::isnan(result));
+    } else if (std::isinf(expected_result)) {
+      REQUIRE(result == expected_result);
+    }
+  }
 }
 
 TEST_CASE("ScientificNotation [double]", "[ScientificNotation double]") {
@@ -860,10 +964,10 @@ TEST_CASE("ScientificNotation [double]", "[ScientificNotation double]") {
   // The double-mantissa epsilon.
   const double epsilon = std::numeric_limits<DoubleMantissa<double>>::epsilon();
 
-  for (const auto& tuple : tests) {
-    const DoubleMantissa<double> value = std::get<0>(tuple);
-    const int num_digits = std::get<1>(tuple);
-    const DecimalScientificNotation expected_rep = std::get<2>(tuple);
+  for (const auto& test : tests) {
+    const DoubleMantissa<double> value = std::get<0>(test);
+    const int num_digits = std::get<1>(test);
+    const DecimalScientificNotation expected_rep = std::get<2>(test);
 
     const DecimalScientificNotation rep =
         value.DecimalScientificNotation(num_digits);
@@ -881,11 +985,7 @@ TEST_CASE("ScientificNotation [double]", "[ScientificNotation double]") {
       value_reformed.FromDecimalScientificNotation(full_rep);
 
       const DoubleMantissa<double> error = value - value_reformed;
-
-      // TODO(Jack Poulson): Improve implementation of conversions so that
-      // the coefficient can be lowered or give an explanation of why such a
-      // large value is acceptable.
-      const double tolerance = 3. * epsilon * std::abs(value.Upper());
+      const double tolerance = epsilon * std::abs(value.Upper());
       REQUIRE(std::abs(error.Upper()) <= tolerance);
     }
   }

@@ -281,25 +281,13 @@ DoubleMantissa<Real>::DecimalScientificNotation(int num_digits) const {
     return rep;
   }
 
-  rep.exponent = Floor(Log10(value));
+  rep.exponent = std::floor(std::log10(value.Upper()));
 
-  // TODO(Jack Poulson): Replace with single multiply by 'Pow'.
-  // value *= Pow(DoubleMantissa<Real>(10), -rep.exponent);
-  if (rep.exponent > 0) {
-    for (int i = 0; i < rep.exponent; ++i) {
-      value /= Real(10);
-    }
-  } else if (rep.exponent < 0) {
-    for (int i = 0; i < -rep.exponent; ++i) {
-      value *= Real(10);
-    }
-  }
-
-  while (value >= DoubleMantissa<Real>(10)) {
+  value *= IntegerPower(DoubleMantissa<Real>(Real(10)), -rep.exponent);
+  if (value >= DoubleMantissa<Real>(10)) {
     ++rep.exponent;
     value /= Real(10);
-  }
-  while (value < DoubleMantissa<Real>(1)) {
+  } else if (value < DoubleMantissa<Real>(1)) {
     --rep.exponent;
     value *= Real(10);
   }
@@ -307,13 +295,14 @@ DoubleMantissa<Real>::DecimalScientificNotation(int num_digits) const {
   // We round the very last digit and floor the rest.
   rep.digits.resize(num_digits);
   for (int digit = 0; digit < num_digits - 1; ++digit) {
-    const DoubleMantissa<Real> floored_value = Floor(value);
-    const int floored_value_int = int(floored_value);
-    rep.digits[digit] = floored_value_int;
-    value -= floored_value;
+    // TODO(Jack Poulson): Assert floored_value >= 0 && floored_value < 10.
+    const int floored_value = std::floor(value.Upper());
+    rep.digits[digit] = floored_value;
+    value -= Real(floored_value);
     value *= Real(10);
   }
   if (num_digits > 0) {
+    // TODO(Jack Poulson): Assert rounded_value >= 0 && rounded_value <= 10.
     const DoubleMantissa<Real> rounded_value = Round(value);
     const int rounded_value_int = int(rounded_value);
     rep.digits[num_digits - 1] = rounded_value_int;
@@ -367,16 +356,7 @@ DoubleMantissa<Real>& DoubleMantissa<Real>::FromDecimalScientificNotation(
   }
 
   // Incorporate the exponent.
-  // value *= Pow(DoubleMantissa<Real>(10), rep.exponent);
-  if (rep.exponent > 0) {
-    for (int i = 0; i < rep.exponent; ++i) {
-      *this *= Real(10);
-    }
-  } else if (rep.exponent < 0) {
-    for (int i = 0; i < -rep.exponent; ++i) {
-      *this /= Real(10);
-    }
-  }
+  *this *= IntegerPower(DoubleMantissa<Real>(Real(10)), rep.exponent);
 
   // Incorporate the sign.
   if (!rep.positive) {
@@ -657,6 +637,55 @@ DoubleMantissa<Real> Exp(const DoubleMantissa<Real>& value) {
   iterate = LoadExponent(iterate, static_cast<int>(shift));
 
   return iterate;
+}
+
+template <typename Real>
+DoubleMantissa<Real> IntegerPower(const DoubleMantissa<Real>& value,
+                                  int exponent) {
+  if (exponent == 0) {
+    if (value == DoubleMantissa<Real>(Real(0))) {
+      // We insist that 0^0 is NaN.
+      return double_mantissa::QuietNan<Real>();
+    }
+    return DoubleMantissa<Real>(Real(1));
+  } else if (exponent == 1) {
+    return value;
+  } else if (exponent == -1) {
+    return Real(1) / value;
+  }
+
+  // Run binary exponentiation with the absolute-value of the exponent.
+  DoubleMantissa<Real> scale = value;
+  DoubleMantissa<Real> product(Real(1));
+  int exponent_abs = std::abs(exponent);
+  while (exponent_abs > 0) {
+    if (exponent_abs % 2) {
+      product *= scale;
+    }
+    exponent_abs /= 2;
+    if (exponent_abs > 0) {
+      scale = Square(scale);
+    }
+  }
+
+  // Invert the product if the exponent was negative.
+  if (exponent < 0) {
+    product = Real(1) / product;
+  }
+
+  return product;
+}
+
+template <typename Real>
+DoubleMantissa<Real> Power(const DoubleMantissa<Real>& value,
+                           const DoubleMantissa<Real>& exponent) {
+  if (exponent == std::floor(exponent)) {
+    // TODO(Jack Poulson): Make sure there is no over/underflow.
+    const int exponent_int = int(exponent);
+    return IntegerPower(value, exponent_int);
+  }
+
+  return Exp(exponent * Log(value));
 }
 
 template <typename Real>
@@ -1874,6 +1903,11 @@ mantis::DoubleMantissa<Real> exp(const mantis::DoubleMantissa<Real>& value) {
 }
 
 template <typename Real>
+mantis::DoubleMantissa<Real> floor(const mantis::DoubleMantissa<Real>& value) {
+  return mantis::Floor(value);
+}
+
+template <typename Real>
 bool isfinite(const mantis::DoubleMantissa<Real>& value) {
   return isfinite(value.Upper()) && isfinite(value.Lower());
 }
@@ -1902,6 +1936,18 @@ mantis::DoubleMantissa<Real> log(const mantis::DoubleMantissa<Real>& value) {
 template <typename Real>
 mantis::DoubleMantissa<Real> log10(const mantis::DoubleMantissa<Real>& value) {
   return mantis::Log10(value);
+}
+
+template <typename Real>
+mantis::DoubleMantissa<Real> pow(const mantis::DoubleMantissa<Real>& value,
+                                 int exponent) {
+  return mantis::IntegerPower(value, exponent);
+}
+
+template <typename Real>
+mantis::DoubleMantissa<Real> pow(const mantis::DoubleMantissa<Real>& value,
+                                 const mantis::DoubleMantissa<Real>& exponent) {
+  return mantis::Power(value, exponent);
 }
 
 template <typename Real>

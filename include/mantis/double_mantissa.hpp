@@ -33,22 +33,36 @@ using DisableIf = typename std::enable_if<!Condition::value, T>::type;
 // A structure for the decimal scientific notation representation of a
 // floating-point value. It makes use of the standard scientific notation:
 //
-//   d_0 . d_1 d_2 ... d_{n - 1} x 10^{exponent},
+//   +- d_0 . d_1 d_2 ... d_{n - 1} x 10^{exponent},
 //
 // where each d_j lives in [0, 9] and 'exponent' is an integer.
 // We contiguously store the decimal digits with this implied format. For
 // example, to represent the first several digits of pi, we would have:
 //
-//   exponent = 0,
-//   d_0 = 3, d_1 = 1, d_2 = 4, d_3 = 1, d_4 = 5, d_5 = 9, ...
+//   positive: true,
+//   exponent: 0,
+//   d: [3, 1, 4, 1, 5, 9, ...]
 //
-// To represent 152.4, we would have
+// To represent -152.4, we would have
 //
-//   exponent = 2,
-//   d_0 = 1, d_1 = 5, d_2 = 2, d_3 = 4.
+//   positive: false,
+//   exponent: 2,
+//   d: [1, 5, 2, 4]
 //
-// Special values, such as NaN or +-infinity, should be specially handled
-// rather than using this structure.
+// The special value of NaN is handled via:
+//
+//   positive: true,
+//   exponent: 0,
+//   d: ['n', 'a', 'n'].
+//
+// Similarly, infinity is handled via:
+//
+//   positive: true,
+//   exponent: 0,
+//   d: ['i', 'n', 'f'],
+//
+// and negative infinity has 'positive' equal to false.
+//   
 struct DecimalScientificNotation {
   // The sign of the value.
   bool positive = true;
@@ -56,7 +70,8 @@ struct DecimalScientificNotation {
   // The exponent of the scientific notation of the value.
   int exponent = 0;
 
-  // Each entry contains a value in the range 0 to 9.
+  // Each entry contains a value in the range 0 to 9, except in the cases of
+  // NaN and +-infinity.
   std::vector<unsigned char> digits;
 };
 
@@ -289,6 +304,16 @@ DoubleMantissa<Real> LoadExponent(const DoubleMantissa<Real>& value, int exp);
 // Returns the exponential of the given double-mantissa value.
 template <typename Real>
 DoubleMantissa<Real> Exp(const DoubleMantissa<Real>& value);
+
+// Returns value ^ exponent, where exponent is integer-valued.
+template <typename Real>
+DoubleMantissa<Real> IntegerPower(const DoubleMantissa<Real>& value,
+                                  int exponent);
+
+// Returns value ^ exponent, where exponent is also a double-mantissa value.
+template <typename Real>
+DoubleMantissa<Real> Power(const DoubleMantissa<Real>& value,
+                           const DoubleMantissa<Real>& exponent);
 
 // Returns the (natural) log of the given positive double-mantissa value.
 template <typename Real>
@@ -616,6 +641,9 @@ template <typename Real>
 mantis::DoubleMantissa<Real> exp(const mantis::DoubleMantissa<Real>& value);
 
 template <typename Real>
+mantis::DoubleMantissa<Real> floor(const mantis::DoubleMantissa<Real>& value);
+
+template <typename Real>
 bool isfinite(const mantis::DoubleMantissa<Real>& value);
 
 template <typename Real>
@@ -633,6 +661,14 @@ mantis::DoubleMantissa<Real> log(const mantis::DoubleMantissa<Real>& value);
 
 template <typename Real>
 mantis::DoubleMantissa<Real> log10(const mantis::DoubleMantissa<Real>& value);
+
+template <typename Real>
+mantis::DoubleMantissa<Real> pow(const mantis::DoubleMantissa<Real>& value,
+                                 int exponent);
+
+template <typename Real>
+mantis::DoubleMantissa<Real> pow(const mantis::DoubleMantissa<Real>& value,
+                                 const mantis::DoubleMantissa<Real>& exponent);
 
 template <typename Real>
 mantis::DoubleMantissa<Real> round(const mantis::DoubleMantissa<Real>& value);
