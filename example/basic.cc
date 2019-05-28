@@ -65,6 +65,16 @@ void RunTest() {
 
   const mantis::BinaryNotation x_binary = x.ToBinary(num_bits);
   std::cout << "x binary: " << x_binary.ToString() << std::endl;
+
+  std::mt19937 generator(17u);
+  std::uniform_real_distribution<mantis::DoubleMantissa<Real>> uniform_dist;
+  const int num_samples = 1000000;
+  mantis::DoubleMantissa<Real> average;
+  for (int sample = 0; sample < num_samples; ++sample) {
+    average += uniform_dist(generator) / Real(num_samples);
+  }
+  std::cout << "Average of " << num_samples << " samples: " << average
+            << std::endl;
 }
 
 int main(int argc, char* argv[]) {

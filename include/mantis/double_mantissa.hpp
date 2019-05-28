@@ -10,6 +10,7 @@
 
 #include <cmath>
 #include <limits>
+#include <random>
 
 #include "mantis/binary_notation.hpp"
 #include "mantis/decimal_notation.hpp"
@@ -163,6 +164,10 @@ class DoubleMantissa {
   // Returns the approximate ratio x / y using two refinements.
   static DoubleMantissa<Real> Divide(const DoubleMantissa<Real>& x,
                                      const DoubleMantissa<Real>& y);
+
+  // Returns a random number, uniformly sampled from [0, 1).
+  template <class UniformRNG>
+  static DoubleMantissa<Real> UniformRandom(UniformRNG& generator);
 
  private:
   // The upper, followed by lower, contributions to the double-mantissa value.
@@ -354,8 +359,6 @@ DoubleMantissa<Real> Floor(const DoubleMantissa<Real>& value);
 template <typename Real>
 DoubleMantissa<Real> Round(const DoubleMantissa<Real>& value);
 
-}  // namespace mantis
-
 // Returns the negation of the extended-precision value.
 template <typename Real>
 mantis::DoubleMantissa<Real> operator-(
@@ -425,6 +428,8 @@ mantis::DoubleMantissa<Real> operator/(const mantis::DoubleMantissa<Real>& x,
 template <typename Real>
 std::ostream& operator<<(std::ostream& out,
                          const mantis::DoubleMantissa<Real>& value);
+
+}  // namespace mantis
 
 namespace std {
 
@@ -561,6 +566,159 @@ class numeric_limits<mantis::DoubleMantissa<long double>> {
   static constexpr mantis::DoubleMantissa<long double> signaling_NaN();
 };
 
+template <>
+class uniform_real_distribution<mantis::DoubleMantissa<float>> {
+ public:
+  typedef mantis::DoubleMantissa<float> result_type;
+
+  struct param_type {
+    typedef uniform_real_distribution<result_type> distribution_type;
+
+    param_type(result_type a_val = 0.0, result_type b_val = 1.0);
+
+    result_type a() const;
+    result_type b() const;
+
+    bool operator==(const param_type& right) const;
+
+    bool operator!=(const param_type& right) const;
+
+   private:
+    result_type a_;
+    result_type b_;
+  };
+
+  explicit uniform_real_distribution(result_type a = 0.0, result_type b = 1.0);
+
+  explicit uniform_real_distribution(const param_type& param);
+
+  // Discards any cached values. This is a no-op for our class.
+  void reset();
+
+  template <class URNG>
+  result_type operator()(URNG& gen);
+
+  template <class URNG>
+  result_type operator()(URNG& gen, const param_type& param);
+
+  result_type a() const;
+
+  result_type b() const;
+
+  param_type param() const;
+
+  void param(const param_type& param);
+
+  result_type min() const;
+
+  result_type max() const;
+
+ private:
+  param_type param_;
+};
+
+template <>
+class uniform_real_distribution<mantis::DoubleMantissa<double>> {
+ public:
+  typedef mantis::DoubleMantissa<double> result_type;
+
+  struct param_type {
+    typedef uniform_real_distribution<result_type> distribution_type;
+
+    param_type(result_type a_val = 0.0, result_type b_val = 1.0);
+
+    result_type a() const;
+    result_type b() const;
+
+    bool operator==(const param_type& right) const;
+
+    bool operator!=(const param_type& right) const;
+
+   private:
+    result_type a_;
+    result_type b_;
+  };
+
+  explicit uniform_real_distribution(result_type a = 0.0, result_type b = 1.0);
+
+  explicit uniform_real_distribution(const param_type& param);
+
+  // Discards any cached values. This is a no-op for our class.
+  void reset();
+
+  template <class URNG>
+  result_type operator()(URNG& gen);
+
+  template <class URNG>
+  result_type operator()(URNG& gen, const param_type& param);
+
+  result_type a() const;
+
+  result_type b() const;
+
+  param_type param() const;
+
+  void param(const param_type& param);
+
+  result_type min() const;
+
+  result_type max() const;
+
+ private:
+  param_type param_;
+};
+
+template <>
+class uniform_real_distribution<mantis::DoubleMantissa<long double>> {
+ public:
+  typedef mantis::DoubleMantissa<long double> result_type;
+
+  struct param_type {
+    typedef uniform_real_distribution<result_type> distribution_type;
+
+    param_type(result_type a_val = 0.0, result_type b_val = 1.0);
+
+    result_type a() const;
+    result_type b() const;
+
+    bool operator==(const param_type& right) const;
+
+    bool operator!=(const param_type& right) const;
+
+   private:
+    result_type a_;
+    result_type b_;
+  };
+
+  explicit uniform_real_distribution(result_type a = 0.0, result_type b = 1.0);
+
+  explicit uniform_real_distribution(const param_type& param);
+
+  // Discards any cached values. This is a no-op for our class.
+  void reset();
+
+  template <class URNG>
+  result_type operator()(URNG& gen);
+
+  template <class URNG>
+  result_type operator()(URNG& gen, const param_type& param);
+
+  result_type a() const;
+
+  result_type b() const;
+
+  param_type param() const;
+
+  void param(const param_type& param);
+
+  result_type min() const;
+
+  result_type max() const;
+
+ private:
+  param_type param_;
+};
+
 template <typename Real>
 mantis::DoubleMantissa<Real> abs(const mantis::DoubleMantissa<Real>& value);
 
@@ -646,6 +804,8 @@ mantis::DoubleMantissa<Real> tanh(const mantis::DoubleMantissa<Real>& value);
 }  // namespace std
 
 #include "mantis/double_mantissa/class-impl.hpp"
-#include "mantis/double_mantissa/std_extension-impl.hpp"
+#include "mantis/double_mantissa/std_math-impl.hpp"
+#include "mantis/double_mantissa/std_numeric_limits-impl.hpp"
+#include "mantis/double_mantissa/std_random-impl.hpp"
 
 #endif  // ifndef MANTIS_DOUBLE_MANTISSA_H_

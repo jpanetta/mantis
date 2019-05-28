@@ -57,6 +57,16 @@ void RunTest() {
 
   const mantis::BinaryNotation x_binary = x.ToBinary(num_bits);
   std::cout << "x binary: " << x_binary.ToString() << std::endl;
+
+  std::mt19937 generator(17u);
+  std::uniform_real_distribution<mantis::DoubleMantissa<Real>> uniform_dist;
+  const int num_samples = 1000000;
+  mantis::DoubleMantissa<Real> average;
+  for (int sample = 0; sample < num_samples; ++sample) {
+    average += uniform_dist(generator) / Real(num_samples);
+  }
+  std::cout << "Average of " << num_samples << " samples: " << average
+            << std::endl;
 }
 
 int main(int argc, char* argv[]) {
@@ -82,6 +92,7 @@ exp(x): 2.299641948529960e5,
 log(exp(x)): 1.234567890123458e1,
 x - log(exp(x)): 0.000000000000000
 x binary: 0.110001011000011111100110100110010111101110000100e4
+Average of 1000000 samples: 4.998531398631090e-1
 
 Testing with DoubleMantissa<double>:
 num bits: 106, epsilon: 2.46519032881566189191165176650871e-32
@@ -92,6 +103,7 @@ exp(x): 2.29964194852988545212647771928755e5,
 log(exp(x)): 1.23456789012345678901234567890117e1,
 x - log(exp(x)): 0.00000000000000000000000000000000
 x binary: 0.1100010110000111111001101001100101111011100000111101001001110000100011010110110011100011001000110010001111e4
+Average of 1000000 samples: 4.99685256909933771504553286824881e-1
 ```
 
 ### License

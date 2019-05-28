@@ -8,6 +8,8 @@
 #ifndef MANTIS_DOUBLE_MANTISSA_CLASS_IMPL_H_
 #define MANTIS_DOUBLE_MANTISSA_CLASS_IMPL_H_
 
+#include <random>
+
 #include "mantis/util.hpp"
 
 #include "mantis/double_mantissa.hpp"
@@ -534,6 +536,21 @@ DoubleMantissa<Real> DoubleMantissa<Real>::Divide(
   r += update1;
 
   return r;
+}
+
+template <typename Real>
+template <typename UniformRNG>
+DoubleMantissa<Real> DoubleMantissa<Real>::UniformRandom(
+    UniformRNG& generator) {
+  static constexpr int base_digits = std::numeric_limits<Real>::digits;
+  std::uniform_real_distribution<Real> base_dist;
+
+  DoubleMantissa<Real> result;
+  result = base_dist(generator);
+  result = LoadExponent(result, -base_digits);
+  result += base_dist(generator);
+
+  return result;
 }
 
 template <typename Real>
@@ -1772,8 +1789,6 @@ DoubleMantissa<Real> EulerNumber() {
 
 }  // namespace double_mantissa
 
-}  // namespace mantis
-
 template <typename Real>
 mantis::DoubleMantissa<Real> operator-(
     const mantis::DoubleMantissa<Real>& value) {
@@ -1882,5 +1897,7 @@ std::ostream& operator<<(std::ostream& out,
   out << rep.ToString();
   return out;
 }
+
+}  // namespace mantis
 
 #endif  // ifndef MANTIS_DOUBLE_MANTISSA_CLASS_IMPL_H_
