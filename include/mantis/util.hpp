@@ -8,6 +8,10 @@
 #ifndef MANTIS_UTIL_H_
 #define MANTIS_UTIL_H_
 
+#include <type_traits>
+
+#include "mantis/fpu_fix.hpp"
+
 namespace mantis {
 
 // For overloading function definitions using type traits. For example:
@@ -123,16 +127,6 @@ Real TwoSquare(const Real& x, Real* error);
 float TwoSquare(const float& x, float* error);
 double TwoSquare(const double& x, double* error);
 long double TwoSquare(const long double& x, long double* error);
-
-class FPUFix {
- public:
-  FPUFix();
-
-  ~FPUFix();
-
- private:
-  unsigned int control_word_ = 0;
-};
 
 // References:
 //
