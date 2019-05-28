@@ -23,7 +23,7 @@ class FPUFix {
 
  private:
   // The control word to be restored upon destruction.
-  unsigned short control_word_ = 0;
+  unsigned short control_word_;
 };
 
 }  // namespace mantis
