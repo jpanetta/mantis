@@ -5,17 +5,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-#ifndef MANTIS_DOUBLE_MANTISSA_STD_RANDOM_IMPL_H_
-#define MANTIS_DOUBLE_MANTISSA_STD_RANDOM_IMPL_H_
+#ifndef MANTIS_DOUBLE_MANTISSA_STD_UNIFORM_REAL_DISTRIBUTION_IMPL_H_
+#define MANTIS_DOUBLE_MANTISSA_STD_UNIFORM_REAL_DISTRIBUTION_IMPL_H_
 
 #include "mantis/double_mantissa.hpp"
 
 namespace std {
 
 inline uniform_real_distribution<
-    mantis::DoubleMantissa<float>>::param_type::param_type(result_type a_val,
-                                                           result_type b_val)
-    : a_(a_val), b_(b_val) {}
+    mantis::DoubleMantissa<float>>::param_type::param_type(result_type a,
+                                                           result_type b)
+    : a_(a), b_(b) {}
 
 inline mantis::DoubleMantissa<float> uniform_real_distribution<
     mantis::DoubleMantissa<float>>::param_type::a() const {
@@ -53,7 +53,7 @@ inline void uniform_real_distribution<mantis::DoubleMantissa<float>>::reset() {}
 template <class URNG>
 mantis::DoubleMantissa<float> uniform_real_distribution<
     mantis::DoubleMantissa<float>>::operator()(URNG& gen) {
-  return a() + result_type::UniformRandom(gen) * (b() - a());
+  return operator()(gen, param_);
 }
 
 template <class URNG>
@@ -94,9 +94,9 @@ uniform_real_distribution<mantis::DoubleMantissa<float>>::max() const {
 }
 
 inline uniform_real_distribution<
-    mantis::DoubleMantissa<double>>::param_type::param_type(result_type a_val,
-                                                            result_type b_val)
-    : a_(a_val), b_(b_val) {}
+    mantis::DoubleMantissa<double>>::param_type::param_type(result_type a,
+                                                            result_type b)
+    : a_(a), b_(b) {}
 
 inline mantis::DoubleMantissa<double> uniform_real_distribution<
     mantis::DoubleMantissa<double>>::param_type::a() const {
@@ -175,9 +175,10 @@ uniform_real_distribution<mantis::DoubleMantissa<double>>::max() const {
   return param_.b();
 }
 
-inline uniform_real_distribution<mantis::DoubleMantissa<long double>>::
-    param_type::param_type(result_type a_val, result_type b_val)
-    : a_(a_val), b_(b_val) {}
+inline uniform_real_distribution<
+    mantis::DoubleMantissa<long double>>::param_type::param_type(result_type a,
+                                                                 result_type b)
+    : a_(a), b_(b) {}
 
 inline mantis::DoubleMantissa<long double> uniform_real_distribution<
     mantis::DoubleMantissa<long double>>::param_type::a() const {
@@ -258,4 +259,4 @@ uniform_real_distribution<mantis::DoubleMantissa<long double>>::max() const {
 
 }  // namespace std
 
-#endif  // ifndef MANTIS_DOUBLE_MANTISSA_STD_RANDOM_IMPL_H_
+#endif  // ifndef MANTIS_DOUBLE_MANTISSA_STD_UNIFORM_REAL_DISTRIBUTION_IMPL_H_

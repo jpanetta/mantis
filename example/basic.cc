@@ -73,7 +73,15 @@ void RunTest() {
   for (int sample = 0; sample < num_samples; ++sample) {
     average += uniform_dist(generator) / Real(num_samples);
   }
-  std::cout << "Average of " << num_samples << " samples: " << average
+  std::cout << "Average of " << num_samples << " uniform samples: " << average
+            << std::endl;
+
+  std::normal_distribution<mantis::DoubleMantissa<Real>> normal_dist;
+  average = Real(0.);
+  for (int sample = 0; sample < num_samples; ++sample) {
+    average += normal_dist(generator) / Real(num_samples);
+  }
+  std::cout << "Average of " << num_samples << " normal samples: " << average
             << std::endl;
 }
 

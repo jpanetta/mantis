@@ -13,6 +13,21 @@
 namespace std {
 
 constexpr mantis::DoubleMantissa<float>
+numeric_limits<mantis::DoubleMantissa<float>>::lowest() {
+  return numeric_limits<float>::lowest();
+}
+
+constexpr mantis::DoubleMantissa<float>
+numeric_limits<mantis::DoubleMantissa<float>>::min() {
+  return numeric_limits<float>::min();
+}
+
+constexpr mantis::DoubleMantissa<float>
+numeric_limits<mantis::DoubleMantissa<float>>::max() {
+  return numeric_limits<float>::max();
+}
+
+constexpr mantis::DoubleMantissa<float>
 numeric_limits<mantis::DoubleMantissa<float>>::epsilon() {
   return mantis::double_mantissa::Epsilon<float>();
 }
@@ -33,6 +48,21 @@ numeric_limits<mantis::DoubleMantissa<float>>::signaling_NaN() {
 }
 
 constexpr mantis::DoubleMantissa<double>
+numeric_limits<mantis::DoubleMantissa<double>>::lowest() {
+  return numeric_limits<double>::lowest();
+}
+
+constexpr mantis::DoubleMantissa<double>
+numeric_limits<mantis::DoubleMantissa<double>>::min() {
+  return numeric_limits<double>::min();
+}
+
+constexpr mantis::DoubleMantissa<double>
+numeric_limits<mantis::DoubleMantissa<double>>::max() {
+  return numeric_limits<double>::max();
+}
+
+constexpr mantis::DoubleMantissa<double>
 numeric_limits<mantis::DoubleMantissa<double>>::epsilon() {
   return mantis::double_mantissa::Epsilon<double>();
 }
@@ -50,6 +80,21 @@ numeric_limits<mantis::DoubleMantissa<double>>::quiet_NaN() {
 constexpr mantis::DoubleMantissa<double>
 numeric_limits<mantis::DoubleMantissa<double>>::signaling_NaN() {
   return mantis::double_mantissa::SignalingNan<double>();
+}
+
+constexpr mantis::DoubleMantissa<long double>
+numeric_limits<mantis::DoubleMantissa<long double>>::lowest() {
+  return numeric_limits<long double>::lowest();
+}
+
+constexpr mantis::DoubleMantissa<long double>
+numeric_limits<mantis::DoubleMantissa<long double>>::min() {
+  return numeric_limits<long double>::min();
+}
+
+constexpr mantis::DoubleMantissa<long double>
+numeric_limits<mantis::DoubleMantissa<long double>>::max() {
+  return numeric_limits<long double>::max();
 }
 
 constexpr mantis::DoubleMantissa<long double>

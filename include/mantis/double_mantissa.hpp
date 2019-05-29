@@ -109,24 +109,6 @@ class DoubleMantissa {
   // Divides the current state by a double-mantissa value.
   DoubleMantissa<Real>& operator/=(const DoubleMantissa<Real>& value);
 
-  // Returns true if the individual components are equivalent.
-  bool operator==(const DoubleMantissa<Real>& value) const;
-
-  // Returns true if the individual components vary.
-  bool operator!=(const DoubleMantissa<Real>& value) const;
-
-  // Returns true if this class's data is less than the given value.
-  bool operator<(const DoubleMantissa<Real>& value) const;
-
-  // Returns true if this class's data is <= than the given value.
-  bool operator<=(const DoubleMantissa<Real>& value) const;
-
-  // Returns true if this class's data is greater than the given value.
-  bool operator>(const DoubleMantissa<Real>& value) const;
-
-  // Returns true if this class's data is >= than the given value.
-  bool operator>=(const DoubleMantissa<Real>& value) const;
-
   // Return the flooring of the value into a int.
   operator int() const;
 
@@ -183,6 +165,144 @@ template <typename Real>
 struct IsDoubleMantissa<DoubleMantissa<Real>> {
   static const bool value = true;
 };
+
+// Returns true if the individual components are equivalent.
+template <typename Real>
+bool operator==(const Real& lhs, const DoubleMantissa<Real>& rhs);
+
+// Returns true if the individual components are equivalent.
+template <typename Real>
+bool operator==(const DoubleMantissa<Real>& lhs, const Real& rhs);
+
+// Returns true if the individual components are equivalent.
+template <typename Real>
+bool operator==(const DoubleMantissa<Real>& lhs,
+                const DoubleMantissa<Real>& rhs);
+
+// Returns true if the individual components vary.
+template <typename Real>
+bool operator!=(const Real& lhs, const DoubleMantissa<Real>& rhs);
+
+// Returns true if the individual components vary.
+template <typename Real>
+bool operator!=(const DoubleMantissa<Real>& lhs, const Real& rhs);
+
+// Returns true if the individual components vary.
+template <typename Real>
+bool operator!=(const DoubleMantissa<Real>& lhs,
+                const DoubleMantissa<Real>& rhs);
+
+// Returns true if this class's data is less than the given value.
+template <typename Real>
+bool operator<(const Real& lhs, const DoubleMantissa<Real>& rhs);
+
+// Returns true if the left value is less than the right value.
+template <typename Real>
+bool operator<(const DoubleMantissa<Real>& lhs, const Real& rhs);
+
+// Returns true if this class's data is less than the given value.
+template <typename Real>
+bool operator<(const DoubleMantissa<Real>& lhs,
+               const DoubleMantissa<Real>& rhs);
+
+// Returns true if the left value is <= the right value.
+template <typename Real>
+bool operator<=(const Real& lhs, const DoubleMantissa<Real>& rhs);
+
+// Returns true if the left value is <= the right value.
+template <typename Real>
+bool operator<=(const DoubleMantissa<Real>& lhs, const Real& rhs);
+
+// Returns true if the left value is <= the right value.
+template <typename Real>
+bool operator<=(const DoubleMantissa<Real>& lhs,
+                const DoubleMantissa<Real>& rhs);
+
+// Returns true if the left value is greater than the right value.
+template <typename Real>
+bool operator>(const Real& lhs, const DoubleMantissa<Real>& rhs);
+
+// Returns true if the left value is greater than the right value.
+template <typename Real>
+bool operator>(const DoubleMantissa<Real>& lhs, const Real& rhs);
+
+// Returns true if the left value is greater than the right value.
+template <typename Real>
+bool operator>(const DoubleMantissa<Real>& lhs,
+               const DoubleMantissa<Real>& rhs);
+
+// Returns true if the left value is >= the right value.
+template <typename Real>
+bool operator>=(const Real& lhs, const DoubleMantissa<Real>& rhs);
+
+// Returns true if the left value is >= the right value.
+template <typename Real>
+bool operator>=(const DoubleMantissa<Real>& lhs, const Real& rhs);
+
+// Returns true if the left value is >= the right value.
+template <typename Real>
+bool operator>=(const DoubleMantissa<Real>& lhs,
+                const DoubleMantissa<Real>& rhs);
+
+// Returns the negation of the extended-precision value.
+template <typename Real>
+DoubleMantissa<Real> operator-(const DoubleMantissa<Real>& value);
+
+// Returns the sum of the two values.
+template <typename Real>
+DoubleMantissa<Real> operator+(const Real& x, const DoubleMantissa<Real>& y);
+
+// Returns the sum of the two values.
+template <typename Real>
+DoubleMantissa<Real> operator+(const DoubleMantissa<Real>& x, const Real& y);
+
+// Returns the sum of the two values.
+template <typename Real>
+DoubleMantissa<Real> operator+(const DoubleMantissa<Real>& x,
+                               const DoubleMantissa<Real>& y);
+
+// Returns the difference between the two values.
+template <typename Real>
+DoubleMantissa<Real> operator-(const Real& x, const DoubleMantissa<Real>& y);
+
+// Returns the difference between the two values.
+template <typename Real>
+DoubleMantissa<Real> operator-(const DoubleMantissa<Real>& x, const Real& y);
+
+// Returns the difference between the two values.
+template <typename Real>
+DoubleMantissa<Real> operator-(const DoubleMantissa<Real>& x,
+                               const DoubleMantissa<Real>& y);
+
+// Returns the product of the two values.
+template <typename Real>
+DoubleMantissa<Real> operator*(const Real& x, const DoubleMantissa<Real>& y);
+
+// Returns the product of the two values.
+template <typename Real>
+DoubleMantissa<Real> operator*(const DoubleMantissa<Real>& x, const Real& y);
+
+// Returns the product of the two values.
+template <typename Real>
+DoubleMantissa<Real> operator*(const DoubleMantissa<Real>& x,
+                               const DoubleMantissa<Real>& y);
+
+// Returns the ratio of the two values.
+template <typename Real>
+DoubleMantissa<Real> operator/(const Real& x, const DoubleMantissa<Real>& y);
+
+// Returns the ratio of the two values.
+template <typename Real>
+DoubleMantissa<Real> operator/(const DoubleMantissa<Real>& x, const Real& y);
+
+// Returns the ratio of the two values.
+template <typename Real>
+DoubleMantissa<Real> operator/(const DoubleMantissa<Real>& x,
+                               const DoubleMantissa<Real>& y);
+
+// Pretty-prints the extended-precision value.
+template <typename Real>
+std::ostream& operator<<(std::ostream& out, const DoubleMantissa<Real>& value);
 
 template <typename Real, typename = DisableIf<IsDoubleMantissa<Real>>>
 Real LogMax();
@@ -359,76 +479,6 @@ DoubleMantissa<Real> Floor(const DoubleMantissa<Real>& value);
 template <typename Real>
 DoubleMantissa<Real> Round(const DoubleMantissa<Real>& value);
 
-// Returns the negation of the extended-precision value.
-template <typename Real>
-mantis::DoubleMantissa<Real> operator-(
-    const mantis::DoubleMantissa<Real>& value);
-
-// Returns the sum of the two values.
-template <typename Real>
-mantis::DoubleMantissa<Real> operator+(const Real& x,
-                                       const mantis::DoubleMantissa<Real>& y);
-
-// Returns the sum of the two values.
-template <typename Real>
-mantis::DoubleMantissa<Real> operator+(const mantis::DoubleMantissa<Real>& x,
-                                       const Real& y);
-
-// Returns the sum of the two values.
-template <typename Real>
-mantis::DoubleMantissa<Real> operator+(const mantis::DoubleMantissa<Real>& x,
-                                       const mantis::DoubleMantissa<Real>& y);
-
-// Returns the difference between the two values.
-template <typename Real>
-mantis::DoubleMantissa<Real> operator-(const Real& x,
-                                       const mantis::DoubleMantissa<Real>& y);
-
-// Returns the difference between the two values.
-template <typename Real>
-mantis::DoubleMantissa<Real> operator-(const mantis::DoubleMantissa<Real>& x,
-                                       const Real& y);
-
-// Returns the difference between the two values.
-template <typename Real>
-mantis::DoubleMantissa<Real> operator-(const mantis::DoubleMantissa<Real>& x,
-                                       const mantis::DoubleMantissa<Real>& y);
-
-// Returns the product of the two values.
-template <typename Real>
-mantis::DoubleMantissa<Real> operator*(const Real& x,
-                                       const mantis::DoubleMantissa<Real>& y);
-
-// Returns the product of the two values.
-template <typename Real>
-mantis::DoubleMantissa<Real> operator*(const mantis::DoubleMantissa<Real>& x,
-                                       const Real& y);
-
-// Returns the product of the two values.
-template <typename Real>
-mantis::DoubleMantissa<Real> operator*(const mantis::DoubleMantissa<Real>& x,
-                                       const mantis::DoubleMantissa<Real>& y);
-
-// Returns the ratio of the two values.
-template <typename Real>
-mantis::DoubleMantissa<Real> operator/(const Real& x,
-                                       const mantis::DoubleMantissa<Real>& y);
-
-// Returns the ratio of the two values.
-template <typename Real>
-mantis::DoubleMantissa<Real> operator/(const mantis::DoubleMantissa<Real>& x,
-                                       const Real& y);
-
-// Returns the ratio of the two values.
-template <typename Real>
-mantis::DoubleMantissa<Real> operator/(const mantis::DoubleMantissa<Real>& x,
-                                       const mantis::DoubleMantissa<Real>& y);
-
-// Pretty-prints the extended-precision value.
-template <typename Real>
-std::ostream& operator<<(std::ostream& out,
-                         const mantis::DoubleMantissa<Real>& value);
-
 }  // namespace mantis
 
 namespace std {
@@ -476,6 +526,10 @@ class numeric_limits<mantis::DoubleMantissa<float>> {
   static constexpr bool tinyness_before =
       numeric_limits<float>::tinyness_before;
 
+  static constexpr mantis::DoubleMantissa<float> lowest();
+  static constexpr mantis::DoubleMantissa<float> min();
+  static constexpr mantis::DoubleMantissa<float> max();
+
   static constexpr mantis::DoubleMantissa<float> epsilon();
   static constexpr mantis::DoubleMantissa<float> infinity();
   static constexpr mantis::DoubleMantissa<float> quiet_NaN();
@@ -515,6 +569,10 @@ class numeric_limits<mantis::DoubleMantissa<double>> {
   static constexpr bool traps = numeric_limits<double>::traps;
   static constexpr bool tinyness_before =
       numeric_limits<double>::tinyness_before;
+
+  static constexpr mantis::DoubleMantissa<double> lowest();
+  static constexpr mantis::DoubleMantissa<double> min();
+  static constexpr mantis::DoubleMantissa<double> max();
 
   static constexpr mantis::DoubleMantissa<double> epsilon();
   static constexpr mantis::DoubleMantissa<double> infinity();
@@ -560,6 +618,10 @@ class numeric_limits<mantis::DoubleMantissa<long double>> {
   static constexpr bool tinyness_before =
       numeric_limits<long double>::tinyness_before;
 
+  static constexpr mantis::DoubleMantissa<long double> lowest();
+  static constexpr mantis::DoubleMantissa<long double> min();
+  static constexpr mantis::DoubleMantissa<long double> max();
+
   static constexpr mantis::DoubleMantissa<long double> epsilon();
   static constexpr mantis::DoubleMantissa<long double> infinity();
   static constexpr mantis::DoubleMantissa<long double> quiet_NaN();
@@ -574,7 +636,7 @@ class uniform_real_distribution<mantis::DoubleMantissa<float>> {
   struct param_type {
     typedef uniform_real_distribution<result_type> distribution_type;
 
-    param_type(result_type a_val = 0.0, result_type b_val = 1.0);
+    param_type(result_type a = 0.0, result_type b = 1.0);
 
     result_type a() const;
     result_type b() const;
@@ -625,7 +687,7 @@ class uniform_real_distribution<mantis::DoubleMantissa<double>> {
   struct param_type {
     typedef uniform_real_distribution<result_type> distribution_type;
 
-    param_type(result_type a_val = 0.0, result_type b_val = 1.0);
+    param_type(result_type a = 0.0, result_type b = 1.0);
 
     result_type a() const;
     result_type b() const;
@@ -676,7 +738,7 @@ class uniform_real_distribution<mantis::DoubleMantissa<long double>> {
   struct param_type {
     typedef uniform_real_distribution<result_type> distribution_type;
 
-    param_type(result_type a_val = 0.0, result_type b_val = 1.0);
+    param_type(result_type a = 0.0, result_type b = 1.0);
 
     result_type a() const;
     result_type b() const;
@@ -717,6 +779,171 @@ class uniform_real_distribution<mantis::DoubleMantissa<long double>> {
 
  private:
   param_type param_;
+};
+
+template <>
+class normal_distribution<mantis::DoubleMantissa<float>> {
+ public:
+  typedef mantis::DoubleMantissa<float> result_type;
+
+  struct param_type {
+    typedef normal_distribution<result_type> distribution_type;
+
+    param_type(result_type mean = 0.0, result_type stddev = 1.0);
+
+    result_type mean() const;
+    result_type stddev() const;
+
+    bool operator==(const param_type& right) const;
+
+    bool operator!=(const param_type& right) const;
+
+   private:
+    result_type mean_;
+    result_type stddev_;
+  };
+
+  explicit normal_distribution(result_type mean = 0.0,
+                               result_type stddev = 1.0);
+
+  explicit normal_distribution(const param_type& param);
+
+  // Discards any cached values. This is a no-op for our class.
+  void reset();
+
+  template <class URNG>
+  result_type operator()(URNG& gen);
+
+  template <class URNG>
+  result_type operator()(URNG& gen, const param_type& param);
+
+  result_type mean() const;
+
+  result_type stddev() const;
+
+  param_type param() const;
+
+  void param(const param_type& param);
+
+  result_type min() const;
+
+  result_type max() const;
+
+ private:
+  param_type param_;
+
+  bool have_saved_result_ = false;
+  result_type saved_result_;
+};
+
+template <>
+class normal_distribution<mantis::DoubleMantissa<double>> {
+ public:
+  typedef mantis::DoubleMantissa<double> result_type;
+
+  struct param_type {
+    typedef normal_distribution<result_type> distribution_type;
+
+    param_type(result_type mean = 0.0, result_type stddev = 1.0);
+
+    result_type mean() const;
+    result_type stddev() const;
+
+    bool operator==(const param_type& right) const;
+
+    bool operator!=(const param_type& right) const;
+
+   private:
+    result_type mean_;
+    result_type stddev_;
+  };
+
+  explicit normal_distribution(result_type mean = 0.0,
+                               result_type stddev = 1.0);
+
+  explicit normal_distribution(const param_type& param);
+
+  // Discards any cached values. This is a no-op for our class.
+  void reset();
+
+  template <class URNG>
+  result_type operator()(URNG& gen);
+
+  template <class URNG>
+  result_type operator()(URNG& gen, const param_type& param);
+
+  result_type mean() const;
+
+  result_type stddev() const;
+
+  param_type param() const;
+
+  void param(const param_type& param);
+
+  result_type min() const;
+
+  result_type max() const;
+
+ private:
+  param_type param_;
+
+  bool have_saved_result_ = false;
+  result_type saved_result_;
+};
+
+template <>
+class normal_distribution<mantis::DoubleMantissa<long double>> {
+ public:
+  typedef mantis::DoubleMantissa<long double> result_type;
+
+  struct param_type {
+    typedef normal_distribution<result_type> distribution_type;
+
+    param_type(result_type mean = 0.0, result_type stddev = 1.0);
+
+    result_type mean() const;
+    result_type stddev() const;
+
+    bool operator==(const param_type& right) const;
+
+    bool operator!=(const param_type& right) const;
+
+   private:
+    result_type mean_;
+    result_type stddev_;
+  };
+
+  explicit normal_distribution(result_type mean = 0.0,
+                               result_type stddev = 1.0);
+
+  explicit normal_distribution(const param_type& param);
+
+  // Discards any cached values. This is a no-op for our class.
+  void reset();
+
+  template <class URNG>
+  result_type operator()(URNG& gen);
+
+  template <class URNG>
+  result_type operator()(URNG& gen, const param_type& param);
+
+  result_type mean() const;
+
+  result_type stddev() const;
+
+  param_type param() const;
+
+  void param(const param_type& param);
+
+  result_type min() const;
+
+  result_type max() const;
+
+ private:
+  param_type param_;
+
+  bool have_saved_result_ = false;
+  result_type saved_result_;
 };
 
 template <typename Real>
@@ -805,7 +1032,8 @@ mantis::DoubleMantissa<Real> tanh(const mantis::DoubleMantissa<Real>& value);
 
 #include "mantis/double_mantissa/class-impl.hpp"
 #include "mantis/double_mantissa/std_math-impl.hpp"
+#include "mantis/double_mantissa/std_normal_distribution-impl.hpp"
 #include "mantis/double_mantissa/std_numeric_limits-impl.hpp"
-#include "mantis/double_mantissa/std_random-impl.hpp"
+#include "mantis/double_mantissa/std_uniform_real_distribution-impl.hpp"
 
 #endif  // ifndef MANTIS_DOUBLE_MANTISSA_H_

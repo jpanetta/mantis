@@ -202,40 +202,6 @@ DoubleMantissa<Real>& DoubleMantissa<Real>::operator/=(const Real& value) {
 }
 
 template <typename Real>
-bool DoubleMantissa<Real>::operator==(const DoubleMantissa<Real>& value) const {
-  return Upper() == value.Upper() && Lower() == value.Lower();
-}
-
-template <typename Real>
-bool DoubleMantissa<Real>::operator!=(const DoubleMantissa<Real>& value) const {
-  return Upper() != value.Upper() || Lower() != value.Lower();
-}
-
-template <typename Real>
-bool DoubleMantissa<Real>::operator<(const DoubleMantissa<Real>& value) const {
-  return Upper() < value.Upper() ||
-         (Upper() == value.Upper() && Lower() < value.Lower());
-}
-
-template <typename Real>
-bool DoubleMantissa<Real>::operator<=(const DoubleMantissa<Real>& value) const {
-  return Upper() < value.Upper() ||
-         (Upper() == value.Upper() && Lower() <= value.Lower());
-}
-
-template <typename Real>
-bool DoubleMantissa<Real>::operator>(const DoubleMantissa<Real>& value) const {
-  return Upper() > value.Upper() ||
-         (Upper() == value.Upper() && Lower() > value.Lower());
-}
-
-template <typename Real>
-bool DoubleMantissa<Real>::operator>=(const DoubleMantissa<Real>& value) const {
-  return Upper() > value.Upper() ||
-         (Upper() == value.Upper() && Lower() >= value.Lower());
-}
-
-template <typename Real>
 DoubleMantissa<Real>::operator int() const {
   const DoubleMantissa<Real> floored_value = Floor(*this);
   return int(floored_value.Upper()) + int(floored_value.Lower());
@@ -558,6 +524,196 @@ DoubleMantissa<Real>& DoubleMantissa<Real>::operator/=(
     const DoubleMantissa<Real>& value) {
   *this = Divide(*this, value);
   return *this;
+}
+
+template <typename Real>
+bool operator==(const DoubleMantissa<Real>& lhs, const Real& rhs) {
+  return lhs.Upper() == rhs && lhs.Lower() == Real();
+}
+
+template <typename Real>
+bool operator==(const Real& lhs, const DoubleMantissa<Real>& rhs) {
+  return rhs == lhs;
+}
+
+template <typename Real>
+bool operator==(const DoubleMantissa<Real>& lhs,
+                const DoubleMantissa<Real>& rhs) {
+  return lhs.Upper() == rhs.Upper() && lhs.Lower() == rhs.Lower();
+}
+
+template <typename Real>
+bool operator!=(const DoubleMantissa<Real>& lhs, const Real& rhs) {
+  return !(lhs == rhs);
+}
+
+template <typename Real>
+bool operator!=(const Real& lhs, const DoubleMantissa<Real>& rhs) {
+  return !(rhs == lhs);
+}
+
+template <typename Real>
+bool operator!=(const DoubleMantissa<Real>& lhs,
+                const DoubleMantissa<Real>& rhs) {
+  return !(lhs == rhs);
+}
+
+template <typename Real>
+bool operator<(const DoubleMantissa<Real>& lhs, const Real& rhs) {
+  return lhs.Upper() < rhs || (lhs.Upper() == rhs && lhs.Lower() < Real());
+}
+
+template <typename Real>
+bool operator<(const Real& lhs, const DoubleMantissa<Real>& rhs) {
+  return lhs < rhs.Upper() || (lhs == rhs.Upper() && Real() < rhs.Lower());
+}
+
+template <typename Real>
+bool operator<(const DoubleMantissa<Real>& lhs,
+               const DoubleMantissa<Real>& rhs) {
+  return lhs.Upper() < rhs.Upper() ||
+         (lhs.Upper() == rhs.Upper() && lhs.Lower() < rhs.Lower());
+}
+
+template <typename Real>
+bool operator<=(const DoubleMantissa<Real>& lhs, const Real& rhs) {
+  return !(rhs < lhs);
+}
+
+template <typename Real>
+bool operator<=(const DoubleMantissa<Real>& lhs,
+                const DoubleMantissa<Real>& rhs) {
+  return !(rhs < lhs);
+}
+
+template <typename Real>
+bool operator>(const Real& lhs, const DoubleMantissa<Real>& rhs) {
+  return rhs < lhs;
+}
+
+template <typename Real>
+bool operator>(const DoubleMantissa<Real>& lhs, const Real& rhs) {
+  return rhs < lhs;
+}
+
+template <typename Real>
+bool operator>(const DoubleMantissa<Real>& lhs,
+               const DoubleMantissa<Real>& rhs) {
+  return rhs < lhs;
+}
+
+template <typename Real>
+bool operator>=(const Real& lhs, const DoubleMantissa<Real>& rhs) {
+  return !(lhs < rhs);
+}
+
+template <typename Real>
+bool operator>=(const DoubleMantissa<Real>& lhs, const Real& rhs) {
+  return !(lhs < rhs);
+}
+
+template <typename Real>
+bool operator>=(const DoubleMantissa<Real>& lhs,
+                const DoubleMantissa<Real>& rhs) {
+  return !(lhs < rhs);
+}
+
+template <typename Real>
+DoubleMantissa<Real> operator-(const DoubleMantissa<Real>& value) {
+  return DoubleMantissa<Real>(-value.Upper(), -value.Lower());
+}
+
+template <typename Real>
+DoubleMantissa<Real> operator+(const Real& x, const DoubleMantissa<Real>& y) {
+  DoubleMantissa<Real> z(y);
+  z += x;
+  return z;
+}
+
+template <typename Real>
+DoubleMantissa<Real> operator+(const DoubleMantissa<Real>& x, const Real& y) {
+  DoubleMantissa<Real> z(x);
+  z += y;
+  return z;
+}
+
+template <typename Real>
+DoubleMantissa<Real> operator+(const DoubleMantissa<Real>& x,
+                               const DoubleMantissa<Real>& y) {
+  DoubleMantissa<Real> z(x);
+  z += y;
+  return z;
+}
+
+template <typename Real>
+DoubleMantissa<Real> operator-(const Real& x, const DoubleMantissa<Real>& y) {
+  mantis::DoubleMantissa<Real> z(-y);
+  z += x;
+  return z;
+}
+
+template <typename Real>
+DoubleMantissa<Real> operator-(const DoubleMantissa<Real>& x, const Real& y) {
+  DoubleMantissa<Real> z(x);
+  z -= y;
+  return z;
+}
+
+template <typename Real>
+DoubleMantissa<Real> operator-(const DoubleMantissa<Real>& x,
+                               const DoubleMantissa<Real>& y) {
+  DoubleMantissa<Real> z(x);
+  z -= y;
+  return z;
+}
+
+template <typename Real>
+DoubleMantissa<Real> operator*(const Real& x, const DoubleMantissa<Real>& y) {
+  DoubleMantissa<Real> z(y);
+  z *= x;
+  return z;
+}
+
+template <typename Real>
+DoubleMantissa<Real> operator*(const DoubleMantissa<Real>& x, const Real& y) {
+  DoubleMantissa<Real> z(x);
+  z *= y;
+  return z;
+}
+
+template <typename Real>
+DoubleMantissa<Real> operator*(const DoubleMantissa<Real>& x,
+                               const DoubleMantissa<Real>& y) {
+  DoubleMantissa<Real> z(x);
+  z *= y;
+  return z;
+}
+
+template <typename Real>
+DoubleMantissa<Real> operator/(const Real& x, const DoubleMantissa<Real>& y) {
+  return DoubleMantissa<Real>::Divide(DoubleMantissa<Real>(x), y);
+}
+
+template <typename Real>
+DoubleMantissa<Real> operator/(const DoubleMantissa<Real>& x, const Real& y) {
+  DoubleMantissa<Real> z(x);
+  z /= y;
+  return z;
+}
+
+template <typename Real>
+DoubleMantissa<Real> operator/(const DoubleMantissa<Real>& x,
+                               const DoubleMantissa<Real>& y) {
+  return DoubleMantissa<Real>::Divide(x, y);
+}
+
+template <typename Real>
+std::ostream& operator<<(std::ostream& out, const DoubleMantissa<Real>& value) {
+  constexpr int max_digits10 =
+      std::numeric_limits<DoubleMantissa<Real>>::max_digits10;
+  const DecimalNotation rep = value.ToDecimal(max_digits10);
+  out << rep.ToString();
+  return out;
 }
 
 template <typename Real, typename>
@@ -1788,115 +1944,6 @@ DoubleMantissa<Real> EulerNumber() {
 }
 
 }  // namespace double_mantissa
-
-template <typename Real>
-mantis::DoubleMantissa<Real> operator-(
-    const mantis::DoubleMantissa<Real>& value) {
-  return mantis::DoubleMantissa<Real>(-value.Upper(), -value.Lower());
-}
-
-template <typename Real>
-mantis::DoubleMantissa<Real> operator+(const Real& x,
-                                       const mantis::DoubleMantissa<Real>& y) {
-  mantis::DoubleMantissa<Real> z(y);
-  z += x;
-  return z;
-}
-
-template <typename Real>
-mantis::DoubleMantissa<Real> operator+(const mantis::DoubleMantissa<Real>& x,
-                                       const Real& y) {
-  mantis::DoubleMantissa<Real> z(x);
-  z += y;
-  return z;
-}
-
-template <typename Real>
-mantis::DoubleMantissa<Real> operator+(const mantis::DoubleMantissa<Real>& x,
-                                       const mantis::DoubleMantissa<Real>& y) {
-  mantis::DoubleMantissa<Real> z(x);
-  z += y;
-  return z;
-}
-
-template <typename Real>
-mantis::DoubleMantissa<Real> operator-(const Real& x,
-                                       const mantis::DoubleMantissa<Real>& y) {
-  mantis::DoubleMantissa<Real> z(-y);
-  z += x;
-  return z;
-}
-
-template <typename Real>
-mantis::DoubleMantissa<Real> operator-(const mantis::DoubleMantissa<Real>& x,
-                                       const Real& y) {
-  mantis::DoubleMantissa<Real> z(x);
-  z -= y;
-  return z;
-}
-
-template <typename Real>
-mantis::DoubleMantissa<Real> operator-(const mantis::DoubleMantissa<Real>& x,
-                                       const mantis::DoubleMantissa<Real>& y) {
-  mantis::DoubleMantissa<Real> z(x);
-  z -= y;
-  return z;
-}
-
-template <typename Real>
-mantis::DoubleMantissa<Real> operator*(const Real& x,
-                                       const mantis::DoubleMantissa<Real>& y) {
-  mantis::DoubleMantissa<Real> z(y);
-  z *= x;
-  return z;
-}
-
-template <typename Real>
-mantis::DoubleMantissa<Real> operator*(const mantis::DoubleMantissa<Real>& x,
-                                       const Real& y) {
-  mantis::DoubleMantissa<Real> z(x);
-  z *= y;
-  return z;
-}
-
-template <typename Real>
-mantis::DoubleMantissa<Real> operator*(const mantis::DoubleMantissa<Real>& x,
-                                       const mantis::DoubleMantissa<Real>& y) {
-  mantis::DoubleMantissa<Real> z(x);
-  z *= y;
-  return z;
-}
-
-template <typename Real>
-mantis::DoubleMantissa<Real> operator/(const Real& x,
-                                       const mantis::DoubleMantissa<Real>& y) {
-  return mantis::DoubleMantissa<Real>::Divide(mantis::DoubleMantissa<Real>(x),
-                                              y);
-}
-
-template <typename Real>
-mantis::DoubleMantissa<Real> operator/(const mantis::DoubleMantissa<Real>& x,
-                                       const Real& y) {
-  mantis::DoubleMantissa<Real> z(x);
-  z /= y;
-  return z;
-}
-
-template <typename Real>
-mantis::DoubleMantissa<Real> operator/(const mantis::DoubleMantissa<Real>& x,
-                                       const mantis::DoubleMantissa<Real>& y) {
-  return mantis::DoubleMantissa<Real>::Divide(x, y);
-}
-
-template <typename Real>
-std::ostream& operator<<(std::ostream& out,
-                         const mantis::DoubleMantissa<Real>& value) {
-  constexpr int max_digits10 =
-      std::numeric_limits<mantis::DoubleMantissa<Real>>::max_digits10;
-  const mantis::DecimalNotation rep = value.ToDecimal(max_digits10);
-  out << rep.ToString();
-  return out;
-}
 
 }  // namespace mantis
 
