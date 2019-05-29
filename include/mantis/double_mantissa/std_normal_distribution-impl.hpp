@@ -70,16 +70,16 @@ normal_distribution<mantis::DoubleMantissa<float>>::operator()(
     // unit circle: including the boundary but excluding the center. The result
     // will be uniformly distributed over the kept region.
     result_type x, y, squared_norm;
-    std::uniform_real_distribution<result_type> uniform_dist(result_type(-1.f),
-                                                             result_type(1.f));
+    std::uniform_real_distribution<result_type> uniform_dist(result_type(-1),
+                                                             result_type(1));
     do {
       x = uniform_dist(gen);
       y = uniform_dist(gen);
       squared_norm = x * x + y * y;
-    } while (squared_norm > 1.f || squared_norm == 0.f);
+    } while (squared_norm > 1 || squared_norm == 0);
 
     const result_type scale =
-        std::sqrt(-2.f * std::log(squared_norm) / squared_norm);
+        std::sqrt(-2 * std::log(squared_norm) / squared_norm);
     polar_result = x * scale;
     saved_result_ = y * scale;
     have_saved_result_ = true;
@@ -176,16 +176,16 @@ normal_distribution<mantis::DoubleMantissa<double>>::operator()(
     // unit circle: including the boundary but excluding the center. The result
     // will be uniformly distributed over the kept region.
     result_type x, y, squared_norm;
-    std::uniform_real_distribution<result_type> uniform_dist(result_type(-1.),
-                                                             result_type(1.));
+    std::uniform_real_distribution<result_type> uniform_dist(result_type(-1),
+                                                             result_type(1));
     do {
       x = uniform_dist(gen);
       y = uniform_dist(gen);
       squared_norm = x * x + y * y;
-    } while (squared_norm > 1. || squared_norm == 0.);
+    } while (squared_norm > 1 || squared_norm == 0);
 
     const result_type scale =
-        std::sqrt(-2. * std::log(squared_norm) / squared_norm);
+        std::sqrt(-2 * std::log(squared_norm) / squared_norm);
     polar_result = x * scale;
     saved_result_ = y * scale;
     have_saved_result_ = true;
@@ -283,16 +283,16 @@ normal_distribution<mantis::DoubleMantissa<long double>>::operator()(
     // unit circle: including the boundary but excluding the center. The result
     // will be uniformly distributed over the kept region.
     result_type x, y, squared_norm;
-    std::uniform_real_distribution<result_type> uniform_dist(result_type(-1.L),
-                                                             result_type(1.L));
+    std::uniform_real_distribution<result_type> uniform_dist(result_type(-1),
+                                                             result_type(1));
     do {
       x = uniform_dist(gen);
       y = uniform_dist(gen);
       squared_norm = x * x + y * y;
-    } while (squared_norm > 1.L || squared_norm == 0.L);
+    } while (squared_norm > 1 || squared_norm == 0);
 
     const result_type scale =
-        std::sqrt(-2.L * std::log(squared_norm) / squared_norm);
+        std::sqrt(-2 * std::log(squared_norm) / squared_norm);
     polar_result = x * scale;
     saved_result_ = y * scale;
     have_saved_result_ = true;

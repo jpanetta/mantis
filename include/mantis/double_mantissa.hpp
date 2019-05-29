@@ -80,10 +80,16 @@ class DoubleMantissa {
   DoubleMantissa<Real>& Reduce();
 
   // The assignment operator.
+  DoubleMantissa<Real>& operator=(int value);
+
+  // The assignment operator.
   DoubleMantissa<Real>& operator=(const Real& value);
 
   // The assignment operator.
   DoubleMantissa<Real>& operator=(const DoubleMantissa<Real>& value);
+
+  // Adds an integer to the current state.
+  DoubleMantissa<Real>& operator+=(int value);
 
   // Adds a single-mantissa value to the current state.
   DoubleMantissa<Real>& operator+=(const Real& value);
@@ -91,17 +97,26 @@ class DoubleMantissa {
   // Adds a double-mantissa value to the current state.
   DoubleMantissa<Real>& operator+=(const DoubleMantissa<Real>& value);
 
-  // Subtracts a single-mantissa value to the current state.
+  // Subtracts an integer from the current state.
+  DoubleMantissa<Real>& operator-=(int value);
+
+  // Subtracts a single-mantissa value from the current state.
   DoubleMantissa<Real>& operator-=(const Real& value);
 
-  // Subtracts a double-mantissa value to the current state.
+  // Subtracts a double-mantissa value from the current state.
   DoubleMantissa<Real>& operator-=(const DoubleMantissa<Real>& value);
+
+  // Multiplies the current state by an integer.
+  DoubleMantissa<Real>& operator*=(int value);
 
   // Multiplies the current state by a single-mantissa value.
   DoubleMantissa<Real>& operator*=(const Real& value);
 
   // Multiplies the current state by a double-mantissa value.
   DoubleMantissa<Real>& operator*=(const DoubleMantissa<Real>& value);
+
+  // Divides the current state by an integer.
+  DoubleMantissa<Real>& operator/=(int value);
 
   // Divides the current state by a single-mantissa value.
   DoubleMantissa<Real>& operator/=(const Real& value);
@@ -168,7 +183,15 @@ struct IsDoubleMantissa<DoubleMantissa<Real>> {
 
 // Returns true if the individual components are equivalent.
 template <typename Real>
+bool operator==(int lhs, const DoubleMantissa<Real>& rhs);
+
+// Returns true if the individual components are equivalent.
+template <typename Real>
 bool operator==(const Real& lhs, const DoubleMantissa<Real>& rhs);
+
+// Returns true if the individual components are equivalent.
+template <typename Real>
+bool operator==(const DoubleMantissa<Real>& lhs, int rhs);
 
 // Returns true if the individual components are equivalent.
 template <typename Real>
@@ -181,7 +204,15 @@ bool operator==(const DoubleMantissa<Real>& lhs,
 
 // Returns true if the individual components vary.
 template <typename Real>
+bool operator!=(int lhs, const DoubleMantissa<Real>& rhs);
+
+// Returns true if the individual components vary.
+template <typename Real>
 bool operator!=(const Real& lhs, const DoubleMantissa<Real>& rhs);
+
+// Returns true if the individual components vary.
+template <typename Real>
+bool operator!=(const DoubleMantissa<Real>& lhs, int rhs);
 
 // Returns true if the individual components vary.
 template <typename Real>
@@ -194,7 +225,15 @@ bool operator!=(const DoubleMantissa<Real>& lhs,
 
 // Returns true if this class's data is less than the given value.
 template <typename Real>
+bool operator<(int lhs, const DoubleMantissa<Real>& rhs);
+
+// Returns true if this class's data is less than the given value.
+template <typename Real>
 bool operator<(const Real& lhs, const DoubleMantissa<Real>& rhs);
+
+// Returns true if the left value is less than the right value.
+template <typename Real>
+bool operator<(const DoubleMantissa<Real>& lhs, int rhs);
 
 // Returns true if the left value is less than the right value.
 template <typename Real>
@@ -207,7 +246,15 @@ bool operator<(const DoubleMantissa<Real>& lhs,
 
 // Returns true if the left value is <= the right value.
 template <typename Real>
+bool operator<=(int lhs, const DoubleMantissa<Real>& rhs);
+
+// Returns true if the left value is <= the right value.
+template <typename Real>
 bool operator<=(const Real& lhs, const DoubleMantissa<Real>& rhs);
+
+// Returns true if the left value is <= the right value.
+template <typename Real>
+bool operator<=(const DoubleMantissa<Real>& lhs, int rhs);
 
 // Returns true if the left value is <= the right value.
 template <typename Real>
@@ -220,7 +267,15 @@ bool operator<=(const DoubleMantissa<Real>& lhs,
 
 // Returns true if the left value is greater than the right value.
 template <typename Real>
+bool operator>(int lhs, const DoubleMantissa<Real>& rhs);
+
+// Returns true if the left value is greater than the right value.
+template <typename Real>
 bool operator>(const Real& lhs, const DoubleMantissa<Real>& rhs);
+
+// Returns true if the left value is greater than the right value.
+template <typename Real>
+bool operator>(const DoubleMantissa<Real>& lhs, int rhs);
 
 // Returns true if the left value is greater than the right value.
 template <typename Real>
@@ -233,7 +288,15 @@ bool operator>(const DoubleMantissa<Real>& lhs,
 
 // Returns true if the left value is >= the right value.
 template <typename Real>
+bool operator>=(int lhs, const DoubleMantissa<Real>& rhs);
+
+// Returns true if the left value is >= the right value.
+template <typename Real>
 bool operator>=(const Real& lhs, const DoubleMantissa<Real>& rhs);
+
+// Returns true if the left value is >= the right value.
+template <typename Real>
+bool operator>=(const DoubleMantissa<Real>& lhs, int rhs);
 
 // Returns true if the left value is >= the right value.
 template <typename Real>
@@ -250,7 +313,15 @@ DoubleMantissa<Real> operator-(const DoubleMantissa<Real>& value);
 
 // Returns the sum of the two values.
 template <typename Real>
+DoubleMantissa<Real> operator+(int x, const DoubleMantissa<Real>& y);
+
+// Returns the sum of the two values.
+template <typename Real>
 DoubleMantissa<Real> operator+(const Real& x, const DoubleMantissa<Real>& y);
+
+// Returns the sum of the two values.
+template <typename Real>
+DoubleMantissa<Real> operator+(const DoubleMantissa<Real>& x, int y);
 
 // Returns the sum of the two values.
 template <typename Real>
@@ -263,7 +334,15 @@ DoubleMantissa<Real> operator+(const DoubleMantissa<Real>& x,
 
 // Returns the difference between the two values.
 template <typename Real>
+DoubleMantissa<Real> operator-(int x, const DoubleMantissa<Real>& y);
+
+// Returns the difference between the two values.
+template <typename Real>
 DoubleMantissa<Real> operator-(const Real& x, const DoubleMantissa<Real>& y);
+
+// Returns the difference between the two values.
+template <typename Real>
+DoubleMantissa<Real> operator-(const DoubleMantissa<Real>& x, int y);
 
 // Returns the difference between the two values.
 template <typename Real>
@@ -276,7 +355,15 @@ DoubleMantissa<Real> operator-(const DoubleMantissa<Real>& x,
 
 // Returns the product of the two values.
 template <typename Real>
+DoubleMantissa<Real> operator*(int x, const DoubleMantissa<Real>& y);
+
+// Returns the product of the two values.
+template <typename Real>
 DoubleMantissa<Real> operator*(const Real& x, const DoubleMantissa<Real>& y);
+
+// Returns the product of the two values.
+template <typename Real>
+DoubleMantissa<Real> operator*(const DoubleMantissa<Real>& x, int y);
 
 // Returns the product of the two values.
 template <typename Real>
@@ -289,7 +376,15 @@ DoubleMantissa<Real> operator*(const DoubleMantissa<Real>& x,
 
 // Returns the ratio of the two values.
 template <typename Real>
+DoubleMantissa<Real> operator/(int x, const DoubleMantissa<Real>& y);
+
+// Returns the ratio of the two values.
+template <typename Real>
 DoubleMantissa<Real> operator/(const Real& x, const DoubleMantissa<Real>& y);
+
+// Returns the ratio of the two values.
+template <typename Real>
+DoubleMantissa<Real> operator/(const DoubleMantissa<Real>& x, int y);
 
 // Returns the ratio of the two values.
 template <typename Real>
