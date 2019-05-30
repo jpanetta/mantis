@@ -18,11 +18,12 @@ void RunTest() {
   const mantis::Complex<DoubleReal> d = c / a;
   const mantis::Complex<DoubleReal> e = c / b;
 
-  std::cout << "a: " << a << "\n"
-            << "b: " << b << "\n"
-            << "c = a * b: " << c << "\n"
-            << "d = c / a = b: " << d << "\n"
-            << "e = c / b = a: " << e << std::endl;
+  std::cout << "a: " << a << ", |a|: " << mantis::Abs(a) << "\n"
+            << "b: " << b << ", |b|: " << mantis::Abs(b) << "\n"
+            << "c = a * b: " << c << ", |c|: " << mantis::Abs(c) << "\n"
+            << "d = c / a = b: " << d << ", |d|: " << mantis::Abs(d) << "\n"
+            << "e = c / b = a: " << e << ", |e|: " << mantis::Abs(e)
+            << std::endl;
 }
 
 int main(int argc, char* argv[]) {

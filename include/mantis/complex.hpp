@@ -413,6 +413,10 @@ constexpr Real Conjugate(const Real& value) MANTIS_NOEXCEPT;
 template <class Real>
 constexpr Complex<Real> Conjugate(const Complex<Real>& value) MANTIS_NOEXCEPT;
 
+// Returns the magnitude of a complex value.
+template <class Real>
+constexpr Real Abs(const Complex<Real>& value);
+
 // Pretty-prints the complex value.
 template <typename Real>
 std::ostream& operator<<(std::ostream& out, const Complex<Real>& value);

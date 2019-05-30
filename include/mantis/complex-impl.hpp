@@ -598,6 +598,11 @@ constexpr Complex<Real> Conjugate(const Complex<Real>& value) MANTIS_NOEXCEPT {
   return Complex<Real>{value.Real(), -value.Imag()};
 }
 
+template <class Real>
+constexpr Real Abs(const Complex<Real>& value) {
+  return Hypot(value.Real(), value.Imag());
+}
+
 template <typename Real>
 std::ostream& operator<<(std::ostream& out, const Complex<Real>& value) {
   out << RealPart(value) << " + " << ImagPart(value) << "i";
