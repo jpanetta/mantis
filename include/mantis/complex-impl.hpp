@@ -603,6 +603,82 @@ constexpr Real Abs(const Complex<Real>& value) {
   return Hypot(value.Real(), value.Imag());
 }
 
+inline Complex<float> Sin(const Complex<float>& x) { return std::sin(x); }
+
+inline Complex<double> Sin(const Complex<double>& x) { return std::sin(x); }
+
+inline Complex<long double> Sin(const Complex<long double>& x) {
+  return std::sin(x);
+}
+
+template <class Real>
+Complex<Real> Sin(const Complex<Real>& x) {
+  Real real_sin, real_cos;
+  SinCos(x.Real(), &real_sin, &real_cos);
+  Real imag_sinh, imag_cosh;
+  HyperbolicSinCos(x.Imag(), &imag_sinh, &imag_cosh);
+  return Complex<Real>(real_sin * imag_cosh, real_cos * imag_sinh);
+}
+
+inline Complex<float> Cos(const Complex<float>& x) { return std::cos(x); }
+
+inline Complex<double> Cos(const Complex<double>& x) { return std::cos(x); }
+
+inline Complex<long double> Cos(const Complex<long double>& x) {
+  return std::cos(x);
+}
+
+template <class Real>
+Complex<Real> Cos(const Complex<Real>& x) {
+  Real real_sin, real_cos;
+  SinCos(x.Real(), &real_sin, &real_cos);
+  Real imag_sinh, imag_cosh;
+  HyperbolicSinCos(x.Imag(), &imag_sinh, &imag_cosh);
+  return Complex<Real>(real_cos * imag_cosh, -real_sin * imag_sinh);
+}
+
+void SinCos(const Complex<float>& x, Complex<float>* sin_x,
+            Complex<float>* cos_x) {
+  *sin_x = std::sin(x);
+  *cos_x = std::cos(x);
+}
+
+void SinCos(const Complex<double>& x, Complex<double>* sin_x,
+            Complex<double>* cos_x) {
+  *sin_x = std::sin(x);
+  *cos_x = std::cos(x);
+}
+
+void SinCos(const Complex<long double>& x, Complex<long double>* sin_x,
+            Complex<long double>* cos_x) {
+  *sin_x = std::sin(x);
+  *cos_x = std::cos(x);
+}
+
+template <class Real>
+void SinCos(const Complex<Real>& x, Complex<Real>* sin_x,
+            Complex<Real>* cos_x) {
+  Real real_sin, real_cos;
+  SinCos(x.Real(), &real_sin, &real_cos);
+  Real imag_sinh, imag_cosh;
+  HyperbolicSinCos(x.Imag(), &imag_sinh, &imag_cosh);
+  *sin_x = Complex<Real>(real_sin * imag_cosh, real_cos * imag_sinh);
+  *cos_x = Complex<Real>(real_cos * imag_cosh, -real_sin * imag_sinh);
+}
+
+Complex<float> Tan(const Complex<float>& x) { return std::tan(x); }
+
+Complex<double> Tan(const Complex<double>& x) { return std::tan(x); }
+
+Complex<long double> Tan(const Complex<long double>& x) { return std::tan(x); }
+
+template <class Real>
+Complex<Real> Tan(const Complex<Real>& x) {
+  Complex<Real> sin_x, cos_x;
+  SinCos(x, &sin_x, &cos_x);
+  return sin_x / cos_x;
+}
+
 template <typename Real>
 std::ostream& operator<<(std::ostream& out, const Complex<Real>& value) {
   out << RealPart(value) << " + " << ImagPart(value) << "i";

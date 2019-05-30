@@ -341,16 +341,22 @@ template <class Real>
 constexpr Complex<Real> operator*(const Real& a,
                                   const Complex<Real>& b)MANTIS_NOEXCEPT;
 
-// Returns a / b using the naive, textbook algorithm.
+// Returns a / b using the naive, textbook algorithm. This approach is used by
+// GCC.
 template <typename Real>
 constexpr Complex<Real> NaiveDiv(const Complex<Real>& a,
                                  const Complex<Real>& b);
 
 // Returns a / b using "Smith's algorithm", which is Fig. 3 from Baudin and
-// Smith.
+// Smith. This approach is typically more accurate than the naive approach and
+// is our default for operator/, despite the increase in cost relative to
+// GCC's adoption of the naive algorithm for std::complex operator/.
 template <typename Real>
 constexpr Complex<Real> SmithDiv(const Complex<Real>& a,
                                  const Complex<Real>& b);
+
+// TODO(Jack Poulson): Add support for a 'safe' division algorithm which avoids
+// unnecessary overflow or underflow.
 
 // Returns the ratio of two values.
 CXX20_CONSTEXPR Complex<float> operator/(const Complex<float>& a,
@@ -416,6 +422,37 @@ constexpr Complex<Real> Conjugate(const Complex<Real>& value) MANTIS_NOEXCEPT;
 // Returns the magnitude of a complex value.
 template <class Real>
 constexpr Real Abs(const Complex<Real>& value);
+
+// Returns the sine of the complex number.
+Complex<float> Sin(const Complex<float>& x);
+Complex<double> Sin(const Complex<double>& x);
+Complex<long double> Sin(const Complex<long double>& x);
+template <class Real>
+Complex<Real> Sin(const Complex<Real>& x);
+
+// Returns the cosine of the complex number.
+Complex<float> Cos(const Complex<float>& x);
+Complex<double> Cos(const Complex<double>& x);
+Complex<long double> Cos(const Complex<long double>& x);
+template <class Real>
+Complex<Real> Cos(const Complex<Real>& x);
+
+// Simultaneously computes the sin and cosine of a complex number.
+void SinCos(const Complex<float>& x, Complex<float>* sin_x,
+            Complex<float>* cos_x);
+void SinCos(const Complex<double>& x, Complex<double>* sin_x,
+            Complex<double>* cos_x);
+void SinCos(const Complex<long double>& x, Complex<long double>* sin_x,
+            Complex<long double>* cos_x);
+template <typename Real>
+void SinCos(const Complex<Real>& x, Complex<Real>* sin_x, Complex<Real>* cos_x);
+
+// Returns the tangent of the complex number.
+Complex<float> Tan(const Complex<float>& x);
+Complex<double> Tan(const Complex<double>& x);
+Complex<long double> Tan(const Complex<long double>& x);
+template <class Real>
+Complex<Real> Tan(const Complex<Real>& x);
 
 // Pretty-prints the complex value.
 template <typename Real>

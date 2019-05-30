@@ -664,20 +664,20 @@ DoubleMantissa<Real> Log10(const DoubleMantissa<Real>& value);
 
 // Returns the sine of the given double-mantissa value.
 template <typename Real>
-DoubleMantissa<Real> Sin(const DoubleMantissa<Real>& value);
+DoubleMantissa<Real> Sin(const DoubleMantissa<Real>& theta);
 
 // Returns the cosine of the given double-mantissa value.
 template <typename Real>
-DoubleMantissa<Real> Cos(const DoubleMantissa<Real>& value);
+DoubleMantissa<Real> Cos(const DoubleMantissa<Real>& theta);
 
 // Fills the sine and cosine of the given double-mantissa value.
 template <typename Real>
-void SinCos(const DoubleMantissa<Real>& value, DoubleMantissa<Real>* s,
-            DoubleMantissa<Real>* c);
+void SinCos(const DoubleMantissa<Real>& theta, DoubleMantissa<Real>* sin_theta,
+            DoubleMantissa<Real>* cos_theta);
 
 // Returns the tangent of the given double-mantissa value.
 template <typename Real>
-DoubleMantissa<Real> Tan(const DoubleMantissa<Real>& value);
+DoubleMantissa<Real> Tan(const DoubleMantissa<Real>& theta);
 
 // Returns the inverse tangent of the double-mantissa value.
 template <typename Real>
@@ -705,6 +705,11 @@ DoubleMantissa<Real> HyperbolicSin(const DoubleMantissa<Real>& x);
 // Returns the hyperbolic cosine of the given double-mantissa value.
 template <typename Real>
 DoubleMantissa<Real> HyperbolicCos(const DoubleMantissa<Real>& x);
+
+template <typename Real>
+void HyperbolicSinCos(const DoubleMantissa<Real>& x,
+                      DoubleMantissa<Real>* sinh_x,
+                      DoubleMantissa<Real>* cosh_x);
 
 // Returns the hyperbolic tangent of the given double-mantissa value.
 template <typename Real>

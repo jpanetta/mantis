@@ -24,6 +24,13 @@ void RunTest() {
             << "d = c / a = b: " << d << ", |d|: " << mantis::Abs(d) << "\n"
             << "e = c / b = a: " << e << ", |e|: " << mantis::Abs(e)
             << std::endl;
+
+  std::cout << "sin(a): " << mantis::Sin(a) << ", cos(a): " << mantis::Cos(a)
+            << ", tan(a): " << mantis::Tan(a) << std::endl;
+  std::cout << "sin(b): " << mantis::Sin(b) << ", cos(b): " << mantis::Cos(b)
+            << ", tan(b): " << mantis::Tan(b) << std::endl;
+  std::cout << "sin(c): " << mantis::Sin(c) << ", cos(c): " << mantis::Cos(c)
+            << ", tan(c): " << mantis::Tan(c) << std::endl;
 }
 
 int main(int argc, char* argv[]) {

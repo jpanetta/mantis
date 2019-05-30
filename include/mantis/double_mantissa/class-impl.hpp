@@ -1415,20 +1415,20 @@ DoubleMantissa<Real> Abs(const DoubleMantissa<Real>& value) {
 }
 
 template <typename Real>
-DoubleMantissa<Real> SmallArgSin(const DoubleMantissa<Real>& value) {
-  if (value.Upper() == Real(0)) {
+DoubleMantissa<Real> SmallArgSin(const DoubleMantissa<Real>& theta) {
+  if (theta.Upper() == Real(0)) {
     return DoubleMantissa<Real>();
   }
 
   // The Taylor series is of the form: x - (1/3!) x^3 + (1/5!) x^5 - ...,
   // we the successive powers of 'x' will be multiplied by -x^2.
-  const DoubleMantissa<Real> power_ratio = -Square(value);
+  const DoubleMantissa<Real> power_ratio = -Square(theta);
 
   // Initialize x_power := x and the iterate as the first term in the series.
-  DoubleMantissa<Real> x_power = value;
-  DoubleMantissa<Real> iterate(value);
+  DoubleMantissa<Real> x_power = theta;
+  DoubleMantissa<Real> iterate(theta);
 
-  const Real threshold = Real(0.5) * std::abs(value.Upper()) *
+  const Real threshold = Real(0.5) * std::abs(theta.Upper()) *
                          double_mantissa::Epsilon<Real>().Upper();
 
   DoubleMantissa<Real> coefficient = 1;
@@ -1455,14 +1455,14 @@ DoubleMantissa<Real> SmallArgSin(const DoubleMantissa<Real>& value) {
 }
 
 template <typename Real>
-DoubleMantissa<Real> SmallArgCos(const DoubleMantissa<Real>& value) {
-  if (value.Upper() == Real(0)) {
+DoubleMantissa<Real> SmallArgCos(const DoubleMantissa<Real>& theta) {
+  if (theta.Upper() == Real(0)) {
     return DoubleMantissa<Real>(Real(1));
   }
 
   // The Taylor series is of the form: 1 - (1/2!) x^2 + (1/4!) x^4 - ...,
   // we the successive powers of 'x' will be multiplied by -x^2.
-  const DoubleMantissa<Real> power_ratio = -Square(value);
+  const DoubleMantissa<Real> power_ratio = -Square(theta);
 
   // Initialize the series at 1 - (1/2!) x^2.
   DoubleMantissa<Real> x_power = power_ratio;
@@ -1507,13 +1507,13 @@ DoubleMantissa<Real> SinCosDualMagnitude(const DoubleMantissa<Real>& value) {
 }
 
 template <typename Real>
-void DecomposeSinCosArgument(const DoubleMantissa<Real>& value,
+void DecomposeSinCosArgument(const DoubleMantissa<Real>& theta,
                              int* num_half_pi_int, int* num_sixteenth_pi_int,
                              DoubleMantissa<Real>* sixteenth_pi_remainder) {
   static const DoubleMantissa<Real> pi = double_mantissa::Pi<Real>();
   static const DoubleMantissa<Real> two_pi = Real(2) * pi;
-  const DoubleMantissa<Real> num_two_pi = Round(value / two_pi);
-  const DoubleMantissa<Real> two_pi_remainder = value - two_pi * num_two_pi;
+  const DoubleMantissa<Real> num_two_pi = Round(theta / two_pi);
+  const DoubleMantissa<Real> two_pi_remainder = theta - two_pi * num_two_pi;
 
   static const DoubleMantissa<Real> half_pi = pi / Real(2);
   const Real num_half_pi =
@@ -1582,14 +1582,14 @@ const DoubleMantissa<Real>& SixteenthPiCosTable(int num_sixteenth_pi) {
 }
 
 template <typename Real>
-DoubleMantissa<Real> Sin(const DoubleMantissa<Real>& value) {
-  if (value.Upper() == Real(0)) {
+DoubleMantissa<Real> Sin(const DoubleMantissa<Real>& theta) {
+  if (theta.Upper() == Real(0)) {
     return DoubleMantissa<Real>();
   }
 
   int num_half_pi_int, num_sixteenth_pi_int;
   DoubleMantissa<Real> sixteenth_pi_remainder;
-  DecomposeSinCosArgument(value, &num_half_pi_int, &num_sixteenth_pi_int,
+  DecomposeSinCosArgument(theta, &num_half_pi_int, &num_sixteenth_pi_int,
                           &sixteenth_pi_remainder);
   const int abs_num_sixteenth_pi_int = std::abs(num_sixteenth_pi_int);
 
@@ -1621,56 +1621,56 @@ DoubleMantissa<Real> Sin(const DoubleMantissa<Real>& value) {
   const DoubleMantissa<Real> sin_b = SmallArgSin(sixteenth_pi_remainder);
   const DoubleMantissa<Real> cos_b = SinCosDualMagnitude(sin_b);
 
-  DoubleMantissa<Real> sin_value;
+  DoubleMantissa<Real> sin_theta;
   if (num_half_pi_int == 0) {
     if (num_sixteenth_pi_int > 0) {
       // sin(a + b) = sin(a) cos(b) + cos(a) sin(b).
-      sin_value = sin_a * cos_b + cos_a * sin_b;
+      sin_theta = sin_a * cos_b + cos_a * sin_b;
     } else {
       // sin(-a + b) = sin(-a) cos(b) + cos(-a) sin(b)
       //             = -sin(a) cos(b) + cos(a) sin(b).
-      sin_value = -sin_a * cos_b + cos_a * sin_b;
+      sin_theta = -sin_a * cos_b + cos_a * sin_b;
     }
   } else if (num_half_pi_int == 1) {
     if (num_sixteenth_pi_int > 0) {
       // sin(a + b + (pi / 2)) = cos(a + b) = cos(a) cos(b) - sin(a) sin(b).
-      sin_value = cos_a * cos_b - sin_a * sin_b;
+      sin_theta = cos_a * cos_b - sin_a * sin_b;
     } else {
       // sin(-a + b + (pi / 2)) = cos(-a + b)
       //     = cos(a) cos(b) + sin(a) sin(b).
-      sin_value = cos_a * cos_b + sin_a * sin_b;
+      sin_theta = cos_a * cos_b + sin_a * sin_b;
     }
   } else if (num_half_pi_int == -1) {
     if (num_sixteenth_pi_int > 0) {
       // sin(a + b - (pi / 2)) = -cos(a + b)
       //     = -cos(a) cos(b) + sin(a) sin(b).
-      sin_value = -cos_a * cos_b + sin_a * sin_b;
+      sin_theta = -cos_a * cos_b + sin_a * sin_b;
     } else {
       // sin(-a + b - (pi / 2)) = -cos(-a + b) = -cos(a) cos(b) - sin(a) sin(b).
-      sin_value = -cos_a * cos_b - sin_a * sin_b;
+      sin_theta = -cos_a * cos_b - sin_a * sin_b;
     }
   } else {
     if (num_sixteenth_pi_int > 0) {
       // sin(a + b + pi) = -sin(a + b) = -sin(a) cos(b) - cos(a) sin(b).
-      sin_value = -sin_a * cos_b - cos_a * sin_b;
+      sin_theta = -sin_a * cos_b - cos_a * sin_b;
     } else {
       // sin(-a + b + pi) = -sin(-a + b) = sin(a) cos(b) - cos(a) sin(b).
-      sin_value = sin_a * cos_b - cos_a * sin_b;
+      sin_theta = sin_a * cos_b - cos_a * sin_b;
     }
   }
 
-  return sin_value;
+  return sin_theta;
 }
 
 template <typename Real>
-DoubleMantissa<Real> Cos(const DoubleMantissa<Real>& value) {
-  if (value.Upper() == Real(0)) {
+DoubleMantissa<Real> Cos(const DoubleMantissa<Real>& theta) {
+  if (theta.Upper() == Real(0)) {
     return DoubleMantissa<Real>(Real(1));
   }
 
   int num_half_pi_int, num_sixteenth_pi_int;
   DoubleMantissa<Real> sixteenth_pi_remainder;
-  DecomposeSinCosArgument(value, &num_half_pi_int, &num_sixteenth_pi_int,
+  DecomposeSinCosArgument(theta, &num_half_pi_int, &num_sixteenth_pi_int,
                           &sixteenth_pi_remainder);
   const int abs_num_sixteenth_pi_int = std::abs(num_sixteenth_pi_int);
 
@@ -1702,56 +1702,56 @@ DoubleMantissa<Real> Cos(const DoubleMantissa<Real>& value) {
   const DoubleMantissa<Real> sin_b = SmallArgSin(sixteenth_pi_remainder);
   const DoubleMantissa<Real> cos_b = SinCosDualMagnitude(sin_b);
 
-  DoubleMantissa<Real> cos_value;
+  DoubleMantissa<Real> cos_theta;
   if (num_half_pi_int == 0) {
     if (num_sixteenth_pi_int > 0) {
       // cos(a + b) = cos(a) cos(b) - sin(a) sin(b).
-      cos_value = cos_a * cos_b - sin_a * sin_b;
+      cos_theta = cos_a * cos_b - sin_a * sin_b;
     } else {
       // cos(-a + b) = cos(a) cos(b) + sin(a) sin(b).
-      cos_value = cos_a * cos_b + sin_a * sin_b;
+      cos_theta = cos_a * cos_b + sin_a * sin_b;
     }
   } else if (num_half_pi_int == 1) {
     if (num_sixteenth_pi_int > 0) {
       // cos(a + b + (pi / 2)) = -sin(a + b) = -sin(a) cos(b) - cos(a) sin(b).
-      cos_value = -sin_a * cos_b - cos_a * sin_b;
+      cos_theta = -sin_a * cos_b - cos_a * sin_b;
     } else {
       // cos(-a + b + (pi / 2)) = -sin(-a + b) = sin(a) cos(b) - cos(a) sin(b).
-      cos_value = sin_a * cos_b - cos_a * sin_b;
+      cos_theta = sin_a * cos_b - cos_a * sin_b;
     }
   } else if (num_half_pi_int == -1) {
     if (num_sixteenth_pi_int > 0) {
       // cos(a + b - (pi / 2)) = sin(a + b) = sin(a) cos(b) + cos(a) sin(b).
-      cos_value = sin_a * cos_b + cos_a * sin_b;
+      cos_theta = sin_a * cos_b + cos_a * sin_b;
     } else {
       // cos(-a + b - (pi / 2)) = sin(-a + b) = -sin(a) cos(b) + cos(a) sin(b).
-      cos_value = -sin_a * cos_b + cos_a * sin_b;
+      cos_theta = -sin_a * cos_b + cos_a * sin_b;
     }
   } else {
     if (num_sixteenth_pi_int > 0) {
       // cos(a + b + pi) = -cos(a + b) = -cos(a) cos(b) + sin(a) sin(b).
-      cos_value = -cos_a * cos_b + sin_a * sin_b;
+      cos_theta = -cos_a * cos_b + sin_a * sin_b;
     } else {
       // cos(-a + b + pi) = -cos(-a + b) = -cos(a) cos(b) - sin(a) sin(b).
-      cos_value = -cos_a * cos_b - sin_a * sin_b;
+      cos_theta = -cos_a * cos_b - sin_a * sin_b;
     }
   }
 
-  return cos_value;
+  return cos_theta;
 }
 
 template <typename Real>
-void SinCos(const DoubleMantissa<Real>& value, DoubleMantissa<Real>* s,
-            DoubleMantissa<Real>* c) {
-  if (value.Upper() == Real(0)) {
-    *s = DoubleMantissa<Real>();
-    *c = DoubleMantissa<Real>(Real(1));
+void SinCos(const DoubleMantissa<Real>& theta, DoubleMantissa<Real>* sin_theta,
+            DoubleMantissa<Real>* cos_theta) {
+  if (theta.Upper() == Real(0)) {
+    *sin_theta = DoubleMantissa<Real>();
+    *cos_theta = DoubleMantissa<Real>(Real(1));
     return;
   }
 
   int num_half_pi_int, num_sixteenth_pi_int;
   DoubleMantissa<Real> sixteenth_pi_remainder;
-  DecomposeSinCosArgument(value, &num_half_pi_int, &num_sixteenth_pi_int,
+  DecomposeSinCosArgument(theta, &num_half_pi_int, &num_sixteenth_pi_int,
                           &sixteenth_pi_remainder);
   const int abs_num_sixteenth_pi_int = std::abs(num_sixteenth_pi_int);
 
@@ -1765,24 +1765,24 @@ void SinCos(const DoubleMantissa<Real>& value, DoubleMantissa<Real>* s,
   if (num_sixteenth_pi_int == 0) {
     if (num_half_pi_int == 0) {
       // sin(a + b) = sin(b).
-      *s = sin_b;
+      *sin_theta = sin_b;
       // cos(a + b) = cos(b).
-      *c = cos_b;
+      *cos_theta = cos_b;
     } else if (num_half_pi_int == 1) {
       // sin(a + b + (pi / 2)) = sin(b + (pi / 2)) = cos(b).
-      *s = cos_b;
+      *sin_theta = cos_b;
       // cos(a + b + (pi / 2)) = cos(b + (pi / 2)) = -sin(b).
-      *c = -sin_b;
+      *cos_theta = -sin_b;
     } else if (num_half_pi_int == -1) {
       // sin(a + b - (pi / 2)) = sin(b - (pi / 2)) = -cos(b).
-      *s = -cos_b;
+      *sin_theta = -cos_b;
       // cos(a + b - (pi / 2)) = cos(b - (pi / 2)) = sin(b).
-      *c = sin_b;
+      *cos_theta = sin_b;
     } else {
       // sin(a + b + pi) = sin(b + pi) = -sin(b).
-      *s = -sin_b;
+      *sin_theta = -sin_b;
       // cos(a + b + pi) = cos(b + pi) = -cos(b).
-      *c = -cos_b;
+      *cos_theta = -cos_b;
     }
     return;
   }
@@ -1795,62 +1795,62 @@ void SinCos(const DoubleMantissa<Real>& value, DoubleMantissa<Real>* s,
   if (num_half_pi_int == 0) {
     if (num_sixteenth_pi_int > 0) {
       // sin(a + b) = sin(a) cos(b) + cos(a) sin(b).
-      *s = sin_a * cos_b + cos_a * sin_b;
+      *sin_theta = sin_a * cos_b + cos_a * sin_b;
       // cos(a + b) = cos(a) cos(b) - sin(a) sin(b).
-      *c = cos_a * cos_b - sin_a * sin_b;
+      *cos_theta = cos_a * cos_b - sin_a * sin_b;
     } else {
       // sin(-a + b) = sin(-a) cos(b) + cos(-a) sin(b)
       //             = -sin(a) cos(b) + cos(a) sin(b).
-      *s = -sin_a * cos_b + cos_a * sin_b;
+      *sin_theta = -sin_a * cos_b + cos_a * sin_b;
       // cos(-a + b) = cos(a) cos(b) + sin(a) sin(b).
-      *c = cos_a * cos_b + sin_a * sin_b;
+      *cos_theta = cos_a * cos_b + sin_a * sin_b;
     }
   } else if (num_half_pi_int == 1) {
     if (num_sixteenth_pi_int > 0) {
       // sin(a + b + (pi / 2)) = cos(a + b) = cos(a) cos(b) - sin(a) sin(b).
-      *s = cos_a * cos_b - sin_a * sin_b;
+      *sin_theta = cos_a * cos_b - sin_a * sin_b;
       // cos(a + b + (pi / 2)) = -sin(a + b) = -sin(a) cos(b) - cos(a) sin(b).
-      *c = -sin_a * cos_b - cos_a * sin_b;
+      *cos_theta = -sin_a * cos_b - cos_a * sin_b;
     } else {
       // sin(-a + b + (pi / 2)) = cos(-a + b)
       //     = cos(a) cos(b) + sin(a) sin(b).
-      *s = cos_a * cos_b + sin_a * sin_b;
+      *sin_theta = cos_a * cos_b + sin_a * sin_b;
       // cos(-a + b + (pi / 2)) = -sin(-a + b) = sin(a) cos(b) - cos(a) sin(b).
-      *c = sin_a * cos_b - cos_a * sin_b;
+      *cos_theta = sin_a * cos_b - cos_a * sin_b;
     }
   } else if (num_half_pi_int == -1) {
     if (num_sixteenth_pi_int > 0) {
       // sin(a + b - (pi / 2)) = -cos(a + b)
       //     = -cos(a) cos(b) + sin(a) sin(b).
-      *s = -cos_a * cos_b + sin_a * sin_b;
+      *sin_theta = -cos_a * cos_b + sin_a * sin_b;
       // cos(a + b - (pi / 2)) = sin(a + b) = sin(a) cos(b) + cos(a) sin(b).
-      *c = sin_a * cos_b + cos_a * sin_b;
+      *cos_theta = sin_a * cos_b + cos_a * sin_b;
     } else {
       // sin(-a + b - (pi / 2)) = -cos(-a + b) = -cos(a) cos(b) - sin(a) sin(b).
-      *s = -cos_a * cos_b - sin_a * sin_b;
+      *sin_theta = -cos_a * cos_b - sin_a * sin_b;
       // cos(-a + b - (pi / 2)) = sin(-a + b) = -sin(a) cos(b) + cos(a) sin(b).
-      *c = -sin_a * cos_b + cos_a * sin_b;
+      *cos_theta = -sin_a * cos_b + cos_a * sin_b;
     }
   } else {
     if (num_sixteenth_pi_int > 0) {
       // sin(a + b + pi) = -sin(a + b) = -sin(a) cos(b) - cos(a) sin(b).
-      *s = -sin_a * cos_b - cos_a * sin_b;
+      *sin_theta = -sin_a * cos_b - cos_a * sin_b;
       // cos(a + b + pi) = -cos(a + b) = -cos(a) cos(b) + sin(a) sin(b).
-      *c = -cos_a * cos_b + sin_a * sin_b;
+      *cos_theta = -cos_a * cos_b + sin_a * sin_b;
     } else {
       // sin(-a + b + pi) = -sin(-a + b) = sin(a) cos(b) - cos(a) sin(b).
-      *s = sin_a * cos_b - cos_a * sin_b;
+      *sin_theta = sin_a * cos_b - cos_a * sin_b;
       // cos(-a + b + pi) = -cos(-a + b) = -cos(a) cos(b) - sin(a) sin(b).
-      *c = -cos_a * cos_b - sin_a * sin_b;
+      *cos_theta = -cos_a * cos_b - sin_a * sin_b;
     }
   }
 }
 
 template <typename Real>
-DoubleMantissa<Real> Tan(const DoubleMantissa<Real>& value) {
-  DoubleMantissa<Real> s, c;
-  SinCos(value, &s, &c);
-  return s / c;
+DoubleMantissa<Real> Tan(const DoubleMantissa<Real>& theta) {
+  DoubleMantissa<Real> sin_theta, cos_theta;
+  SinCos(theta, &sin_theta, &cos_theta);
+  return sin_theta / cos_theta;
 }
 
 template <typename Real>
@@ -1976,16 +1976,16 @@ DoubleMantissa<Real> ArcCos(const DoubleMantissa<Real>& cos_theta) {
 }
 
 template <typename Real>
-DoubleMantissa<Real> HyperbolicSin(const DoubleMantissa<Real>& value) {
-  if (value.Upper() == Real(0)) {
+DoubleMantissa<Real> HyperbolicSin(const DoubleMantissa<Real>& x) {
+  if (x.Upper() == Real(0)) {
     return DoubleMantissa<Real>(Real(0));
   }
 
   // We use the same switching point as the QD library of Hida et al.
   const Real kDirectFormulaThresh = Real(0.05);
-  if (std::abs(value.Upper()) > kDirectFormulaThresh) {
-    const DoubleMantissa<Real> exp_value = Exp(value);
-    return MultiplyByPowerOfTwo(exp_value - Inverse(exp_value), Real(0.5));
+  if (std::abs(x.Upper()) > kDirectFormulaThresh) {
+    const DoubleMantissa<Real> exp_x = Exp(x);
+    return MultiplyByPowerOfTwo(exp_x - Inverse(exp_x), Real(0.5));
   }
 
   // We fall back to a truncation of the Taylor series:
@@ -1995,14 +1995,14 @@ DoubleMantissa<Real> HyperbolicSin(const DoubleMantissa<Real>& value) {
   //
   const DoubleMantissa<Real> epsilon =
       std::numeric_limits<DoubleMantissa<Real>>::epsilon();
-  const Real term_threshold = std::abs(value.Upper()) * epsilon.Upper();
+  const Real term_threshold = std::abs(x.Upper()) * epsilon.Upper();
 
   // The powers of x increase by x^2 in each term.
-  const DoubleMantissa<Real> power_ratio = Square(value);
+  const DoubleMantissa<Real> power_ratio = Square(x);
 
   // Initialize the partial sum as the first term, x.
-  DoubleMantissa<Real> term = value;
-  DoubleMantissa<Real> iterate = value;
+  DoubleMantissa<Real> term = x;
+  DoubleMantissa<Real> iterate = x;
 
   for (int m = 3;; m += 2) {
     term *= power_ratio;
@@ -2017,41 +2017,56 @@ DoubleMantissa<Real> HyperbolicSin(const DoubleMantissa<Real>& value) {
 }
 
 template <typename Real>
-DoubleMantissa<Real> HyperbolicCos(const DoubleMantissa<Real>& value) {
-  if (value.Upper() == Real(0)) {
+DoubleMantissa<Real> HyperbolicCos(const DoubleMantissa<Real>& x) {
+  if (x.Upper() == Real(0)) {
     return DoubleMantissa<Real>(Real(1));
   }
 
   // Use the defining formula.
-  const DoubleMantissa<Real> exp_value = Exp(value);
-  return MultiplyByPowerOfTwo(exp_value + Inverse(exp_value), Real(0.5));
+  const DoubleMantissa<Real> exp_x = Exp(x);
+  return MultiplyByPowerOfTwo(exp_x + Inverse(exp_x), Real(0.5));
 }
 
 template <typename Real>
-DoubleMantissa<Real> HyperbolicTan(const DoubleMantissa<Real>& value) {
-  if (value.Upper() == Real(0)) {
+void HyperbolicSinCos(const DoubleMantissa<Real>& x,
+                      DoubleMantissa<Real>* sinh_x,
+                      DoubleMantissa<Real>* cosh_x) {
+  const Real kDirectFormulaThresh = Real(0.05);
+  if (std::abs(x.Upper()) <= kDirectFormulaThresh) {
+    *sinh_x = HyperbolicSin(x);
+    *cosh_x = SquareRoot(Real(1) + Square(*sinh_x));
+  } else {
+    const DoubleMantissa<Real> exp_x = Exp(x);
+    const DoubleMantissa<Real> inv_exp_x = Inverse(exp_x);
+    *sinh_x = MultiplyByPowerOfTwo(exp_x - inv_exp_x, Real(0.5));
+    *cosh_x = MultiplyByPowerOfTwo(exp_x + inv_exp_x, Real(0.5));
+  }
+}
+
+template <typename Real>
+DoubleMantissa<Real> HyperbolicTan(const DoubleMantissa<Real>& x) {
+  if (x.Upper() == Real(0)) {
     return DoubleMantissa<Real>(Real(0));
   }
 
   // We use the same switching point as the QD library of Hida et al.
   const Real kDirectFormulaThresh = Real(0.05);
-  if (Abs(value) > kDirectFormulaThresh) {
-    const DoubleMantissa<Real> exp_value = Exp(value);
-    const DoubleMantissa<Real> inv_exp_value = Inverse(exp_value);
-    return (exp_value - inv_exp_value) / (exp_value + inv_exp_value);
+  if (std::abs(x.Upper()) > kDirectFormulaThresh) {
+    const DoubleMantissa<Real> exp_x = Exp(x);
+    const DoubleMantissa<Real> inv_exp_x = Inverse(exp_x);
+    return (exp_x - inv_exp_x) / (exp_x + inv_exp_x);
   }
 
   // Fall back to a careful calculation of hyperbolic sine.
-  const DoubleMantissa<Real> sinh_value = HyperbolicSin(value);
+  const DoubleMantissa<Real> sinh_x = HyperbolicSin(x);
 
   // Convert the calculation of sinh into cosh using the identity:
   //
   //   cosh^2(x) - sinh^2(x) = 1.
   //
-  const DoubleMantissa<Real> cosh_value =
-      SquareRoot(Real(1) + Square(sinh_value));
+  const DoubleMantissa<Real> cosh_x = SquareRoot(Real(1) + Square(sinh_x));
 
-  return sinh_value / cosh_value;
+  return sinh_x / cosh_x;
 }
 
 template <typename Real>
@@ -2086,7 +2101,7 @@ DoubleMantissa<Real> ArcHyperbolicCos(const DoubleMantissa<Real>& cosh_x) {
 
 template <typename Real>
 DoubleMantissa<Real> ArcHyperbolicTan(const DoubleMantissa<Real>& tanh_x) {
-  if (Abs(tanh_x.Upper()) >= Real(1)) {
+  if (std::abs(tanh_x.Upper()) >= Real(1)) {
     return double_mantissa::QuietNan<Real>();
   }
 
