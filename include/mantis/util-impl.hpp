@@ -58,12 +58,12 @@ inline constexpr long double MultiplyAdd(const long double& x,
 //
 // There appears to be no equivalent of the XLC __fmadd function for
 // long double.
-#ifdef FP_FAST_FMA
-  return std::fma(x, y, z);
+#ifdef FP_FAST_FMAL
+  return std::fmal(x, y, z);
 #elif defined(MANTIS_GCC_FUSED_MULTIPLY_ADD)
   return __builtin_fmal(x, y, z);
 #else
-  return std::fma(x, y, z);
+  return std::fmal(x, y, z);
 #endif
 }
 
@@ -111,12 +111,12 @@ inline constexpr long double MultiplySubtract(
 //
 // There appears to be no equivalent of the XLC __fmsub function for
 // long double.
-#ifdef FP_FAST_FMA
-  return std::fma(x, y, -z);
+#ifdef FP_FAST_FMAL
+  return std::fmal(x, y, -z);
 #elif defined(MANTIS_GCC_FUSED_MULTIPLY_ADD)
   return __builtin_fmal(x, y, -z);
 #else
-  return std::fma(x, y, -z);
+  return std::fmal(x, y, -z);
 #endif
 }
 
