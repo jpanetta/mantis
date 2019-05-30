@@ -613,17 +613,17 @@ constexpr DoubleMantissa<Real> Split(const Real& value) MANTIS_NOEXCEPT {
   return result;
 }
 
-inline constexpr DoubleMantissa<float> TwoProd(const float& x,
-                                               const float& y) MANTIS_NOEXCEPT {
+constexpr DoubleMantissa<float> TwoProd(const float& x,
+                                        const float& y) MANTIS_NOEXCEPT {
   return TwoProdFMA(x, y);
 }
 
-inline constexpr DoubleMantissa<double> TwoProd(
-    const double& x, const double& y) MANTIS_NOEXCEPT {
+constexpr DoubleMantissa<double> TwoProd(const double& x,
+                                         const double& y) MANTIS_NOEXCEPT {
   return TwoProdFMA(x, y);
 }
 
-inline constexpr DoubleMantissa<long double> TwoProd(
+constexpr DoubleMantissa<long double> TwoProd(
     const long double& x, const long double& y) MANTIS_NOEXCEPT {
   return TwoProdFMA(x, y);
 }
@@ -643,21 +643,19 @@ constexpr DoubleMantissa<Real> TwoProd(const Real& x,
   return result;
 }
 
-inline constexpr DoubleMantissa<float> TwoSquare(const float& x)
-    MANTIS_NOEXCEPT {
+constexpr DoubleMantissa<float> TwoSquare(const float& x) MANTIS_NOEXCEPT {
   DoubleMantissa<float> result(x * x);
   result.Lower() = MultiplySubtract(x, x, result.Upper());
   return result;
 }
 
-inline constexpr DoubleMantissa<double> TwoSquare(const double& x)
-    MANTIS_NOEXCEPT {
+constexpr DoubleMantissa<double> TwoSquare(const double& x) MANTIS_NOEXCEPT {
   DoubleMantissa<double> result(x * x);
   result.Lower() = MultiplySubtract(x, x, result.Upper());
   return result;
 }
 
-inline constexpr DoubleMantissa<long double> TwoSquare(const long double& x)
+constexpr DoubleMantissa<long double> TwoSquare(const long double& x)
     MANTIS_NOEXCEPT {
   DoubleMantissa<long double> result(x * x);
   result.Lower() = MultiplySubtract(x, x, result.Upper());

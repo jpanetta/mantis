@@ -38,6 +38,6 @@
 #endif  // ifdef __GNUG__
 
 // We have not yet enabled C++20.
-#define CXX20_CONSTEXPR
+#define CXX20_CONSTEXPR inline
 
 #endif  // ifndef MANTIS_MACROS_H_
