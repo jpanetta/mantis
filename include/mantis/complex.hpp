@@ -472,7 +472,21 @@ Complex<long double> Tan(const Complex<long double>& x);
 template <typename Real>
 Complex<Real> Tan(const Complex<Real>& x);
 
-// Returns the tangent of the complex number.
+// Returns the inverse sine of the complex number.
+Complex<float> ArcSin(const Complex<float>& x);
+Complex<double> ArcSin(const Complex<double>& x);
+Complex<long double> ArcSin(const Complex<long double>& x);
+template <typename Real>
+Complex<Real> ArcSin(const Complex<Real>& x);
+
+// Returns the inverse cosine of the complex number.
+Complex<float> ArcCos(const Complex<float>& x);
+Complex<double> ArcCos(const Complex<double>& x);
+Complex<long double> ArcCos(const Complex<long double>& x);
+template <typename Real>
+Complex<Real> ArcCos(const Complex<Real>& x);
+
+// Returns the inverse tangent of the complex number.
 Complex<float> ArcTan(const Complex<float>& x);
 Complex<double> ArcTan(const Complex<double>& x);
 Complex<long double> ArcTan(const Complex<long double>& x);

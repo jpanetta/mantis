@@ -729,6 +729,37 @@ Complex<Real> Tan(const Complex<Real>& x) {
   return sin_x / cos_x;
 }
 
+inline Complex<float> ArcSin(const Complex<float>& x) { return std::asin(x); }
+
+inline Complex<double> ArcSin(const Complex<double>& x) { return std::asin(x); }
+
+inline Complex<long double> ArcSin(const Complex<long double>& x) {
+  return std::asin(x);
+}
+
+template <typename Real>
+Complex<Real> ArcSin(const Complex<Real>& x) {
+  // Arcsin(x) = -i Arcsinh(i x)
+  const Complex<Real> y = ArcHyperbolicSin(Complex<Real>(-x.Imag(), x.Real()));
+  return Complex<Real>(y.Imag(), -y.Real());
+}
+
+inline Complex<float> ArcCos(const Complex<float>& x) { return std::acos(x); }
+
+inline Complex<double> ArcCos(const Complex<double>& x) { return std::acos(x); }
+
+inline Complex<long double> ArcCos(const Complex<long double>& x) {
+  return std::acos(x);
+}
+
+template <typename Real>
+Complex<Real> ArcCos(const Complex<Real>& x) {
+  static const Real pi = std::acos(Real(-1));
+  static const Real half_pi = pi / Real(2);
+  const Complex<Real> asin_x = ArcSin(x);
+  return Complex<Real>(half_pi - asin_x.Real(), -asin_x.Imag());
+}
+
 inline Complex<float> ArcTan(const Complex<float>& x) { return std::atan(x); }
 
 inline Complex<double> ArcTan(const Complex<double>& x) { return std::atan(x); }
