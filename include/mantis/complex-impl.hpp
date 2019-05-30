@@ -729,6 +729,62 @@ Complex<Real> Tan(const Complex<Real>& x) {
   return sin_x / cos_x;
 }
 
+inline Complex<float> ArcTan(const Complex<float>& x) { return std::atan(x); }
+
+inline Complex<double> ArcTan(const Complex<double>& x) { return std::atan(x); }
+
+inline Complex<long double> ArcTan(const Complex<long double>& x) {
+  return std::atan(x);
+}
+
+template <typename Real>
+Complex<Real> ArcTan(const Complex<Real>& x) {
+  // The solution follows that of [Abramowitz/Stegun-1972]:
+  //
+  //   atan(x) = (1 / 2i) Ln((i - x) / (i + x)).
+  //
+  // Defining z = (i - x) / (i + x),
+  //
+  //   atan(x) = (1 / 2i) Ln(z)
+  //           = (1 / 2i) (Ln(|z|) + i arg(z))
+  //           = (1 / 2) (arg(z) - i Ln(|z|))
+  //           = (1 / 2) (arg(z) + i Ln(1 / |z|).
+  //
+  // To compute the inputs to the atan2 used to compute arg, we can ignore the
+  // denominator of the textbook division algorithm for (i + x) / (i - x):
+  //
+  //   real_num = -Re[x]^2 + (1 - Im[x])(1 + Im[x])
+  //            = 1 - Re[x]^2 - Im[x]^2,
+  //
+  //   imag_num = Re[x] (1 - Im[x]) + (1 + Im[x]) Re[x]
+  //            = 2 Re[x].
+  //
+  // The component Ln(|z|) can be decomposed as:
+  //
+  //   Ln(1 / |z|) = (1 / 2) Ln(1 / |z|^2)
+  //               = (1 / 2) (Ln(|i + x|^2) - Ln(|i - x|^2)).
+  //
+  const Real real_square = x.Real() * x.Real();
+  const Real imag_square = x.Imag() * x.Imag();
+
+  // Compute the real component of the solution.
+  const Real atan_x_real =
+      ArcTan2(Real(2) * x.Real(), Real(1) - real_square - imag_square) / 2;
+
+  // Compute |i + x|^2.
+  const Real log_numerator =
+      real_square + (Real(1) + x.Imag()) * (Real(1) + x.Imag());
+
+  // Compute |i - x|^2.
+  const Real log_denominator =
+      real_square + (Real(1) - x.Imag()) * (Real(1) - x.Imag());
+
+  // Compute the imaginary components of the solution.
+  const Real atan_x_imag = (Log(log_numerator) - Log(log_denominator)) / 4;
+
+  return Complex<Real>(atan_x_real, atan_x_imag);
+}
+
 inline Complex<float> ArcHyperbolicSin(const Complex<float>& x) {
   return std::asinh(x);
 }
