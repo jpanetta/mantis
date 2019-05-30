@@ -20,8 +20,8 @@ constexpr Real MultiplyAdd(const Real& x, const Real& y,
   return x * y + z;
 }
 
-inline constexpr float MultiplyAdd(const float& x, const float& y,
-                                   const float& z) MANTIS_NOEXCEPT {
+inline float MultiplyAdd(const float& x, const float& y,
+                         const float& z) MANTIS_NOEXCEPT {
 // The QD package of Hida et al. also allows for usage of the "_Asm_fma"
 // macro on Intel and HP compilers for IA 64.
 #ifdef FP_FAST_FMAF
@@ -35,8 +35,8 @@ inline constexpr float MultiplyAdd(const float& x, const float& y,
 #endif
 }
 
-inline constexpr double MultiplyAdd(const double& x, const double& y,
-                                    const double& z) MANTIS_NOEXCEPT {
+inline double MultiplyAdd(const double& x, const double& y,
+                          const double& z) MANTIS_NOEXCEPT {
 // The QD package of Hida et al. also allows for usage of the "_Asm_fma"
 // macro on Intel and HP compilers for IA 64.
 #ifdef FP_FAST_FMA
@@ -50,9 +50,8 @@ inline constexpr double MultiplyAdd(const double& x, const double& y,
 #endif
 }
 
-inline constexpr long double MultiplyAdd(const long double& x,
-                                         const long double& y,
-                                         const long double& z) MANTIS_NOEXCEPT {
+inline long double MultiplyAdd(const long double& x, const long double& y,
+                               const long double& z) MANTIS_NOEXCEPT {
 // The QD package of Hida et al. also allows for usage of the "_Asm_fma"
 // macro on Intel and HP compilers for IA 64.
 //
@@ -73,8 +72,8 @@ constexpr Real MultiplySubtract(const Real& x, const Real& y,
   return x * y - z;
 }
 
-inline constexpr float MultiplySubtract(const float& x, const float& y,
-                                        const float& z) MANTIS_NOEXCEPT {
+inline float MultiplySubtract(const float& x, const float& y,
+                              const float& z) MANTIS_NOEXCEPT {
 // The QD package of Hida et al. also allows for usage of the "_Asm_fms"
 // macro on Intel and HP compilers for IA 64.
 #ifdef FP_FAST_FMAF
@@ -88,8 +87,8 @@ inline constexpr float MultiplySubtract(const float& x, const float& y,
 #endif
 }
 
-inline constexpr double MultiplySubtract(const double& x, const double& y,
-                                         const double& z) MANTIS_NOEXCEPT {
+inline double MultiplySubtract(const double& x, const double& y,
+                               const double& z) MANTIS_NOEXCEPT {
 // The QD package of Hida et al. also allows for usage of the "_Asm_fms"
 // macro on Intel and HP compilers for IA 64.
 #ifdef FP_FAST_FMA
@@ -103,9 +102,8 @@ inline constexpr double MultiplySubtract(const double& x, const double& y,
 #endif
 }
 
-inline constexpr long double MultiplySubtract(
-    const long double& x, const long double& y,
-    const long double& z) MANTIS_NOEXCEPT {
+inline long double MultiplySubtract(const long double& x, const long double& y,
+                                    const long double& z) MANTIS_NOEXCEPT {
 // The QD package of Hida et al. also allows for usage of the "_Asm_fms"
 // macro on Intel and HP compilers for IA 64.
 //
@@ -118,6 +116,17 @@ inline constexpr long double MultiplySubtract(
 #else
   return std::fmal(x, y, -z);
 #endif
+}
+
+template <typename Real>
+constexpr long long int constexpr_ceil(const Real& value) {
+  if (static_cast<Real>(static_cast<long long int>(value)) == value) {
+    return static_cast<long long int>(value);
+  } else if (value > 0) {
+    return static_cast<long long int>(value) + 1;
+  } else {
+    return static_cast<long long int>(value);
+  }
 }
 
 }  // namespace mantis

@@ -180,14 +180,14 @@ constexpr DoubleMantissa<Real>& DoubleMantissa<Real>::operator-=(
 }
 
 template <typename Real>
-constexpr DoubleMantissa<Real>& DoubleMantissa<Real>::operator*=(int value)
+DoubleMantissa<Real>& DoubleMantissa<Real>::operator*=(int value)
     MANTIS_NOEXCEPT {
   return *this *= Real(value);
 }
 
 template <typename Real>
-constexpr DoubleMantissa<Real>& DoubleMantissa<Real>::operator*=(
-    const Real& value) MANTIS_NOEXCEPT {
+DoubleMantissa<Real>& DoubleMantissa<Real>::operator*=(const Real& value)
+    MANTIS_NOEXCEPT {
   DoubleMantissa<Real> product = TwoProd(Upper(), value);
   product.Lower() += Lower() * value;
   *this = QuickTwoSum(product);
@@ -195,7 +195,7 @@ constexpr DoubleMantissa<Real>& DoubleMantissa<Real>::operator*=(
 }
 
 template <typename Real>
-constexpr DoubleMantissa<Real>& DoubleMantissa<Real>::operator*=(
+DoubleMantissa<Real>& DoubleMantissa<Real>::operator*=(
     const DoubleMantissa<Real>& value) MANTIS_NOEXCEPT {
   DoubleMantissa<Real> product = TwoProd(Upper(), value.Upper());
   product.Lower() += value.Lower() * Upper();
@@ -205,13 +205,12 @@ constexpr DoubleMantissa<Real>& DoubleMantissa<Real>::operator*=(
 }
 
 template <typename Real>
-constexpr DoubleMantissa<Real>& DoubleMantissa<Real>::operator/=(int value) {
+DoubleMantissa<Real>& DoubleMantissa<Real>::operator/=(int value) {
   return *this /= Real(value);
 }
 
 template <typename Real>
-constexpr DoubleMantissa<Real>& DoubleMantissa<Real>::operator/=(
-    const Real& value) {
+DoubleMantissa<Real>& DoubleMantissa<Real>::operator/=(const Real& value) {
   // See the QD library by Hida et al. for a similar implementation.
   const Real approx_quotient = Upper() / value;
 
@@ -499,7 +498,7 @@ DoubleMantissa<Real> DoubleMantissa<Real>::UniformRandom(
 }
 
 template <typename Real>
-constexpr DoubleMantissa<Real>& DoubleMantissa<Real>::operator/=(
+DoubleMantissa<Real>& DoubleMantissa<Real>::operator/=(
     const DoubleMantissa<Real>& value) {
   *this = Divide(*this, value);
   return *this;
@@ -578,8 +577,7 @@ constexpr DoubleMantissa<Real> TwoDiff(const DoubleMantissa<Real>& x)
 }
 
 template <typename Real>
-constexpr DoubleMantissa<Real> TwoProdFMA(const Real& x,
-                                          const Real& y) MANTIS_NOEXCEPT {
+DoubleMantissa<Real> TwoProdFMA(const Real& x, const Real& y) MANTIS_NOEXCEPT {
   DoubleMantissa<Real> result(x * y);
   result.Lower() = MultiplySubtract(x, y, result.Upper());
   return result;
@@ -613,24 +611,23 @@ constexpr DoubleMantissa<Real> Split(const Real& value) MANTIS_NOEXCEPT {
   return result;
 }
 
-constexpr DoubleMantissa<float> TwoProd(const float& x,
-                                        const float& y) MANTIS_NOEXCEPT {
+inline DoubleMantissa<float> TwoProd(const float& x,
+                                     const float& y) MANTIS_NOEXCEPT {
   return TwoProdFMA(x, y);
 }
 
-constexpr DoubleMantissa<double> TwoProd(const double& x,
-                                         const double& y) MANTIS_NOEXCEPT {
+inline DoubleMantissa<double> TwoProd(const double& x,
+                                      const double& y) MANTIS_NOEXCEPT {
   return TwoProdFMA(x, y);
 }
 
-constexpr DoubleMantissa<long double> TwoProd(
+inline DoubleMantissa<long double> TwoProd(
     const long double& x, const long double& y) MANTIS_NOEXCEPT {
   return TwoProdFMA(x, y);
 }
 
 template <typename Real>
-constexpr DoubleMantissa<Real> TwoProd(const Real& x,
-                                       const Real& y) MANTIS_NOEXCEPT {
+DoubleMantissa<Real> TwoProd(const Real& x, const Real& y) MANTIS_NOEXCEPT {
   const DoubleMantissa<Real> x_split = Split(x);
   const DoubleMantissa<Real> y_split = Split(y);
 
@@ -643,19 +640,19 @@ constexpr DoubleMantissa<Real> TwoProd(const Real& x,
   return result;
 }
 
-constexpr DoubleMantissa<float> TwoSquare(const float& x) MANTIS_NOEXCEPT {
+inline DoubleMantissa<float> TwoSquare(const float& x) MANTIS_NOEXCEPT {
   DoubleMantissa<float> result(x * x);
   result.Lower() = MultiplySubtract(x, x, result.Upper());
   return result;
 }
 
-constexpr DoubleMantissa<double> TwoSquare(const double& x) MANTIS_NOEXCEPT {
+inline DoubleMantissa<double> TwoSquare(const double& x) MANTIS_NOEXCEPT {
   DoubleMantissa<double> result(x * x);
   result.Lower() = MultiplySubtract(x, x, result.Upper());
   return result;
 }
 
-constexpr DoubleMantissa<long double> TwoSquare(const long double& x)
+inline DoubleMantissa<long double> TwoSquare(const long double& x)
     MANTIS_NOEXCEPT {
   DoubleMantissa<long double> result(x * x);
   result.Lower() = MultiplySubtract(x, x, result.Upper());
@@ -663,7 +660,7 @@ constexpr DoubleMantissa<long double> TwoSquare(const long double& x)
 }
 
 template <typename Real>
-constexpr DoubleMantissa<Real> TwoSquare(const Real& x) MANTIS_NOEXCEPT {
+DoubleMantissa<Real> TwoSquare(const Real& x) MANTIS_NOEXCEPT {
   const DoubleMantissa<Real> x_split = Split(x);
 
   DoubleMantissa<Real> result(x * x);
@@ -675,8 +672,8 @@ constexpr DoubleMantissa<Real> TwoSquare(const Real& x) MANTIS_NOEXCEPT {
 }
 
 template <typename Real>
-constexpr DoubleMantissa<Real> FastDivide(const DoubleMantissa<Real>& x,
-                                          const DoubleMantissa<Real>& y) {
+DoubleMantissa<Real> FastDivide(const DoubleMantissa<Real>& x,
+                                const DoubleMantissa<Real>& y) {
   // See the QD library by Hida et al. for a similar implementation.
   DoubleMantissa<Real> quotient(x.Upper() / y.Upper());
 
@@ -693,8 +690,8 @@ constexpr DoubleMantissa<Real> FastDivide(const DoubleMantissa<Real>& x,
 }
 
 template <typename Real>
-constexpr DoubleMantissa<Real> Divide(const DoubleMantissa<Real>& x,
-                                      const DoubleMantissa<Real>& y) {
+DoubleMantissa<Real> Divide(const DoubleMantissa<Real>& x,
+                            const DoubleMantissa<Real>& y) {
   // See the QD library by Hida et al. for a similar implementation.
   DoubleMantissa<Real> quotient(x.Upper() / y.Upper());
 
@@ -965,69 +962,66 @@ constexpr DoubleMantissa<Real> operator-(const DoubleMantissa<Real>& x,
 }
 
 template <typename Real>
-constexpr DoubleMantissa<Real> operator*(int x, const DoubleMantissa<Real>& y)
-    MANTIS_NOEXCEPT {
+DoubleMantissa<Real> operator*(int x,
+                               const DoubleMantissa<Real>& y)MANTIS_NOEXCEPT {
   return Real(x) * y;
 }
 
 template <typename Real>
-constexpr DoubleMantissa<Real> operator*(
-    const Real& x, const DoubleMantissa<Real>& y)MANTIS_NOEXCEPT {
+DoubleMantissa<Real> operator*(const Real& x,
+                               const DoubleMantissa<Real>& y)MANTIS_NOEXCEPT {
   DoubleMantissa<Real> z(y);
   z *= x;
   return z;
 }
 
 template <typename Real>
-constexpr DoubleMantissa<Real> operator*(const DoubleMantissa<Real>& x,
-                                         int y)MANTIS_NOEXCEPT {
+DoubleMantissa<Real> operator*(const DoubleMantissa<Real>& x,
+                               int y)MANTIS_NOEXCEPT {
   return x * Real(y);
 }
 
 template <typename Real>
-constexpr DoubleMantissa<Real> operator*(const DoubleMantissa<Real>& x,
-                                         const Real& y)MANTIS_NOEXCEPT {
+DoubleMantissa<Real> operator*(const DoubleMantissa<Real>& x,
+                               const Real& y)MANTIS_NOEXCEPT {
   DoubleMantissa<Real> z(x);
   z *= y;
   return z;
 }
 
 template <typename Real>
-constexpr DoubleMantissa<Real> operator*(const DoubleMantissa<Real>& x,
-                                         const DoubleMantissa<Real>& y)
-    MANTIS_NOEXCEPT {
+DoubleMantissa<Real> operator*(const DoubleMantissa<Real>& x,
+                               const DoubleMantissa<Real>& y)MANTIS_NOEXCEPT {
   DoubleMantissa<Real> z(x);
   z *= y;
   return z;
 }
 
 template <typename Real>
-constexpr DoubleMantissa<Real> operator/(int x, const DoubleMantissa<Real>& y) {
+DoubleMantissa<Real> operator/(int x, const DoubleMantissa<Real>& y) {
   return Real(x) / y;
 }
 
 template <typename Real>
-constexpr DoubleMantissa<Real> operator/(const Real& x,
-                                         const DoubleMantissa<Real>& y) {
+DoubleMantissa<Real> operator/(const Real& x, const DoubleMantissa<Real>& y) {
   return Divide(DoubleMantissa<Real>(x), y);
 }
 
 template <typename Real>
-constexpr DoubleMantissa<Real> operator/(const DoubleMantissa<Real>& x, int y) {
+DoubleMantissa<Real> operator/(const DoubleMantissa<Real>& x, int y) {
   return x / Real(y);
 }
 
 template <typename Real>
-constexpr DoubleMantissa<Real> operator/(const DoubleMantissa<Real>& x,
-                                         const Real& y) {
+DoubleMantissa<Real> operator/(const DoubleMantissa<Real>& x, const Real& y) {
   DoubleMantissa<Real> z(x);
   z /= y;
   return z;
 }
 
 template <typename Real>
-constexpr DoubleMantissa<Real> operator/(const DoubleMantissa<Real>& x,
-                                         const DoubleMantissa<Real>& y) {
+DoubleMantissa<Real> operator/(const DoubleMantissa<Real>& x,
+                               const DoubleMantissa<Real>& y) {
   return Divide(x, y);
 }
 
@@ -1470,7 +1464,6 @@ DoubleMantissa<Real> SmallArgCos(const DoubleMantissa<Real>& theta) {
 
   const Real threshold = Real(0.5) * double_mantissa::Epsilon<Real>().Upper();
 
-  DoubleMantissa<Real> denominator(Real(1));
   for (int j = 4;; j += 2) {
     // Update to the next term's power of x.
     x_power *= power_ratio;
@@ -1555,8 +1548,10 @@ const DoubleMantissa<Real>& SixteenthPiSinTable(int num_sixteenth_pi) {
   static const DoubleMantissa<Real> pi = double_mantissa::Pi<Real>();
   static const DoubleMantissa<Real> sixteenth_pi = pi / Real(16);
   static const DoubleMantissa<Real> sin_table[] = {
-      SmallArgSin(sixteenth_pi), SmallArgSin(Real(2) * sixteenth_pi),
-      SmallArgSin(Real(3) * sixteenth_pi), SmallArgSin(Real(4) * sixteenth_pi),
+      SmallArgSin(sixteenth_pi),
+      SmallArgSin(Real(2) * sixteenth_pi),
+      SmallArgSin(Real(3) * sixteenth_pi),
+      SmallArgSin(Real(4) * sixteenth_pi),
   };
   return sin_table[num_sixteenth_pi - 1];
 }
@@ -1573,8 +1568,10 @@ const DoubleMantissa<Real>& SixteenthPiCosTable(int num_sixteenth_pi) {
   static const DoubleMantissa<Real> pi = double_mantissa::Pi<Real>();
   static const DoubleMantissa<Real> sixteenth_pi = pi / Real(16);
   static const DoubleMantissa<Real> cos_table[] = {
-      SmallArgCos(sixteenth_pi), SmallArgCos(Real(2) * sixteenth_pi),
-      SmallArgCos(Real(3) * sixteenth_pi), SmallArgCos(Real(4) * sixteenth_pi),
+      SmallArgCos(sixteenth_pi),
+      SmallArgCos(Real(2) * sixteenth_pi),
+      SmallArgCos(Real(3) * sixteenth_pi),
+      SmallArgCos(Real(4) * sixteenth_pi),
   };
   return cos_table[num_sixteenth_pi - 1];
 }

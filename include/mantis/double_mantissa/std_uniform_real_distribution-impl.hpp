@@ -51,8 +51,9 @@ inline uniform_real_distribution<mantis::DoubleMantissa<float>>::
 inline void uniform_real_distribution<mantis::DoubleMantissa<float>>::reset() {}
 
 template <class URNG>
-mantis::DoubleMantissa<float> uniform_real_distribution<
-    mantis::DoubleMantissa<float>>::operator()(URNG& gen) {
+mantis::DoubleMantissa<float>
+uniform_real_distribution<mantis::DoubleMantissa<float>>::operator()(
+    URNG& gen) {
   return operator()(gen, param_);
 }
 
@@ -133,8 +134,9 @@ inline void uniform_real_distribution<mantis::DoubleMantissa<double>>::reset() {
 }
 
 template <class URNG>
-mantis::DoubleMantissa<double> uniform_real_distribution<
-    mantis::DoubleMantissa<double>>::operator()(URNG& gen) {
+mantis::DoubleMantissa<double>
+uniform_real_distribution<mantis::DoubleMantissa<double>>::operator()(
+    URNG& gen) {
   return a() + result_type::UniformRandom(gen) * (b() - a());
 }
 
@@ -214,8 +216,9 @@ inline void
 uniform_real_distribution<mantis::DoubleMantissa<long double>>::reset() {}
 
 template <class URNG>
-mantis::DoubleMantissa<long double> uniform_real_distribution<
-    mantis::DoubleMantissa<long double>>::operator()(URNG& gen) {
+mantis::DoubleMantissa<long double>
+uniform_real_distribution<mantis::DoubleMantissa<long double>>::operator()(
+    URNG& gen) {
   return a() + result_type::UniformRandom(gen) * (b() - a());
 }
 

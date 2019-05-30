@@ -21,16 +21,16 @@ constexpr Real MultiplyAdd(const Real& x, const Real& y,
                            const Real& z) MANTIS_NOEXCEPT;
 
 // A specialization of the Multiply Add to fp32.
-constexpr float MultiplyAdd(const float& x, const float& y,
-                            const float& z) MANTIS_NOEXCEPT;
+float MultiplyAdd(const float& x, const float& y,
+                  const float& z) MANTIS_NOEXCEPT;
 
 // A specialization of the Multiply Add to fp64.
-constexpr double MultiplyAdd(const double& x, const double& y,
-                             const double& z) MANTIS_NOEXCEPT;
+double MultiplyAdd(const double& x, const double& y,
+                   const double& z) MANTIS_NOEXCEPT;
 
 // A specialization of the Multiply Add to long double.
-constexpr long double MultiplyAdd(const long double& x, const long double& y,
-                                  const long double& z) MANTIS_NOEXCEPT;
+long double MultiplyAdd(const long double& x, const long double& y,
+                        const long double& z) MANTIS_NOEXCEPT;
 
 // Performs a -- preferably fused -- multiply subtract: x * y - z.
 template <typename Real>
@@ -38,17 +38,20 @@ constexpr Real MultiplySubtract(const Real& x, const Real& y,
                                 const Real& z) MANTIS_NOEXCEPT;
 
 // A specialization of the Multiply Subtract to fp32.
-constexpr float MultiplySubtract(const float& x, const float& y,
-                                 const float& z) MANTIS_NOEXCEPT;
+float MultiplySubtract(const float& x, const float& y,
+                       const float& z) MANTIS_NOEXCEPT;
 
 // A specialization of the Multiply Subtract to fp64.
-constexpr double MultiplySubtract(const double& x, const double& y,
-                                  const double& z) MANTIS_NOEXCEPT;
+double MultiplySubtract(const double& x, const double& y,
+                        const double& z) MANTIS_NOEXCEPT;
 
 // A specialization of the Multiply Subtract to long double.
-constexpr long double MultiplySubtract(const long double& x,
-                                       const long double& y,
-                                       const long double& z) MANTIS_NOEXCEPT;
+long double MultiplySubtract(const long double& x, const long double& y,
+                             const long double& z) MANTIS_NOEXCEPT;
+
+// An implementation of std::ceil which is constexpr.
+template <typename Real>
+constexpr long long int constexpr_ceil(const Real& value);
 
 }  // namespace mantis
 

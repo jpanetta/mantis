@@ -60,7 +60,7 @@ struct BinaryNotation {
   BinaryNotation& FromString(const std::string& rep);
 };
 
-}  // namespace std
+}  // namespace mantis
 
 #include "mantis/binary_notation-impl.hpp"
 

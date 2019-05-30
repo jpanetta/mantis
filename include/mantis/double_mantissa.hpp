@@ -113,23 +113,23 @@ class DoubleMantissa {
       MANTIS_NOEXCEPT;
 
   // Multiplies the current state by an integer.
-  constexpr DoubleMantissa<Real>& operator*=(int value) MANTIS_NOEXCEPT;
+  DoubleMantissa<Real>& operator*=(int value) MANTIS_NOEXCEPT;
 
   // Multiplies the current state by a single-mantissa value.
-  constexpr DoubleMantissa<Real>& operator*=(const Real& value) MANTIS_NOEXCEPT;
+  DoubleMantissa<Real>& operator*=(const Real& value) MANTIS_NOEXCEPT;
 
   // Multiplies the current state by a double-mantissa value.
-  constexpr DoubleMantissa<Real>& operator*=(const DoubleMantissa<Real>& value)
+  DoubleMantissa<Real>& operator*=(const DoubleMantissa<Real>& value)
       MANTIS_NOEXCEPT;
 
   // Divides the current state by an integer.
-  constexpr DoubleMantissa<Real>& operator/=(int value);
+  DoubleMantissa<Real>& operator/=(int value);
 
   // Divides the current state by a single-mantissa value.
-  constexpr DoubleMantissa<Real>& operator/=(const Real& value);
+  DoubleMantissa<Real>& operator/=(const Real& value);
 
   // Divides the current state by a double-mantissa value.
-  constexpr DoubleMantissa<Real>& operator/=(const DoubleMantissa<Real>& value);
+  DoubleMantissa<Real>& operator/=(const DoubleMantissa<Real>& value);
 
   // Return the flooring of the value into a int.
   constexpr operator int() const MANTIS_NOEXCEPT;
@@ -239,9 +239,10 @@ constexpr DoubleMantissa<Real> TwoDiff(const DoubleMantissa<Real>& x)
 // to be fl(x * y + z) rather than fl(fl(x + y) + z).
 //
 // Please see [1, Alg. 7] for details.
+//
+// NOTE: This implementation is not constexpr due to std::fma not being.
 template <typename Real>
-constexpr DoubleMantissa<Real> TwoProdFMA(const Real& x,
-                                          const Real& y) MANTIS_NOEXCEPT;
+DoubleMantissa<Real> TwoProdFMA(const Real& x, const Real& y) MANTIS_NOEXCEPT;
 
 // Generalize the 'SPLIT' algorithm from [1, Alg. 5] and [2, pg. 325], as
 // implemented in the QD library of Hida et al.
@@ -253,33 +254,38 @@ constexpr DoubleMantissa<Real> Split(const Real& value) MANTIS_NOEXCEPT;
 // FMA approach is used. Otherwise, the 'Split' approach is used.
 //
 // Please see [1, Alg. 6] and [2, pg. 326] for details on the 'Split' approach.
-constexpr DoubleMantissa<float> TwoProd(const float& x,
-                                        const float& y) MANTIS_NOEXCEPT;
-constexpr DoubleMantissa<double> TwoProd(const double& x,
-                                         const double& y) MANTIS_NOEXCEPT;
-constexpr DoubleMantissa<long double> TwoProd(
-    const long double& x, const long double& y) MANTIS_NOEXCEPT;
+//
+// NOTE: This implementation is not constexpr due to std::fma not being.
+DoubleMantissa<float> TwoProd(const float& x, const float& y) MANTIS_NOEXCEPT;
+DoubleMantissa<double> TwoProd(const double& x,
+                               const double& y) MANTIS_NOEXCEPT;
+DoubleMantissa<long double> TwoProd(const long double& x,
+                                    const long double& y) MANTIS_NOEXCEPT;
 template <typename Real>
-constexpr DoubleMantissa<Real> TwoProd(const Real& x,
-                                       const Real& y) MANTIS_NOEXCEPT;
+DoubleMantissa<Real> TwoProd(const Real& x, const Real& y) MANTIS_NOEXCEPT;
 
 // A specialization of TwoProd to the input arguments being equal.
-constexpr DoubleMantissa<float> TwoSquare(const float& x) MANTIS_NOEXCEPT;
-constexpr DoubleMantissa<double> TwoSquare(const double& x) MANTIS_NOEXCEPT;
-constexpr DoubleMantissa<long double> TwoSquare(const long double& x)
-    MANTIS_NOEXCEPT;
+//
+// NOTE: This implementation is not constexpr due to std::fma not being.
+DoubleMantissa<float> TwoSquare(const float& x) MANTIS_NOEXCEPT;
+DoubleMantissa<double> TwoSquare(const double& x) MANTIS_NOEXCEPT;
+DoubleMantissa<long double> TwoSquare(const long double& x) MANTIS_NOEXCEPT;
 template <typename Real>
-constexpr DoubleMantissa<Real> TwoSquare(const Real& x) MANTIS_NOEXCEPT;
+DoubleMantissa<Real> TwoSquare(const Real& x) MANTIS_NOEXCEPT;
 
 // Returns the approximate ratio x / y using one refinement.
+//
+// NOTE: This implementation is not constexpr due to std::fma not being.
 template <typename Real>
-constexpr DoubleMantissa<Real> FastDivide(const DoubleMantissa<Real>& x,
-                                          const DoubleMantissa<Real>& y);
+DoubleMantissa<Real> FastDivide(const DoubleMantissa<Real>& x,
+                                const DoubleMantissa<Real>& y);
 
 // Returns the approximate ratio x / y using two refinements.
+//
+// NOTE: This implementation is not constexpr due to std::fma not being.
 template <typename Real>
-constexpr DoubleMantissa<Real> Divide(const DoubleMantissa<Real>& x,
-                                      const DoubleMantissa<Real>& y);
+DoubleMantissa<Real> Divide(const DoubleMantissa<Real>& x,
+                            const DoubleMantissa<Real>& y);
 
 // Returns true if the individual components are equivalent.
 template <typename Real>
@@ -489,53 +495,70 @@ constexpr DoubleMantissa<Real> operator-(const DoubleMantissa<Real>& x,
     MANTIS_NOEXCEPT;
 
 // Returns the product of the two values.
+//
+// NOTE: This implementation is not constexpr due to std::fma not being.
 template <typename Real>
-constexpr DoubleMantissa<Real> operator*(int x, const DoubleMantissa<Real>& y)
-    MANTIS_NOEXCEPT;
+DoubleMantissa<Real> operator*(int x,
+                               const DoubleMantissa<Real>& y)MANTIS_NOEXCEPT;
 
 // Returns the product of the two values.
+//
+// NOTE: This implementation is not constexpr due to std::fma not being.
 template <typename Real>
-constexpr DoubleMantissa<Real> operator*(
-    const Real& x, const DoubleMantissa<Real>& y)MANTIS_NOEXCEPT;
+DoubleMantissa<Real> operator*(const Real& x,
+                               const DoubleMantissa<Real>& y)MANTIS_NOEXCEPT;
 
 // Returns the product of the two values.
+//
+// NOTE: This implementation is not constexpr due to std::fma not being.
 template <typename Real>
-constexpr DoubleMantissa<Real> operator*(const DoubleMantissa<Real>& x,
-                                         int y)MANTIS_NOEXCEPT;
+DoubleMantissa<Real> operator*(const DoubleMantissa<Real>& x,
+                               int y)MANTIS_NOEXCEPT;
 
 // Returns the product of the two values.
+//
+// NOTE: This implementation is not constexpr due to std::fma not being.
 template <typename Real>
-constexpr DoubleMantissa<Real> operator*(const DoubleMantissa<Real>& x,
-                                         const Real& y)MANTIS_NOEXCEPT;
+DoubleMantissa<Real> operator*(const DoubleMantissa<Real>& x,
+                               const Real& y)MANTIS_NOEXCEPT;
 
 // Returns the product of the two values.
+//
+// NOTE: This implementation is not constexpr due to std::fma not being.
 template <typename Real>
-constexpr DoubleMantissa<Real> operator*(const DoubleMantissa<Real>& x,
-                                         const DoubleMantissa<Real>& y)
-    MANTIS_NOEXCEPT;
+DoubleMantissa<Real> operator*(const DoubleMantissa<Real>& x,
+                               const DoubleMantissa<Real>& y)MANTIS_NOEXCEPT;
 
 // Returns the ratio of the two values.
+//
+// NOTE: This implementation is not constexpr due to std::fma not being.
 template <typename Real>
-constexpr DoubleMantissa<Real> operator/(int x, const DoubleMantissa<Real>& y);
+DoubleMantissa<Real> operator/(int x, const DoubleMantissa<Real>& y);
 
 // Returns the ratio of the two values.
+//
+// NOTE: This implementation is not constexpr due to std::fma not being.
 template <typename Real>
-constexpr DoubleMantissa<Real> operator/(const Real& x,
-                                         const DoubleMantissa<Real>& y);
+DoubleMantissa<Real> operator/(const Real& x, const DoubleMantissa<Real>& y);
 
 // Returns the ratio of the two values.
+//
+// NOTE: This implementation is not constexpr due to std::fma not being.
 template <typename Real>
-constexpr DoubleMantissa<Real> operator/(const DoubleMantissa<Real>& x, int y);
+DoubleMantissa<Real> operator/(const DoubleMantissa<Real>& x, int y);
 
 // Returns the ratio of the two values.
+//
+// NOTE: This implementation is not constexpr due to std::fma not being.
 template <typename Real>
-constexpr DoubleMantissa<Real> operator/(const DoubleMantissa<Real>& x,
-                                         const Real& y);
+DoubleMantissa<Real> operator/(const DoubleMantissa<Real>& x, const Real& y);
 
 // Returns the ratio of the two values.
+//
+// NOTE: This implementation is not constexpr due to std::fma not being.
 template <typename Real>
-constexpr DoubleMantissa<Real> operator/(const DoubleMantissa<Real>& x,
-                                         const DoubleMantissa<Real>& y);
+DoubleMantissa<Real> operator/(const DoubleMantissa<Real>& x,
+                               const DoubleMantissa<Real>& y);
 
 // Returns the rounding of a double-mantissa value to the floored integer.
 template <typename Real>
@@ -761,8 +784,14 @@ class numeric_limits<mantis::DoubleMantissa<float>> {
   static constexpr bool is_bounded = true;
   static constexpr bool is_modulo = true;
   static constexpr int digits = 2 * numeric_limits<float>::digits;
-  static constexpr int digits10 = (digits - 1) * log10(2);
-  static constexpr int max_digits10 = ceil(digits * log10(2) + 1);
+
+  // We hard-code log10(2)=0.3010299956639812 so that the result is constexpr.
+  static constexpr int digits10 = (digits - 1) * 0.3010299956639812;
+
+  // We hard-code log10(2)=0.3010299956639812 so that the result is constexpr.
+  static constexpr int max_digits10 =
+      mantis::constexpr_ceil(digits * 0.3010299956639812 + 1);
+
   static constexpr int radix = numeric_limits<float>::radix;
 
   static constexpr int min_exponent = numeric_limits<float>::min_exponent;
@@ -805,8 +834,14 @@ class numeric_limits<mantis::DoubleMantissa<double>> {
   static constexpr bool is_bounded = true;
   static constexpr bool is_modulo = true;
   static constexpr int digits = 2 * numeric_limits<double>::digits;
-  static constexpr int digits10 = (digits - 1) * log10(2);
-  static constexpr int max_digits10 = ceil(digits * log10(2) + 1);
+
+  // We hard-code log10(2)=0.3010299956639812 so that the result is constexpr.
+  static constexpr int digits10 = (digits - 1) * 0.3010299956639812;
+
+  // We hard-code log10(2)=0.3010299956639812 so that the result is constexpr.
+  static constexpr int max_digits10 =
+      mantis::constexpr_ceil(digits * 0.3010299956639812 + 1);
+
   static constexpr int radix = numeric_limits<double>::radix;
 
   static constexpr int min_exponent = numeric_limits<double>::min_exponent;
@@ -851,8 +886,14 @@ class numeric_limits<mantis::DoubleMantissa<long double>> {
   static constexpr bool is_bounded = true;
   static constexpr bool is_modulo = true;
   static constexpr int digits = 2 * numeric_limits<long double>::digits;
-  static constexpr int digits10 = (digits - 1) * log10(2);
-  static constexpr int max_digits10 = ceil(digits * log10(2) + 1);
+
+  // We hard-code log10(2)=0.3010299956639812 so that the result is constexpr.
+  static constexpr int digits10 = (digits - 1) * 0.3010299956639812;
+
+  // We hard-code log10(2)=0.3010299956639812 so that the result is constexpr.
+  static constexpr int max_digits10 =
+      mantis::constexpr_ceil(digits * 0.3010299956639812 + 1);
+
   static constexpr int radix = numeric_limits<long double>::radix;
 
   static constexpr int min_exponent = numeric_limits<long double>::min_exponent;

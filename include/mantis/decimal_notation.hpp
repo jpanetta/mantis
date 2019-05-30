@@ -64,7 +64,7 @@ struct DecimalNotation {
   DecimalNotation& FromString(const std::string& rep);
 };
 
-}  // namespace std
+}  // namespace mantis
 
 // A string literal for unsigned char.
 constexpr unsigned char operator"" _uchar(

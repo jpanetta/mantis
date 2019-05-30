@@ -219,7 +219,8 @@ TEST_CASE("Sqrt [float]", "[Sqrt float]") {
 
   const std::vector<DoubleMantissa<float>> inputs{
       DoubleMantissa<float>(3.f, 4e-11f).Reduce(),
-      DoubleMantissa<float>(4.f, 5e-11f).Reduce(), DoubleMantissa<float>(),
+      DoubleMantissa<float>(4.f, 5e-11f).Reduce(),
+      DoubleMantissa<float>(),
   };
 
   for (const DoubleMantissa<float>& x : inputs) {
@@ -240,7 +241,8 @@ TEST_CASE("Sqrt [double]", "[Sqrt double]") {
 
   const std::vector<DoubleMantissa<double>> inputs{
       DoubleMantissa<double>(3., 4e-20).Reduce(),
-      DoubleMantissa<double>(4., 5e-20).Reduce(), DoubleMantissa<double>(),
+      DoubleMantissa<double>(4., 5e-20).Reduce(),
+      DoubleMantissa<double>(),
   };
 
   for (const DoubleMantissa<double>& x : inputs) {
@@ -705,8 +707,9 @@ TEST_CASE("HypTrig [double]", "[HypTrig double]") {
     const DoubleMantissa<double> unit_error =
         DoubleMantissa<double>(1.) + Square(sinh_theta) - Square(cosh_theta);
     const double unit_tolerance =
-        2. * eps.Upper() * std::max(1., std::max(Square(sinh_theta).Upper(),
-                                                 Square(cosh_theta).Upper()));
+        2. * eps.Upper() *
+        std::max(1., std::max(Square(sinh_theta).Upper(),
+                              Square(cosh_theta).Upper()));
     REQUIRE(std::abs(unit_error.Upper()) <= unit_tolerance);
 
     // Test that cosh(theta) + sinh(theta) = exp(theta).
@@ -722,9 +725,10 @@ TEST_CASE("HypTrig [double]", "[HypTrig double]") {
     const DoubleMantissa<double> inv_exp_error =
         Inverse(exp_theta) - cosh_theta + sinh_theta;
     const double inv_exp_tolerance =
-        2. * eps.Upper() * std::max(Inverse(exp_theta).Upper(),
-                                    std::max(std::abs(cosh_theta.Upper()),
-                                             std::abs(sinh_theta.Upper())));
+        2. * eps.Upper() *
+        std::max(Inverse(exp_theta).Upper(),
+                 std::max(std::abs(cosh_theta.Upper()),
+                          std::abs(sinh_theta.Upper())));
     REQUIRE(std::abs(inv_exp_error.Upper()) <= inv_exp_tolerance);
   }
 }
@@ -876,24 +880,24 @@ TEST_CASE("BinaryNotation [double]", "[BinaryNotation double]") {
       tests{
           std::make_tuple(
               DoubleMantissa<double>(1.), 5,
-              BinaryNotation{
-                  true, 1, std::vector<unsigned char>{1_uchar, 0_uchar, 0_uchar,
-                                                      0_uchar, 0_uchar}}),
+              BinaryNotation{true, 1,
+                             std::vector<unsigned char>{
+                                 1_uchar, 0_uchar, 0_uchar, 0_uchar, 0_uchar}}),
           std::make_tuple(
               DoubleMantissa<double>(2.), 5,
-              BinaryNotation{
-                  true, 2, std::vector<unsigned char>{1_uchar, 0_uchar, 0_uchar,
-                                                      0_uchar, 0_uchar}}),
+              BinaryNotation{true, 2,
+                             std::vector<unsigned char>{
+                                 1_uchar, 0_uchar, 0_uchar, 0_uchar, 0_uchar}}),
           std::make_tuple(
               DoubleMantissa<double>(-4.), 5,
               BinaryNotation{false, 3,
                              std::vector<unsigned char>{
                                  1_uchar, 0_uchar, 0_uchar, 0_uchar, 0_uchar}}),
-          std::make_tuple(DoubleMantissa<double>(),
-                          6, BinaryNotation{true, 0,
-                                            std::vector<unsigned char>{
-                                                0_uchar, 0_uchar, 0_uchar,
-                                                0_uchar, 0_uchar, 0_uchar}}),
+          std::make_tuple(DoubleMantissa<double>(), 6,
+                          BinaryNotation{true, 0,
+                                         std::vector<unsigned char>{
+                                             0_uchar, 0_uchar, 0_uchar, 0_uchar,
+                                             0_uchar, 0_uchar}}),
           std::make_tuple(
               DoubleMantissa<double>(-1.) / 4., 5,
               BinaryNotation{false, -1,
@@ -992,26 +996,26 @@ TEST_CASE("DecimalNotation [double]", "[DecimalNotation double]") {
 
   const std::vector<std::tuple<DoubleMantissa<double>, int, DecimalNotation>>
       tests{
-          std::make_tuple(
-              DoubleMantissa<double>(3.14159), 5,
-              DecimalNotation{
-                  true, 0, std::vector<unsigned char>{3_uchar, 1_uchar, 4_uchar,
-                                                      1_uchar, 6_uchar}}),
+          std::make_tuple(DoubleMantissa<double>(3.14159), 5,
+                          DecimalNotation{true, 0,
+                                          std::vector<unsigned char>{
+                                              3_uchar, 1_uchar, 4_uchar,
+                                              1_uchar, 6_uchar}}),
           std::make_tuple(
               DoubleMantissa<double>(3.14159), 4,
-              DecimalNotation{
-                  true, 0, std::vector<unsigned char>{3_uchar, 1_uchar, 4_uchar,
-                                                      2_uchar}}),
+              DecimalNotation{true, 0,
+                              std::vector<unsigned char>{3_uchar, 1_uchar,
+                                                         4_uchar, 2_uchar}}),
           std::make_tuple(DoubleMantissa<double>(-3.14159), 5,
                           DecimalNotation{false, 0,
                                           std::vector<unsigned char>{
                                               3_uchar, 1_uchar, 4_uchar,
                                               1_uchar, 6_uchar}}),
-          std::make_tuple(DoubleMantissa<double>(113.1238),
-                          6, DecimalNotation{true, 2,
-                                             std::vector<unsigned char>{
-                                                 1_uchar, 1_uchar, 3_uchar,
-                                                 1_uchar, 2_uchar, 4_uchar}}),
+          std::make_tuple(DoubleMantissa<double>(113.1238), 6,
+                          DecimalNotation{true, 2,
+                                          std::vector<unsigned char>{
+                                              1_uchar, 1_uchar, 3_uchar,
+                                              1_uchar, 2_uchar, 4_uchar}}),
           std::make_tuple(DoubleMantissa<double>(1.131238e49), 6,
                           DecimalNotation{true, 49,
                                           std::vector<unsigned char>{
@@ -1027,22 +1031,21 @@ TEST_CASE("DecimalNotation [double]", "[DecimalNotation double]") {
                                           std::vector<unsigned char>{
                                               1_uchar, 1_uchar, 3_uchar,
                                               1_uchar, 2_uchar, 4_uchar}}),
-          std::make_tuple(
-              DoubleMantissa<double>(1.131238e-300), 6,
-              DecimalNotation{
-                  true, -300,
-                  std::vector<unsigned char>{1_uchar, 1_uchar, 3_uchar, 1_uchar,
-                                             2_uchar, 4_uchar}}),
-          std::make_tuple(
-              DoubleMantissa<double>(9.9999999), 5,
-              DecimalNotation{
-                  true, 1, std::vector<unsigned char>{1_uchar, 0_uchar, 0_uchar,
-                                                      0_uchar, 0_uchar}}),
-          std::make_tuple(DoubleMantissa<double>(),
-                          6, DecimalNotation{true, 0,
-                                             std::vector<unsigned char>{
-                                                 0_uchar, 0_uchar, 0_uchar,
-                                                 0_uchar, 0_uchar, 0_uchar}}),
+          std::make_tuple(DoubleMantissa<double>(1.131238e-300), 6,
+                          DecimalNotation{true, -300,
+                                          std::vector<unsigned char>{
+                                              1_uchar, 1_uchar, 3_uchar,
+                                              1_uchar, 2_uchar, 4_uchar}}),
+          std::make_tuple(DoubleMantissa<double>(9.9999999), 5,
+                          DecimalNotation{true, 1,
+                                          std::vector<unsigned char>{
+                                              1_uchar, 0_uchar, 0_uchar,
+                                              0_uchar, 0_uchar}}),
+          std::make_tuple(DoubleMantissa<double>(), 6,
+                          DecimalNotation{true, 0,
+                                          std::vector<unsigned char>{
+                                              0_uchar, 0_uchar, 0_uchar,
+                                              0_uchar, 0_uchar, 0_uchar}}),
           std::make_tuple(
               mantis::double_mantissa::QuietNan<double>(), 8,
               DecimalNotation{true, 0,
@@ -1088,16 +1091,16 @@ TEST_CASE("DecimalNotation [double]", "[DecimalNotation double]") {
   }
 
   const std::vector<std::pair<std::string, DecimalNotation>> string_tests{
-      std::make_pair(
-          "3.14159",
-          DecimalNotation{
-              true, 0, std::vector<unsigned char>{3_uchar, 1_uchar, 4_uchar,
-                                                  1_uchar, 5_uchar, 9_uchar}}),
-      std::make_pair(
-          "+3.14159",
-          DecimalNotation{
-              true, 0, std::vector<unsigned char>{3_uchar, 1_uchar, 4_uchar,
-                                                  1_uchar, 5_uchar, 9_uchar}}),
+      std::make_pair("3.14159",
+                     DecimalNotation{true, 0,
+                                     std::vector<unsigned char>{
+                                         3_uchar, 1_uchar, 4_uchar, 1_uchar,
+                                         5_uchar, 9_uchar}}),
+      std::make_pair("+3.14159",
+                     DecimalNotation{true, 0,
+                                     std::vector<unsigned char>{
+                                         3_uchar, 1_uchar, 4_uchar, 1_uchar,
+                                         5_uchar, 9_uchar}}),
       std::make_pair("-3.14159",
                      DecimalNotation{false, 0,
                                      std::vector<unsigned char>{
@@ -1128,12 +1131,11 @@ TEST_CASE("DecimalNotation [double]", "[DecimalNotation double]") {
                                      std::vector<unsigned char>{
                                          3_uchar, 1_uchar, 4_uchar, 1_uchar,
                                          5_uchar, 9_uchar}}),
-      std::make_pair(
-          "-3.14159e-2",
-          DecimalNotation{
-              false,
-              -2, std::vector<unsigned char>{3_uchar, 1_uchar, 4_uchar, 1_uchar,
-                                             5_uchar, 9_uchar}}),
+      std::make_pair("-3.14159e-2",
+                     DecimalNotation{false, -2,
+                                     std::vector<unsigned char>{
+                                         3_uchar, 1_uchar, 4_uchar, 1_uchar,
+                                         5_uchar, 9_uchar}}),
       std::make_pair("314159", DecimalNotation{true, 5,
                                                std::vector<unsigned char>{
                                                    3_uchar, 1_uchar, 4_uchar,

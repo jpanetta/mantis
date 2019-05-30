@@ -263,8 +263,9 @@ inline void normal_distribution<mantis::DoubleMantissa<long double>>::reset() {
 }
 
 template <class URNG>
-mantis::DoubleMantissa<long double> normal_distribution<
-    mantis::DoubleMantissa<long double>>::operator()(URNG& gen) {
+mantis::DoubleMantissa<long double>
+normal_distribution<mantis::DoubleMantissa<long double>>::operator()(
+    URNG& gen) {
   return operator()(gen, param_);
 }
 
