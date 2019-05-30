@@ -743,11 +743,115 @@ inline Complex<long double> ArcHyperbolicSin(const Complex<long double>& x) {
 
 template <typename Real>
 Complex<Real> ArcHyperbolicSin(const Complex<Real>& x) {
-  // TODO(Jack Poulson): Document the formula.
+  // The solution follows that of [Abramowitz/Stegun-1972]:
+  //
+  // Arcsinh(x) = Ln(x + sqrt(1 + x * x)) = Ln(x + tau),
+  //
+  // where
+  //
+  // tau^2 := 1 + x * x
+  //        = 1 + (R[x] + I[x] i) (R[x] + I[x] i)
+  //        = 1 + (R[x]^2 - I[x]^2) + 2 R[x] I[x] i
+  //        = 1 + (R[x] - I[x])(R[x] + I[x]) + 2 R[x] I[x] i.
+  //
+  // yields the solution Ln(x + tau).
   Complex<Real> tau(Real(1) + (x.Real() - x.Imag()) * (x.Real() + x.Imag()),
                     Real(2) * x.Real() * x.Imag());
   tau = SquareRoot(tau);
   return Log(tau + x);
+}
+
+inline Complex<float> ArcHyperbolicCos(const Complex<float>& x) {
+  return std::acosh(x);
+}
+
+inline Complex<double> ArcHyperbolicCos(const Complex<double>& x) {
+  return std::acosh(x);
+}
+
+inline Complex<long double> ArcHyperbolicCos(const Complex<long double>& x) {
+  return std::acosh(x);
+}
+
+template <typename Real>
+Complex<Real> ArcHyperbolicCos(const Complex<Real>& x) {
+  // The solution follows that of [Abramowitz/Stegun-1972]:
+  //
+  // Arcsinh(x) = Ln(x + sqrt(x * x - 1)) = Ln(x + tau),
+  //
+  // where
+  //
+  // tau^2 := x * x - 1
+  //        = (R[x] + I[x] i) (R[x] + I[x] i) - 1
+  //        = (R[x]^2 - I[x]^2) + 2 R[x] I[x] i - 1
+  //        = [(R[x] - I[x])(R[x] + I[x]) - 1] + [2 R[x] I[x]] i.
+  //
+  // yields the solution Ln(x + tau).
+  Complex<Real> tau((x.Real() - x.Imag()) * (x.Real() + x.Imag()) - Real(1),
+                    Real(2) * x.Real() * x.Imag());
+  tau = SquareRoot(tau);
+  return Log(tau + x);
+}
+
+inline Complex<float> ArcHyperbolicTan(const Complex<float>& x) {
+  return std::atanh(x);
+}
+
+inline Complex<double> ArcHyperbolicTan(const Complex<double>& x) {
+  return std::atanh(x);
+}
+
+inline Complex<long double> ArcHyperbolicTan(const Complex<long double>& x) {
+  return std::atanh(x);
+}
+
+template <typename Real>
+Complex<Real> ArcHyperbolicTan(const Complex<Real>& x) {
+  // The solution follows that of [Abramowitz/Stegun-1972]:
+  //
+  // Arctanh(x) = (1 / 2) Ln((1 + x) / (1 - x)).
+  //
+  // And Ln(z) = (Ln(|z|), arg(z)).
+  //
+  // Thus, the real component is
+  //
+  //    (1 / 2) Ln(|(1 + x) / (1 - x)|) =
+  //    (1 / 4) Ln(|(1 + x) / (1 - x)|^2) =
+  //    (1 / 4) (Ln(|1 + x|^2) - Ln(|1 - x|^2)).
+  //
+  // The imaginary component is
+  //
+  //    (1 / 2) arg((1 + x) / (1 - x)).
+  //
+  // We can ignore the denominator of the real and imaginary components of the
+  // textbook division formula for (1 + x) / (1 - x) to find the atan2
+  // arguments:
+  //
+  //     real_num = (1 + Re[x])(1 - Re[x]) - Im[x]^2
+  //              = 1 - Re[x]^2 - Im[x]^2,
+  //
+  //     imag_num = Im[x] * (1 - Re[x]) + (1 + Re[x]) * Im[x]
+  //              = 2 Im[x].
+  //
+  const Real real_square = x.Real() * x.Real();
+  const Real imag_square = x.Imag() * x.Imag();
+
+  // Compute |1 + x|^2.
+  const Real log_numerator =
+      (Real(1) + x.Real()) * (Real(1) + x.Real()) + imag_square;
+
+  // Compute |1 - x|^2.
+  const Real log_denominator =
+      (Real(1) - x.Real()) * (Real(1) - x.Real()) + imag_square;
+
+  // Compute the real components of the solution.
+  const Real atanh_x_real = (Log(log_numerator) - Log(log_denominator)) / 4;
+
+  // Compute the imaginary component of the solution.
+  const Real atanh_x_imag =
+      ArcTan2(Real(2) * x.Imag(), Real(1) - real_square - imag_square) / 2;
+
+  return Complex<Real>(atanh_x_real, atanh_x_imag);
 }
 
 template <typename Real>
@@ -755,6 +859,13 @@ std::ostream& operator<<(std::ostream& out, const Complex<Real>& value) {
   out << RealPart(value) << " + " << ImagPart(value) << "i";
   return out;
 }
+
+// References:
+//
+// [Abramowitz/Stegun-1972]
+//   Milton Abramowitz and Irene A. Stegun,
+//   "Handbook of Mathematical Functions, Dover Pub., New York, 1972.
+//
 
 }  // namespace mantis
 

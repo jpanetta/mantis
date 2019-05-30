@@ -35,7 +35,9 @@ void RunTest() {
   std::cout << "log(a): " << mantis::Log(a) << std::endl;
   std::cout << "sqrt(a): " << mantis::SquareRoot(a) << std::endl;
   std::cout << "arg(a): " << mantis::Arg(a) << std::endl;
-  std::cout << "ainh(a): " << mantis::ArcHyperbolicSin(a) << std::endl;
+  std::cout << "asinh(a): " << mantis::ArcHyperbolicSin(a) << std::endl;
+  std::cout << "acosh(a): " << mantis::ArcHyperbolicCos(a) << std::endl;
+  std::cout << "atanh(a): " << mantis::ArcHyperbolicTan(a) << std::endl;
 }
 
 int main(int argc, char* argv[]) {

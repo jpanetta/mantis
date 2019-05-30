@@ -479,6 +479,20 @@ Complex<long double> ArcHyperbolicSin(const Complex<long double>& x);
 template <typename Real>
 Complex<Real> ArcHyperbolicSin(const Complex<Real>& x);
 
+// Returns the inverse hyperbolic cosine of a complex number.
+Complex<float> ArcHyperbolicCos(const Complex<float>& x);
+Complex<double> ArcHyperbolicCos(const Complex<double>& x);
+Complex<long double> ArcHyperbolicCos(const Complex<long double>& x);
+template <typename Real>
+Complex<Real> ArcHyperbolicCos(const Complex<Real>& x);
+
+// Returns the inverse hyperbolic tangent of a complex number.
+Complex<float> ArcHyperbolicTan(const Complex<float>& x);
+Complex<double> ArcHyperbolicTan(const Complex<double>& x);
+Complex<long double> ArcHyperbolicTan(const Complex<long double>& x);
+template <typename Real>
+Complex<Real> ArcHyperbolicTan(const Complex<Real>& x);
+
 // Pretty-prints the complex value.
 template <typename Real>
 std::ostream& operator<<(std::ostream& out, const Complex<Real>& value);
