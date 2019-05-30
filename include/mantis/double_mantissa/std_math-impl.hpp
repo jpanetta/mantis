@@ -100,6 +100,11 @@ mantis::DoubleMantissa<Real> log(const mantis::DoubleMantissa<Real>& value) {
 }
 
 template <typename Real>
+mantis::DoubleMantissa<Real> log2(const mantis::DoubleMantissa<Real>& value) {
+  return mantis::Log2(value);
+}
+
+template <typename Real>
 mantis::DoubleMantissa<Real> log10(const mantis::DoubleMantissa<Real>& value) {
   return mantis::Log10(value);
 }

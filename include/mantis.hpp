@@ -8,6 +8,7 @@
 #ifndef MANTIS_H_
 #define MANTIS_H_
 
+#include "mantis/complex.hpp"
 #include "mantis/double_mantissa.hpp"
 
 #endif  // ifndef MANTIS_H_

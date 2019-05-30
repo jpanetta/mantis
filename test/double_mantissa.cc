@@ -175,7 +175,7 @@ TEST_CASE("Divide [float]", "[Divide float]") {
   const float eps = std::numeric_limits<float>::epsilon();
   const DoubleMantissa<float> x(3., 4e-11f), y(4., 5e-11f);
   const DoubleMantissa<float> z = x / y;
-  const DoubleMantissa<float> z_fast = DoubleMantissa<float>::FastDivide(x, y);
+  const DoubleMantissa<float> z_fast = mantis::FastDivide(x, y);
 
   const DoubleMantissa<float> r = x - y * z;
   REQUIRE(std::abs(r.Upper()) <= 2 * eps * std::abs(x.Upper()));
@@ -197,8 +197,7 @@ TEST_CASE("Divide [double]", "[Divide double]") {
   const double eps = std::numeric_limits<double>::epsilon();
   const DoubleMantissa<double> x(3., 4e-20), y(4., 5e-20);
   const DoubleMantissa<double> z = x / y;
-  const DoubleMantissa<double> z_fast =
-      DoubleMantissa<double>::FastDivide(x, y);
+  const DoubleMantissa<double> z_fast = mantis::FastDivide(x, y);
 
   const DoubleMantissa<double> r = x - y * z;
   REQUIRE(std::abs(r.Upper()) <= 2 * eps * std::abs(x.Upper()));

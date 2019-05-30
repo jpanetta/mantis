@@ -15,11 +15,13 @@
 namespace mantis {
 
 template <typename Real>
-Real MultiplyAdd(const Real& x, const Real& y, const Real& z) {
+constexpr Real MultiplyAdd(const Real& x, const Real& y,
+                           const Real& z) MANTIS_NOEXCEPT {
   return x * y + z;
 }
 
-inline float MultiplyAdd(const float& x, const float& y, const float& z) {
+inline constexpr float MultiplyAdd(const float& x, const float& y,
+                                   const float& z) MANTIS_NOEXCEPT {
 // The QD package of Hida et al. also allows for usage of the "_Asm_fma"
 // macro on Intel and HP compilers for IA 64.
 #ifdef FP_FAST_FMAF
@@ -33,7 +35,8 @@ inline float MultiplyAdd(const float& x, const float& y, const float& z) {
 #endif
 }
 
-inline double MultiplyAdd(const double& x, const double& y, const double& z) {
+inline constexpr double MultiplyAdd(const double& x, const double& y,
+                                    const double& z) MANTIS_NOEXCEPT {
 // The QD package of Hida et al. also allows for usage of the "_Asm_fma"
 // macro on Intel and HP compilers for IA 64.
 #ifdef FP_FAST_FMA
@@ -47,8 +50,9 @@ inline double MultiplyAdd(const double& x, const double& y, const double& z) {
 #endif
 }
 
-inline long double MultiplyAdd(const long double& x, const long double& y,
-                               const long double& z) {
+inline constexpr long double MultiplyAdd(const long double& x,
+                                         const long double& y,
+                                         const long double& z) MANTIS_NOEXCEPT {
 // The QD package of Hida et al. also allows for usage of the "_Asm_fma"
 // macro on Intel and HP compilers for IA 64.
 //
@@ -64,11 +68,13 @@ inline long double MultiplyAdd(const long double& x, const long double& y,
 }
 
 template <typename Real>
-Real MultiplySubtract(const Real& x, const Real& y, const Real& z) {
+constexpr Real MultiplySubtract(const Real& x, const Real& y,
+                                const Real& z) MANTIS_NOEXCEPT {
   return x * y - z;
 }
 
-inline float MultiplySubtract(const float& x, const float& y, const float& z) {
+inline constexpr float MultiplySubtract(const float& x, const float& y,
+                                        const float& z) MANTIS_NOEXCEPT {
 // The QD package of Hida et al. also allows for usage of the "_Asm_fms"
 // macro on Intel and HP compilers for IA 64.
 #ifdef FP_FAST_FMAF
@@ -82,8 +88,8 @@ inline float MultiplySubtract(const float& x, const float& y, const float& z) {
 #endif
 }
 
-inline double MultiplySubtract(const double& x, const double& y,
-                               const double& z) {
+inline constexpr double MultiplySubtract(const double& x, const double& y,
+                                         const double& z) MANTIS_NOEXCEPT {
 // The QD package of Hida et al. also allows for usage of the "_Asm_fms"
 // macro on Intel and HP compilers for IA 64.
 #ifdef FP_FAST_FMA
@@ -97,8 +103,9 @@ inline double MultiplySubtract(const double& x, const double& y,
 #endif
 }
 
-inline long double MultiplySubtract(const long double& x, const long double& y,
-                                    const long double& z) {
+inline constexpr long double MultiplySubtract(
+    const long double& x, const long double& y,
+    const long double& z) MANTIS_NOEXCEPT {
 // The QD package of Hida et al. also allows for usage of the "_Asm_fms"
 // macro on Intel and HP compilers for IA 64.
 //
@@ -111,126 +118,6 @@ inline long double MultiplySubtract(const long double& x, const long double& y,
 #else
   return std::fma(x, y, -z);
 #endif
-}
-
-template <typename Real>
-Real QuickTwoSum(const Real& larger, const Real& smaller, Real* error) {
-  const Real result = larger + smaller;
-  *error = smaller - (result - larger);
-  return result;
-}
-
-template <typename Real>
-Real TwoSum(const Real& larger, const Real& smaller, Real* error) {
-  const Real result = larger + smaller;
-  const Real smaller_approx = result - larger;
-  *error = (larger - (result - smaller_approx)) + (smaller - smaller_approx);
-  return result;
-}
-
-template <typename Real>
-Real QuickTwoDiff(const Real& larger, const Real& smaller, Real* error) {
-  const Real result = larger - smaller;
-  *error = (larger - result) - smaller;
-  return result;
-}
-
-template <typename Real>
-Real TwoDiff(const Real& larger, const Real& smaller, Real* error) {
-  const Real result = larger - smaller;
-  const Real smaller_approx = larger - result;
-  *error = (larger - (result + smaller_approx)) - (smaller - smaller_approx);
-  return result;
-}
-
-template <typename Real>
-Real TwoProdFMA(const Real& x, const Real& y, Real* error) {
-  const Real product = x * y;
-  *error = MultiplySubtract(x, y, product);
-  return product;
-}
-
-template <typename Real>
-void Split(const Real& value, Real* high, Real* low) {
-  static const int num_digits = std::numeric_limits<Real>::digits;
-  static const int safe_max = std::numeric_limits<Real>::max();
-
-  static const Real kSplitter = (1u << num_digits) + 1;
-  static const Real kSplitScale = 1u << (num_digits + 1);
-  static const Real kSplitThreshold = safe_max / kSplitScale;
-
-  if (value > kSplitThreshold || value < -kSplitThreshold) {
-    static const Real kSplitInvScale = Real{1} / kSplitScale;
-    const Real scaled_value = kSplitInvScale * value;
-
-    const Real temp = kSplitter * value;
-    *high = temp - (temp - value);
-    *low = value - high;
-
-    *high *= kSplitScale;
-    *low *= kSplitScale;
-  } else {
-    const Real temp = kSplitter * value;
-    *high = temp - (temp - value);
-    *low = value - high;
-  }
-}
-
-template <typename Real>
-Real TwoProd(const Real& x, const Real& y, Real* error) {
-  const Real product = x * y;
-
-  Real x_high, x_low;
-  Split(x, &x_high, &x_low);
-
-  Real y_high, y_low;
-  Split(y, &y_high, &y_low);
-
-  *error = ((x_high * y_high - product) + x_high * y_low + x_low * y_high) +
-           x_low * y_low;
-
-  return product;
-}
-
-inline float TwoProd(const float& larger, const float& smaller, float* error) {
-  return TwoProdFMA(larger, smaller, error);
-}
-
-inline double TwoProd(const double& larger, const double& smaller,
-                      double* error) {
-  return TwoProdFMA(larger, smaller, error);
-}
-
-inline long double TwoProd(const long double& larger,
-                           const long double& smaller, long double* error) {
-  return TwoProdFMA(larger, smaller, error);
-}
-
-template <typename Real>
-Real TwoSquare(const Real& x, Real* error) {
-  const Real product = x * x;
-  Real high, low;
-  Split(x, &high, &low);
-  *error = ((high * high - product) + Real{2} * high * low) + low * low;
-  return product;
-}
-
-inline float TwoSquare(const float& x, float* error) {
-  const float product = x * x;
-  *error = MultiplySubtract(x, x, product);
-  return product;
-}
-
-inline double TwoSquare(const double& x, double* error) {
-  const double product = x * x;
-  *error = MultiplySubtract(x, x, product);
-  return product;
-}
-
-inline long double TwoSquare(const long double& x, long double* error) {
-  const long double product = x * x;
-  *error = MultiplySubtract(x, x, product);
-  return product;
 }
 
 }  // namespace mantis

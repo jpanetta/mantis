@@ -95,3 +95,11 @@ basic_exe = executable(
     include_directories : include_dir,
     dependencies : deps + example_deps,
     cpp_args : cxx_args)
+
+# Complex double-mantissa arithmetic.
+complex_double_exe = executable(
+    'complex_double',
+    ['example/complex_double.cc', 'include/mantis.hpp'],
+    include_directories : include_dir,
+    dependencies : deps + example_deps,
+    cpp_args : cxx_args)

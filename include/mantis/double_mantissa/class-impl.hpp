@@ -17,19 +17,21 @@
 namespace mantis {
 
 template <typename Real>
-constexpr DoubleMantissa<Real>::DoubleMantissa() : values_{Real{0}, Real{0}} {}
+constexpr DoubleMantissa<Real>::DoubleMantissa() MANTIS_NOEXCEPT
+    : values_{Real{0}, Real{0}} {}
 
 template <typename Real>
 constexpr DoubleMantissa<Real>::DoubleMantissa(const Real& upper)
-    : values_{upper, Real{0}} {}
+    MANTIS_NOEXCEPT : values_{upper, Real{0}} {}
 
 template <typename Real>
 constexpr DoubleMantissa<Real>::DoubleMantissa(const Real& upper,
                                                const Real& lower)
-    : values_{upper, lower} {}
+    MANTIS_NOEXCEPT : values_{upper, lower} {}
 
 template <typename Real>
-DoubleMantissa<Real>::DoubleMantissa(const DoubleMantissa<Real>& value)
+constexpr DoubleMantissa<Real>::DoubleMantissa(
+    const DoubleMantissa<Real>& value) MANTIS_NOEXCEPT
     : values_{value.Upper(), value.Lower()} {}
 
 template <typename Real>
@@ -50,216 +52,214 @@ DoubleMantissa<Real>::DoubleMantissa(const std::string& rep) {
 }
 
 template <typename Real>
-Real& DoubleMantissa<Real>::Upper() {
+constexpr Real& DoubleMantissa<Real>::Upper() MANTIS_NOEXCEPT {
   return values_[0];
 }
 
 template <typename Real>
-const Real& DoubleMantissa<Real>::Upper() const {
+constexpr const Real& DoubleMantissa<Real>::Upper() const MANTIS_NOEXCEPT {
   return values_[0];
 }
 
 template <typename Real>
-Real& DoubleMantissa<Real>::Lower() {
+constexpr Real& DoubleMantissa<Real>::Lower() MANTIS_NOEXCEPT {
   return values_[1];
 }
 
 template <typename Real>
-const Real& DoubleMantissa<Real>::Lower() const {
+constexpr const Real& DoubleMantissa<Real>::Lower() const MANTIS_NOEXCEPT {
   return values_[1];
 }
 
 template <typename Real>
-DoubleMantissa<Real>& DoubleMantissa<Real>::Reduce() {
-  Upper() = TwoSum(Upper(), Lower(), &Lower());
+constexpr DoubleMantissa<Real>& DoubleMantissa<Real>::Reduce() MANTIS_NOEXCEPT {
+  *this = TwoSum(*this);
   return *this;
 }
 
 template <typename Real>
-DoubleMantissa<Real>& DoubleMantissa<Real>::operator=(int value) {
+constexpr DoubleMantissa<Real>& DoubleMantissa<Real>::operator=(int value)
+    MANTIS_NOEXCEPT {
   Upper() = value;
   Lower() = 0;
   return *this;
 }
 
 template <typename Real>
-DoubleMantissa<Real>& DoubleMantissa<Real>::operator=(const Real& value) {
+constexpr DoubleMantissa<Real>& DoubleMantissa<Real>::operator=(
+    const Real& value) MANTIS_NOEXCEPT {
   Upper() = value;
   Lower() = 0;
   return *this;
 }
 
 template <typename Real>
-DoubleMantissa<Real>& DoubleMantissa<Real>::operator=(
-    const DoubleMantissa<Real>& value) {
+constexpr DoubleMantissa<Real>& DoubleMantissa<Real>::operator=(
+    const DoubleMantissa<Real>& value) MANTIS_NOEXCEPT {
   Upper() = value.Upper();
   Lower() = value.Lower();
   return *this;
 }
 
 template <typename Real>
-DoubleMantissa<Real>& DoubleMantissa<Real>::operator+=(int value) {
+constexpr DoubleMantissa<Real>& DoubleMantissa<Real>::operator+=(int value)
+    MANTIS_NOEXCEPT {
   return *this += Real(value);
 }
 
 template <typename Real>
-DoubleMantissa<Real>& DoubleMantissa<Real>::operator+=(const Real& value) {
-  Real error;
-  Real upper_sum = TwoSum(Upper(), value, &error);
-  error += Lower();
-  Upper() = QuickTwoSum(upper_sum, error, &Lower());
+constexpr DoubleMantissa<Real>& DoubleMantissa<Real>::operator+=(
+    const Real& value) MANTIS_NOEXCEPT {
+  DoubleMantissa<Real> sum = TwoSum(Upper(), value);
+  sum.Lower() += Lower();
+  *this = QuickTwoSum(sum);
   return *this;
 }
 
 template <typename Real>
-DoubleMantissa<Real>& DoubleMantissa<Real>::operator+=(
-    const DoubleMantissa<Real>& value) {
+constexpr DoubleMantissa<Real>& DoubleMantissa<Real>::operator+=(
+    const DoubleMantissa<Real>& value) MANTIS_NOEXCEPT {
 #ifdef MANTIS_IEEE_SUM
   // This algorithm is attributed by Hida et al. to Briggs and Kahan.
-  Real upper_error;
-  Real upper_sum = TwoSum(Upper(), value.Upper(), &upper_error);
+  DoubleMantissa<Real> upper_sum = TwoSum(Upper(), value.Upper());
+  const DoubleMantissa<Real> lower_sum = TwoSum(Lower(), value.Lower());
+  upper_sum.Lower() += lower_sum.Upper();
 
-  Real lower_error;
-  Real lower_sum = TwoSum(Lower(), value.Lower(), &lower_error);
-  upper_error += lower_sum;
+  upper_sum = QuickTwoSum(upper_sum);
+  upper_sum.Lower() += lower_sum.Lower();
 
-  upper_sum = QuickTwoSum(upper_sum, upper_error, &upper_error);
-  upper_error += lower_error;
-
-  Upper() = QuickTwoSum(upper_sum, upper_error, &Lower());
+  *this = QuickTwoSum(upper_sum);
 #else
   // In QD, this is referred to as a 'sloppy' add, as it only obey's a
   // Cray-style error bound.
-  Real error;
-  Real upper_sum = TwoSum(Upper(), value.Upper(), &error);
-  error += Lower();
-  error += value.Lower();
-  Upper() = QuickTwoSum(upper_sum, error, &Lower());
+  DoubleMantissa<Real> upper_sum = TwoSum(Upper(), value.Upper());
+  upper_sum.Lower() += Lower();
+  upper_sum.Lower() += value.Lower();
+
+  *this = QuickTwoSum(upper_sum);
 #endif  // ifdef MANTIS_IEEE_SUM
   return *this;
 }
 
 template <typename Real>
-DoubleMantissa<Real>& DoubleMantissa<Real>::operator-=(int value) {
+constexpr DoubleMantissa<Real>& DoubleMantissa<Real>::operator-=(int value)
+    MANTIS_NOEXCEPT {
   return *this -= Real(value);
 }
 
 template <typename Real>
-DoubleMantissa<Real>& DoubleMantissa<Real>::operator-=(const Real& value) {
-  Real error;
-  Real upper_diff = TwoDiff(Upper(), value, &error);
-  error += Lower();
-  Upper() = QuickTwoSum(upper_diff, error, &Lower());
+constexpr DoubleMantissa<Real>& DoubleMantissa<Real>::operator-=(
+    const Real& value) MANTIS_NOEXCEPT {
+  DoubleMantissa<Real> upper_diff = TwoDiff(Upper(), value);
+  upper_diff.Lower() += Lower();
+
+  *this = QuickTwoSum(upper_diff);
   return *this;
 }
 
 template <typename Real>
-DoubleMantissa<Real>& DoubleMantissa<Real>::operator-=(
-    const DoubleMantissa<Real>& value) {
+constexpr DoubleMantissa<Real>& DoubleMantissa<Real>::operator-=(
+    const DoubleMantissa<Real>& value) MANTIS_NOEXCEPT {
 #ifdef MANTIS_IEEE_SUM
-  Real upper_error;
-  Real upper_diff = TwoDiff(Upper(), value.Upper(), &upper_error);
+  DoubleMantissa<Real> upper_diff = TwoDiff(Upper(), value.Upper());
+  const DoubleMantissa<Real> lower_diff = TwoDiff(Lower(), value.Lower());
+  upper_diff.Lower() += lower_diff.Upper();
 
-  Real lower_error;
-  Real lower_diff = TwoDiff(Lower(), value.Lower(), &lower_error);
+  upper_diff = QuickTwoSum(upper_diff);
+  upper_diff.Lower() += lower_diff.Lower();
 
-  upper_error += lower_diff;
-  upper_diff = QuickTwoSum(upper_diff, upper_error, &upper_error);
-
-  upper_error += lower_error;
-  Upper() = QuickTwoSum(upper_diff, upper_error, &Lower());
+  *this = QuickTwoSum(upper_diff);
 #else
-  Real error;
-  Real upper_diff = TwoDiff(Upper(), value.Upper(), &error);
-  error += Lower();
-  error -= value.Lower();
-  Upper() = QuickTwoSum(upper_diff, error, &Lower());
+  DoubleMantissa<Real> upper_diff = TwoDiff(Upper(), value.Upper());
+  upper_diff.Lower() += Lower();
+  upper_diff.Lower() -= value.Lower();
+
+  *this = QuickTwoSum(upper_diff);
 #endif  // ifdef MANTIS_IEEE_SUM
   return *this;
 }
 
 template <typename Real>
-DoubleMantissa<Real>& DoubleMantissa<Real>::operator*=(int value) {
+constexpr DoubleMantissa<Real>& DoubleMantissa<Real>::operator*=(int value)
+    MANTIS_NOEXCEPT {
   return *this *= Real(value);
 }
 
 template <typename Real>
-DoubleMantissa<Real>& DoubleMantissa<Real>::operator*=(const Real& value) {
-  Real error;
-  const Real product = TwoProd(Upper(), value, &error);
-  error += Lower() * value;
-  Upper() = QuickTwoSum(product, error, &Lower());
+constexpr DoubleMantissa<Real>& DoubleMantissa<Real>::operator*=(
+    const Real& value) MANTIS_NOEXCEPT {
+  DoubleMantissa<Real> product = TwoProd(Upper(), value);
+  product.Lower() += Lower() * value;
+  *this = QuickTwoSum(product);
   return *this;
 }
 
 template <typename Real>
-DoubleMantissa<Real>& DoubleMantissa<Real>::operator*=(
-    const DoubleMantissa<Real>& value) {
-  Real error;
-  const Real product = TwoProd(Upper(), value.Upper(), &error);
-  error += value.Lower() * Upper();
-  error += value.Upper() * Lower();
-  Upper() = QuickTwoSum(product, error, &Lower());
+constexpr DoubleMantissa<Real>& DoubleMantissa<Real>::operator*=(
+    const DoubleMantissa<Real>& value) MANTIS_NOEXCEPT {
+  DoubleMantissa<Real> product = TwoProd(Upper(), value.Upper());
+  product.Lower() += value.Lower() * Upper();
+  product.Lower() += value.Upper() * Lower();
+  *this = QuickTwoSum(product);
   return *this;
 }
 
 template <typename Real>
-DoubleMantissa<Real>& DoubleMantissa<Real>::operator/=(int value) {
+constexpr DoubleMantissa<Real>& DoubleMantissa<Real>::operator/=(int value) {
   return *this /= Real(value);
 }
 
 template <typename Real>
-DoubleMantissa<Real>& DoubleMantissa<Real>::operator/=(const Real& value) {
+constexpr DoubleMantissa<Real>& DoubleMantissa<Real>::operator/=(
+    const Real& value) {
   // See the QD library by Hida et al. for a similar implementation.
   const Real approx_quotient = Upper() / value;
 
   // Compute the remainder, remander := *this - approx_quotient * value.
-  Real product_error;
-  const Real product = TwoProd(approx_quotient, value, &product_error);
-  Real remainder_error;
-  const Real remainder = TwoDiff(Upper(), product, &remainder_error);
-  remainder_error += Lower();
-  remainder_error -= product_error;
+  DoubleMantissa<Real> product = TwoProd(approx_quotient, value);
+  DoubleMantissa<Real> remainder = TwoDiff(Upper(), product.Upper());
+  remainder.Lower() += Lower();
+  remainder.Lower() -= product.Lower();
 
   // Perform iterative refinement.
-  const Real update = (remainder + remainder_error) / value;
-  Upper() = QuickTwoSum(approx_quotient, update, &Lower());
+  const Real update = (remainder.Upper() + remainder.Lower()) / value;
+  *this = QuickTwoSum(approx_quotient, update);
 
   return *this;
 }
 
 template <typename Real>
-DoubleMantissa<Real>::operator int() const {
+constexpr DoubleMantissa<Real>::operator int() const MANTIS_NOEXCEPT {
   const DoubleMantissa<Real> floored_value = Floor(*this);
   return int(floored_value.Upper()) + int(floored_value.Lower());
 }
 
 template <typename Real>
-DoubleMantissa<Real>::operator long int() const {
+constexpr DoubleMantissa<Real>::operator long int() const MANTIS_NOEXCEPT {
   const DoubleMantissa<Real> floored_value = Floor(*this);
   return static_cast<long int>(floored_value.Upper()) +
          static_cast<long int>(floored_value.Lower());
 }
 
 template <typename Real>
-DoubleMantissa<Real>::operator long long int() const {
+constexpr DoubleMantissa<Real>::operator long long int() const MANTIS_NOEXCEPT {
   const DoubleMantissa<Real> floored_value = Floor(*this);
   return static_cast<long long int>(floored_value.Upper()) +
          static_cast<long long int>(floored_value.Lower());
 }
 
 template <typename Real>
-DoubleMantissa<Real>::operator float() const {
+constexpr DoubleMantissa<Real>::operator float() const MANTIS_NOEXCEPT {
   return Upper();
 }
 
 template <typename Real>
-DoubleMantissa<Real>::operator double() const {
+constexpr DoubleMantissa<Real>::operator double() const MANTIS_NOEXCEPT {
   return Upper();
 }
 
 template <typename Real>
-DoubleMantissa<Real>::operator long double() const {
+constexpr DoubleMantissa<Real>::operator long double() const MANTIS_NOEXCEPT {
   return Upper();
 }
 
@@ -484,54 +484,6 @@ DoubleMantissa<Real>& DoubleMantissa<Real>::FromDecimal(
 }
 
 template <typename Real>
-DoubleMantissa<Real> DoubleMantissa<Real>::FastDivide(
-    const DoubleMantissa<Real>& x, const DoubleMantissa<Real>& y) {
-  // See the QD library by Hida et al. for a similar implementation.
-  const Real approx_quotient = x.Upper() / y.Upper();
-
-  // Compute the remainder, remander := *this - approx_quotient * value.
-  const DoubleMantissa<Real> product = y * approx_quotient;
-  Real remainder_error;
-  const Real remainder = TwoDiff(x.Upper(), product.Upper(), &remainder_error);
-  remainder_error += x.Lower();
-  remainder_error -= product.Lower();
-
-  // Perform iterative refinement.
-  const Real update = (remainder + remainder_error) / y.Upper();
-  DoubleMantissa<Real> result;
-  result.Upper() = QuickTwoSum(approx_quotient, update, &result.Lower());
-
-  return result;
-}
-
-template <typename Real>
-DoubleMantissa<Real> DoubleMantissa<Real>::Divide(
-    const DoubleMantissa<Real>& x, const DoubleMantissa<Real>& y) {
-  // See the QD library by Hida et al. for a similar implementation.
-  Real approx_quotient = x.Upper() / y.Upper();
-
-  // Compute the original remainder.
-  DoubleMantissa<Real> r = x - approx_quotient * y;
-
-  // Perform a step of iterative refinement.
-  Real update0 = r.Upper() / y.Upper();
-  r -= update0 * y;
-
-  // Perform another step of iterative refinement.
-  const Real update1 = r.Upper() / y.Upper();
-
-  // Combine the original approximation and the two updates into the result,
-  // which we store in the same place as the original remainder. We also
-  // overwrite the first update with the original sum error after its
-  // incorporation.
-  approx_quotient = QuickTwoSum(approx_quotient, update0, &update0);
-  r = DoubleMantissa<Real>(approx_quotient, update0);
-  r += update1;
-
-  return r;
-}
-
-template <typename Real>
 template <typename UniformRNG>
 DoubleMantissa<Real> DoubleMantissa<Real>::UniformRandom(
     UniformRNG& generator) {
@@ -547,286 +499,595 @@ DoubleMantissa<Real> DoubleMantissa<Real>::UniformRandom(
 }
 
 template <typename Real>
-DoubleMantissa<Real>& DoubleMantissa<Real>::operator/=(
+constexpr DoubleMantissa<Real>& DoubleMantissa<Real>::operator/=(
     const DoubleMantissa<Real>& value) {
   *this = Divide(*this, value);
   return *this;
 }
 
 template <typename Real>
-bool operator==(const DoubleMantissa<Real>& lhs, int rhs) {
+constexpr DoubleMantissa<Real> QuickTwoSum(
+    const Real& larger, const Real& smaller) MANTIS_NOEXCEPT {
+  DoubleMantissa<Real> result(larger + smaller);
+  result.Lower() = smaller - (result.Upper() - larger);
+  return result;
+}
+
+template <typename Real>
+constexpr DoubleMantissa<Real> QuickTwoSum(const DoubleMantissa<Real>& x)
+    MANTIS_NOEXCEPT {
+  DoubleMantissa<Real> result(x.Upper() + x.Lower());
+  result.Lower() = x.Lower() - (result.Upper() - x.Upper());
+  return result;
+}
+
+template <typename Real>
+constexpr DoubleMantissa<Real> TwoSum(const Real& larger,
+                                      const Real& smaller) MANTIS_NOEXCEPT {
+  DoubleMantissa<Real> result(larger + smaller);
+  const Real smaller_approx = result.Upper() - larger;
+  result.Lower() =
+      (larger - (result.Upper() - smaller_approx)) + (smaller - smaller_approx);
+  return result;
+}
+
+template <typename Real>
+constexpr DoubleMantissa<Real> TwoSum(const DoubleMantissa<Real>& x)
+    MANTIS_NOEXCEPT {
+  DoubleMantissa<Real> result(x.Upper() + x.Lower());
+  const Real smaller_approx = result.Upper() - x.Upper();
+  result.Lower() = (x.Upper() - (result.Upper() - smaller_approx)) +
+                   (x.Lower() - smaller_approx);
+  return result;
+}
+
+template <typename Real>
+constexpr DoubleMantissa<Real> QuickTwoDiff(
+    const Real& larger, const Real& smaller) MANTIS_NOEXCEPT {
+  DoubleMantissa<Real> result(larger - smaller);
+  result.Lower() = (larger - result.Upper()) - smaller;
+  return result;
+}
+
+template <typename Real>
+constexpr DoubleMantissa<Real> QuickTwoDiff(const DoubleMantissa<Real>& x)
+    MANTIS_NOEXCEPT {
+  DoubleMantissa<Real> result(x.Upper() - x.Lower());
+  result.Lower() = (x.Upper() - result.Upper()) - x.Lower();
+  return result;
+}
+
+template <typename Real>
+constexpr DoubleMantissa<Real> TwoDiff(const Real& larger,
+                                       const Real& smaller) MANTIS_NOEXCEPT {
+  DoubleMantissa<Real> result(larger - smaller);
+  const Real smaller_approx = larger - result.Upper();
+  result.Lower() =
+      (larger - (result.Upper() + smaller_approx)) - (smaller - smaller_approx);
+  return result;
+}
+
+template <typename Real>
+constexpr DoubleMantissa<Real> TwoDiff(const DoubleMantissa<Real>& x)
+    MANTIS_NOEXCEPT {
+  DoubleMantissa<Real> result(x.Upper() - x.Lower());
+  const Real smaller_approx = x.Upper() - result.Upper();
+  result.Lower() = (x.Upper() - (result.Upper() + smaller_approx)) -
+                   (x.Lower() - smaller_approx);
+  return result;
+}
+
+template <typename Real>
+constexpr DoubleMantissa<Real> TwoProdFMA(const Real& x,
+                                          const Real& y) MANTIS_NOEXCEPT {
+  DoubleMantissa<Real> result(x * y);
+  result.Lower() = MultiplySubtract(x, y, result.Upper());
+  return result;
+}
+
+template <typename Real>
+constexpr DoubleMantissa<Real> Split(const Real& value) MANTIS_NOEXCEPT {
+  constexpr int num_digits = std::numeric_limits<Real>::digits;
+  constexpr int safe_max = std::numeric_limits<Real>::max();
+
+  constexpr Real kSplitter = (1u << num_digits) + 1;
+  constexpr Real kSplitScale = 1u << (num_digits + 1);
+  constexpr Real kSplitThreshold = safe_max / kSplitScale;
+
+  DoubleMantissa<Real> result;
+  if (value > kSplitThreshold || value < -kSplitThreshold) {
+    constexpr Real kSplitInvScale = Real{1} / kSplitScale;
+    constexpr Real scaled_value = kSplitInvScale * value;
+
+    constexpr Real temp = kSplitter * value;
+    result.Upper() = temp - (temp - value);
+    result.Lower() = value - result.Upper();
+
+    result.Upper() *= kSplitScale;
+    result.Lower() *= kSplitScale;
+  } else {
+    constexpr Real temp = kSplitter * value;
+    result.Upper() = temp - (temp - value);
+    result.Lower() = value - result.Upper();
+  }
+  return result;
+}
+
+inline constexpr DoubleMantissa<float> TwoProd(const float& x,
+                                               const float& y) MANTIS_NOEXCEPT {
+  return TwoProdFMA(x, y);
+}
+
+inline constexpr DoubleMantissa<double> TwoProd(
+    const double& x, const double& y) MANTIS_NOEXCEPT {
+  return TwoProdFMA(x, y);
+}
+
+inline constexpr DoubleMantissa<long double> TwoProd(
+    const long double& x, const long double& y) MANTIS_NOEXCEPT {
+  return TwoProdFMA(x, y);
+}
+
+template <typename Real>
+constexpr DoubleMantissa<Real> TwoProd(const Real& x,
+                                       const Real& y) MANTIS_NOEXCEPT {
+  const DoubleMantissa<Real> x_split = Split(x);
+  const DoubleMantissa<Real> y_split = Split(y);
+
+  DoubleMantissa<Real> result(x * y);
+  result.Lower() =
+      ((x_split.Upper() * y_split.Upper() - result.Upper()) +
+       x_split.Upper() * y_split.Lower() + x_split.Lower() * y_split.Upper()) +
+      x_split.Lower() * y_split.Lower();
+
+  return result;
+}
+
+inline constexpr DoubleMantissa<float> TwoSquare(const float& x)
+    MANTIS_NOEXCEPT {
+  DoubleMantissa<float> result(x * x);
+  result.Lower() = MultiplySubtract(x, x, result.Upper());
+  return result;
+}
+
+inline constexpr DoubleMantissa<double> TwoSquare(const double& x)
+    MANTIS_NOEXCEPT {
+  DoubleMantissa<double> result(x * x);
+  result.Lower() = MultiplySubtract(x, x, result.Upper());
+  return result;
+}
+
+inline constexpr DoubleMantissa<long double> TwoSquare(const long double& x)
+    MANTIS_NOEXCEPT {
+  DoubleMantissa<long double> result(x * x);
+  result.Lower() = MultiplySubtract(x, x, result.Upper());
+  return result;
+}
+
+template <typename Real>
+constexpr DoubleMantissa<Real> TwoSquare(const Real& x) MANTIS_NOEXCEPT {
+  const DoubleMantissa<Real> x_split = Split(x);
+
+  DoubleMantissa<Real> result(x * x);
+  result.Lower() = ((x.Upper() * x.Upper() - result.Upper()) +
+                    Real(2) * x_split.Upper() * x_split.Lower()) +
+                   x_split.Lower() * x_split.Lower();
+
+  return result;
+}
+
+template <typename Real>
+constexpr DoubleMantissa<Real> FastDivide(const DoubleMantissa<Real>& x,
+                                          const DoubleMantissa<Real>& y) {
+  // See the QD library by Hida et al. for a similar implementation.
+  DoubleMantissa<Real> quotient(x.Upper() / y.Upper());
+
+  // Compute the remainder, remander := *this - approx_quotient * value.
+  const DoubleMantissa<Real> product = y * quotient;
+  DoubleMantissa<Real> remainder = TwoDiff(x.Upper(), product.Upper());
+  remainder.Lower() += x.Lower();
+  remainder.Lower() -= product.Lower();
+
+  // Perform iterative refinement.
+  quotient.Lower() = (remainder.Upper() + remainder.Lower()) / y.Upper();
+
+  return QuickTwoSum(quotient);
+}
+
+template <typename Real>
+constexpr DoubleMantissa<Real> Divide(const DoubleMantissa<Real>& x,
+                                      const DoubleMantissa<Real>& y) {
+  // See the QD library by Hida et al. for a similar implementation.
+  DoubleMantissa<Real> quotient(x.Upper() / y.Upper());
+
+  // Compute the original remainder.
+  DoubleMantissa<Real> r = x - quotient.Upper() * y;
+
+  // Perform a step of iterative refinement.
+  quotient.Lower() = r.Upper() / y.Upper();
+  r -= quotient.Lower() * y;
+
+  // Perform another step of iterative refinement.
+  const Real update = r.Upper() / y.Upper();
+
+  // Combine the original approximation and the two updates into the result.
+  quotient = QuickTwoSum(quotient);
+  quotient += update;
+
+  return quotient;
+}
+
+template <typename Real>
+constexpr bool operator==(const DoubleMantissa<Real>& lhs,
+                          int rhs) MANTIS_NOEXCEPT {
   return lhs.Upper() == rhs && lhs.Lower() == Real();
 }
 
 template <typename Real>
-bool operator==(const DoubleMantissa<Real>& lhs, const Real& rhs) {
+constexpr bool operator==(const DoubleMantissa<Real>& lhs,
+                          const Real& rhs) MANTIS_NOEXCEPT {
   return lhs.Upper() == rhs && lhs.Lower() == Real();
 }
 
 template <typename Real>
-bool operator==(int lhs, const DoubleMantissa<Real>& rhs) {
+constexpr bool operator==(int lhs,
+                          const DoubleMantissa<Real>& rhs) MANTIS_NOEXCEPT {
   return rhs == lhs;
 }
 
 template <typename Real>
-bool operator==(const Real& lhs, const DoubleMantissa<Real>& rhs) {
+constexpr bool operator==(const Real& lhs,
+                          const DoubleMantissa<Real>& rhs) MANTIS_NOEXCEPT {
   return rhs == lhs;
 }
 
 template <typename Real>
-bool operator==(const DoubleMantissa<Real>& lhs,
-                const DoubleMantissa<Real>& rhs) {
+constexpr bool operator==(const DoubleMantissa<Real>& lhs,
+                          const DoubleMantissa<Real>& rhs) MANTIS_NOEXCEPT {
   return lhs.Upper() == rhs.Upper() && lhs.Lower() == rhs.Lower();
 }
 
 template <typename Real>
-bool operator!=(const DoubleMantissa<Real>& lhs, int rhs) {
+constexpr bool operator!=(const DoubleMantissa<Real>& lhs,
+                          int rhs) MANTIS_NOEXCEPT {
   return !(lhs == rhs);
 }
 
 template <typename Real>
-bool operator!=(const DoubleMantissa<Real>& lhs, const Real& rhs) {
+constexpr bool operator!=(const DoubleMantissa<Real>& lhs,
+                          const Real& rhs) MANTIS_NOEXCEPT {
   return !(lhs == rhs);
 }
 
 template <typename Real>
-bool operator!=(int lhs, const DoubleMantissa<Real>& rhs) {
+constexpr bool operator!=(int lhs,
+                          const DoubleMantissa<Real>& rhs) MANTIS_NOEXCEPT {
   return !(rhs == lhs);
 }
 
 template <typename Real>
-bool operator!=(const Real& lhs, const DoubleMantissa<Real>& rhs) {
+constexpr bool operator!=(const Real& lhs,
+                          const DoubleMantissa<Real>& rhs) MANTIS_NOEXCEPT {
   return !(rhs == lhs);
 }
 
 template <typename Real>
-bool operator!=(const DoubleMantissa<Real>& lhs,
-                const DoubleMantissa<Real>& rhs) {
+constexpr bool operator!=(const DoubleMantissa<Real>& lhs,
+                          const DoubleMantissa<Real>& rhs) MANTIS_NOEXCEPT {
   return !(lhs == rhs);
 }
 
 template <typename Real>
-bool operator<(const DoubleMantissa<Real>& lhs, int rhs) {
+constexpr bool operator<(const DoubleMantissa<Real>& lhs,
+                         int rhs) MANTIS_NOEXCEPT {
   return lhs.Upper() < rhs || (lhs.Upper() == rhs && lhs.Lower() < Real());
 }
 
 template <typename Real>
-bool operator<(const DoubleMantissa<Real>& lhs, const Real& rhs) {
+constexpr bool operator<(const DoubleMantissa<Real>& lhs,
+                         const Real& rhs) MANTIS_NOEXCEPT {
   return lhs.Upper() < rhs || (lhs.Upper() == rhs && lhs.Lower() < Real());
 }
 
 template <typename Real>
-bool operator<(int lhs, const DoubleMantissa<Real>& rhs) {
+constexpr bool operator<(int lhs,
+                         const DoubleMantissa<Real>& rhs) MANTIS_NOEXCEPT {
   return lhs < rhs.Upper() || (lhs == rhs.Upper() && Real() < rhs.Lower());
 }
 
 template <typename Real>
-bool operator<(const Real& lhs, const DoubleMantissa<Real>& rhs) {
+constexpr bool operator<(const Real& lhs,
+                         const DoubleMantissa<Real>& rhs) MANTIS_NOEXCEPT {
   return lhs < rhs.Upper() || (lhs == rhs.Upper() && Real() < rhs.Lower());
 }
 
 template <typename Real>
-bool operator<(const DoubleMantissa<Real>& lhs,
-               const DoubleMantissa<Real>& rhs) {
+constexpr bool operator<(const DoubleMantissa<Real>& lhs,
+                         const DoubleMantissa<Real>& rhs) MANTIS_NOEXCEPT {
   return lhs.Upper() < rhs.Upper() ||
          (lhs.Upper() == rhs.Upper() && lhs.Lower() < rhs.Lower());
 }
 
 template <typename Real>
-bool operator<=(const DoubleMantissa<Real>& lhs, int rhs) {
+constexpr bool operator<=(const DoubleMantissa<Real>& lhs,
+                          int rhs) MANTIS_NOEXCEPT {
   return !(rhs < lhs);
 }
 
 template <typename Real>
-bool operator<=(const DoubleMantissa<Real>& lhs, const Real& rhs) {
+constexpr bool operator<=(const DoubleMantissa<Real>& lhs,
+                          const Real& rhs) MANTIS_NOEXCEPT {
   return !(rhs < lhs);
 }
 
 template <typename Real>
-bool operator<=(const DoubleMantissa<Real>& lhs,
-                const DoubleMantissa<Real>& rhs) {
+constexpr bool operator<=(const DoubleMantissa<Real>& lhs,
+                          const DoubleMantissa<Real>& rhs) MANTIS_NOEXCEPT {
   return !(rhs < lhs);
 }
 
 template <typename Real>
-bool operator>(int lhs, const DoubleMantissa<Real>& rhs) {
+constexpr bool operator>(int lhs,
+                         const DoubleMantissa<Real>& rhs) MANTIS_NOEXCEPT {
   return rhs < lhs;
 }
 
 template <typename Real>
-bool operator>(const Real& lhs, const DoubleMantissa<Real>& rhs) {
+constexpr bool operator>(const Real& lhs,
+                         const DoubleMantissa<Real>& rhs) MANTIS_NOEXCEPT {
   return rhs < lhs;
 }
 
 template <typename Real>
-bool operator>(const DoubleMantissa<Real>& lhs, int rhs) {
+constexpr bool operator>(const DoubleMantissa<Real>& lhs,
+                         int rhs) MANTIS_NOEXCEPT {
   return rhs < lhs;
 }
 
 template <typename Real>
-bool operator>(const DoubleMantissa<Real>& lhs, const Real& rhs) {
+constexpr bool operator>(const DoubleMantissa<Real>& lhs,
+                         const Real& rhs) MANTIS_NOEXCEPT {
   return rhs < lhs;
 }
 
 template <typename Real>
-bool operator>(const DoubleMantissa<Real>& lhs,
-               const DoubleMantissa<Real>& rhs) {
+constexpr bool operator>(const DoubleMantissa<Real>& lhs,
+                         const DoubleMantissa<Real>& rhs) MANTIS_NOEXCEPT {
   return rhs < lhs;
 }
 
 template <typename Real>
-bool operator>=(int lhs, const DoubleMantissa<Real>& rhs) {
+constexpr bool operator>=(int lhs,
+                          const DoubleMantissa<Real>& rhs) MANTIS_NOEXCEPT {
   return !(lhs < rhs);
 }
 
 template <typename Real>
-bool operator>=(const Real& lhs, const DoubleMantissa<Real>& rhs) {
+constexpr bool operator>=(const Real& lhs,
+                          const DoubleMantissa<Real>& rhs) MANTIS_NOEXCEPT {
   return !(lhs < rhs);
 }
 
 template <typename Real>
-bool operator>=(const DoubleMantissa<Real>& lhs, int rhs) {
+constexpr bool operator>=(const DoubleMantissa<Real>& lhs,
+                          int rhs) MANTIS_NOEXCEPT {
   return !(lhs < rhs);
 }
 
 template <typename Real>
-bool operator>=(const DoubleMantissa<Real>& lhs, const Real& rhs) {
+constexpr bool operator>=(const DoubleMantissa<Real>& lhs,
+                          const Real& rhs) MANTIS_NOEXCEPT {
   return !(lhs < rhs);
 }
 
 template <typename Real>
-bool operator>=(const DoubleMantissa<Real>& lhs,
-                const DoubleMantissa<Real>& rhs) {
+constexpr bool operator>=(const DoubleMantissa<Real>& lhs,
+                          const DoubleMantissa<Real>& rhs) MANTIS_NOEXCEPT {
   return !(lhs < rhs);
 }
 
 template <typename Real>
-DoubleMantissa<Real> operator-(const DoubleMantissa<Real>& value) {
+constexpr DoubleMantissa<Real> operator-(const DoubleMantissa<Real>& value)
+    MANTIS_NOEXCEPT {
   return DoubleMantissa<Real>(-value.Upper(), -value.Lower());
 }
 
 template <typename Real>
-DoubleMantissa<Real> operator+(int x, const DoubleMantissa<Real>& y) {
+constexpr DoubleMantissa<Real> operator+(int x, const DoubleMantissa<Real>& y)
+    MANTIS_NOEXCEPT {
   return Real(x) + y;
 }
 
 template <typename Real>
-DoubleMantissa<Real> operator+(const Real& x, const DoubleMantissa<Real>& y) {
+constexpr DoubleMantissa<Real> operator+(
+    const Real& x, const DoubleMantissa<Real>& y) MANTIS_NOEXCEPT {
   DoubleMantissa<Real> z(y);
   z += x;
   return z;
 }
 
 template <typename Real>
-DoubleMantissa<Real> operator+(const DoubleMantissa<Real>& x, int y) {
+constexpr DoubleMantissa<Real> operator+(const DoubleMantissa<Real>& x,
+                                         int y) MANTIS_NOEXCEPT {
   return x + Real(y);
 }
 
 template <typename Real>
-DoubleMantissa<Real> operator+(const DoubleMantissa<Real>& x, const Real& y) {
+constexpr DoubleMantissa<Real> operator+(const DoubleMantissa<Real>& x,
+                                         const Real& y) MANTIS_NOEXCEPT {
   DoubleMantissa<Real> z(x);
   z += y;
   return z;
 }
 
 template <typename Real>
-DoubleMantissa<Real> operator+(const DoubleMantissa<Real>& x,
-                               const DoubleMantissa<Real>& y) {
+constexpr DoubleMantissa<Real> operator+(const DoubleMantissa<Real>& x,
+                                         const DoubleMantissa<Real>& y)
+    MANTIS_NOEXCEPT {
   DoubleMantissa<Real> z(x);
   z += y;
   return z;
 }
 
 template <typename Real>
-DoubleMantissa<Real> operator-(int x, const DoubleMantissa<Real>& y) {
+constexpr DoubleMantissa<Real> operator-(int x, const DoubleMantissa<Real>& y)
+    MANTIS_NOEXCEPT {
   return Real(x) - y;
 }
 
 template <typename Real>
-DoubleMantissa<Real> operator-(const Real& x, const DoubleMantissa<Real>& y) {
+constexpr DoubleMantissa<Real> operator-(
+    const Real& x, const DoubleMantissa<Real>& y) MANTIS_NOEXCEPT {
   DoubleMantissa<Real> z(-y);
   z += x;
   return z;
 }
 
 template <typename Real>
-DoubleMantissa<Real> operator-(const DoubleMantissa<Real>& x, int y) {
+constexpr DoubleMantissa<Real> operator-(const DoubleMantissa<Real>& x,
+                                         int y) MANTIS_NOEXCEPT {
   return x - Real(y);
 }
 
 template <typename Real>
-DoubleMantissa<Real> operator-(const DoubleMantissa<Real>& x, const Real& y) {
+constexpr DoubleMantissa<Real> operator-(const DoubleMantissa<Real>& x,
+                                         const Real& y) MANTIS_NOEXCEPT {
   DoubleMantissa<Real> z(x);
   z -= y;
   return z;
 }
 
 template <typename Real>
-DoubleMantissa<Real> operator-(const DoubleMantissa<Real>& x,
-                               const DoubleMantissa<Real>& y) {
+constexpr DoubleMantissa<Real> operator-(const DoubleMantissa<Real>& x,
+                                         const DoubleMantissa<Real>& y)
+    MANTIS_NOEXCEPT {
   DoubleMantissa<Real> z(x);
   z -= y;
   return z;
 }
 
 template <typename Real>
-DoubleMantissa<Real> operator*(int x, const DoubleMantissa<Real>& y) {
+constexpr DoubleMantissa<Real> operator*(int x, const DoubleMantissa<Real>& y)
+    MANTIS_NOEXCEPT {
   return Real(x) * y;
 }
 
 template <typename Real>
-DoubleMantissa<Real> operator*(const Real& x, const DoubleMantissa<Real>& y) {
+constexpr DoubleMantissa<Real> operator*(
+    const Real& x, const DoubleMantissa<Real>& y)MANTIS_NOEXCEPT {
   DoubleMantissa<Real> z(y);
   z *= x;
   return z;
 }
 
 template <typename Real>
-DoubleMantissa<Real> operator*(const DoubleMantissa<Real>& x, int y) {
+constexpr DoubleMantissa<Real> operator*(const DoubleMantissa<Real>& x,
+                                         int y)MANTIS_NOEXCEPT {
   return x * Real(y);
 }
 
 template <typename Real>
-DoubleMantissa<Real> operator*(const DoubleMantissa<Real>& x, const Real& y) {
+constexpr DoubleMantissa<Real> operator*(const DoubleMantissa<Real>& x,
+                                         const Real& y)MANTIS_NOEXCEPT {
   DoubleMantissa<Real> z(x);
   z *= y;
   return z;
 }
 
 template <typename Real>
-DoubleMantissa<Real> operator*(const DoubleMantissa<Real>& x,
-                               const DoubleMantissa<Real>& y) {
+constexpr DoubleMantissa<Real> operator*(const DoubleMantissa<Real>& x,
+                                         const DoubleMantissa<Real>& y)
+    MANTIS_NOEXCEPT {
   DoubleMantissa<Real> z(x);
   z *= y;
   return z;
 }
 
 template <typename Real>
-DoubleMantissa<Real> operator/(int x, const DoubleMantissa<Real>& y) {
+constexpr DoubleMantissa<Real> operator/(int x, const DoubleMantissa<Real>& y) {
   return Real(x) / y;
 }
 
 template <typename Real>
-DoubleMantissa<Real> operator/(const Real& x, const DoubleMantissa<Real>& y) {
-  return DoubleMantissa<Real>::Divide(DoubleMantissa<Real>(x), y);
+constexpr DoubleMantissa<Real> operator/(const Real& x,
+                                         const DoubleMantissa<Real>& y) {
+  return Divide(DoubleMantissa<Real>(x), y);
 }
 
 template <typename Real>
-DoubleMantissa<Real> operator/(const DoubleMantissa<Real>& x, int y) {
+constexpr DoubleMantissa<Real> operator/(const DoubleMantissa<Real>& x, int y) {
   return x / Real(y);
 }
 
 template <typename Real>
-DoubleMantissa<Real> operator/(const DoubleMantissa<Real>& x, const Real& y) {
+constexpr DoubleMantissa<Real> operator/(const DoubleMantissa<Real>& x,
+                                         const Real& y) {
   DoubleMantissa<Real> z(x);
   z /= y;
   return z;
 }
 
 template <typename Real>
-DoubleMantissa<Real> operator/(const DoubleMantissa<Real>& x,
-                               const DoubleMantissa<Real>& y) {
-  return DoubleMantissa<Real>::Divide(x, y);
+constexpr DoubleMantissa<Real> operator/(const DoubleMantissa<Real>& x,
+                                         const DoubleMantissa<Real>& y) {
+  return Divide(x, y);
+}
+
+template <typename Real>
+constexpr DoubleMantissa<Real> Floor(const DoubleMantissa<Real>& value)
+    MANTIS_NOEXCEPT {
+  DoubleMantissa<Real> floored_value(std::floor(value.Upper()));
+  if (floored_value.Upper() == value.Upper()) {
+    // The upper component is already floored to an integer, so floor the
+    // lower component.
+    floored_value.Lower() = std::floor(value.Lower());
+    floored_value.Reduce();
+  }
+  return floored_value;
+}
+
+template <typename Real>
+constexpr DoubleMantissa<Real> Round(const DoubleMantissa<Real>& value)
+    MANTIS_NOEXCEPT {
+  DoubleMantissa<Real> rounded_value(std::round(value.Upper()));
+  if (rounded_value.Upper() == value.Upper()) {
+    // The upper component is already rounded to an integer, so round the
+    // lower component.
+    rounded_value.Lower() = std::round(value.Lower());
+    rounded_value.Reduce();
+  } else if (std::abs(rounded_value.Upper() - value.Upper()) == Real(0.5)) {
+    // Resolve the tie based on the low word, which we know must round to
+    // zero.
+    // NOTE: It appears that QD incorrectly rounds ties when the upper word
+    // is negative.
+    if (value.Upper() > 0 && value.Lower() < Real(0)) {
+      // Values such as 2.5 - eps, eps > 0, should round to 2 rather than 3.
+      rounded_value.Upper() -= Real(1);
+    } else if (value.Upper() < 0 && value.Lower() > Real(0)) {
+      // Values such as -2.5 + eps, eps > 0< should round to -2 rather than
+      // -3.
+      rounded_value.Upper() += Real(1);
+    }
+  }
+  return rounded_value;
+}
+
+template <typename Real>
+DoubleMantissa<Real> Hypot(const DoubleMantissa<Real>& x,
+                           const DoubleMantissa<Real>& y) {
+  const DoubleMantissa<Real> x_abs = Abs(x);
+  const DoubleMantissa<Real> y_abs = Abs(y);
+
+  const DoubleMantissa<Real>& a = y_abs > x_abs ? x : y;
+  const DoubleMantissa<Real>& b = y_abs > x_abs ? y : x;
+  const DoubleMantissa<Real>& a_abs = y_abs > x_abs ? x_abs : y_abs;
+
+  if (a.Upper() == Real(0)) {
+    return DoubleMantissa<Real>();
+  }
+
+  const DoubleMantissa<Real> t = b / a;
+  return a_abs * SquareRoot(Real(1) + Square(t));
 }
 
 template <typename Real>
@@ -875,20 +1136,14 @@ DoubleMantissa<Real> Inverse(const DoubleMantissa<Real>& value) {
 
 template <typename Real>
 DoubleMantissa<Real> Square(const Real& value) {
-  Real error;
-  const Real upper = TwoSquare(value, &error);
-  return DoubleMantissa<Real>(upper, error);
+  return TwoSquare(value);
 }
 
 template <typename Real>
 DoubleMantissa<Real> Square(const DoubleMantissa<Real>& value) {
-  Real error;
-  const Real product = TwoSquare(value.Upper(), &error);
-  error += Real{2} * value.Lower() * value.Upper();
-
-  Real new_error;
-  const Real new_upper = QuickTwoSum(product, error, &new_error);
-  return DoubleMantissa<Real>(new_upper, new_error);
+  DoubleMantissa<Real> product = TwoSquare(value.Upper());
+  product.Lower() += Real{2} * value.Lower() * value.Upper();
+  return QuickTwoSum(product);
 }
 
 template <typename Real>
@@ -1142,6 +1397,11 @@ DoubleMantissa<Real> Log(const DoubleMantissa<Real>& value) {
   }
 
   return x;
+}
+
+template <typename Real>
+DoubleMantissa<Real> Log2(const DoubleMantissa<Real>& value) {
+  return Log(value) / double_mantissa::LogOf2<Real>();
 }
 
 template <typename Real>
@@ -1599,24 +1859,6 @@ DoubleMantissa<Real> ArcTan(const DoubleMantissa<Real>& tan_theta) {
 }
 
 template <typename Real>
-DoubleMantissa<Real> Hypot(const DoubleMantissa<Real>& x,
-                           const DoubleMantissa<Real>& y) {
-  const DoubleMantissa<Real> x_abs = Abs(x);
-  const DoubleMantissa<Real> y_abs = Abs(y);
-
-  const DoubleMantissa<Real>& a = y_abs > x_abs ? x : y;
-  const DoubleMantissa<Real>& b = y_abs > x_abs ? y : x;
-  const DoubleMantissa<Real>& a_abs = y_abs > x_abs ? x_abs : y_abs;
-
-  if (a.Upper() == Real(0)) {
-    return DoubleMantissa<Real>();
-  }
-
-  const DoubleMantissa<Real> t = b / a;
-  return a_abs * SquareRoot(Real(1) + Square(t));
-}
-
-template <typename Real>
 DoubleMantissa<Real> ArcTan2(const DoubleMantissa<Real>& y,
                              const DoubleMantissa<Real>& x) {
   static const DoubleMantissa<Real> pi = double_mantissa::Pi<Real>();
@@ -1867,43 +2109,6 @@ DoubleMantissa<Real> ArcHyperbolicTan(const DoubleMantissa<Real>& tanh_x) {
   //
   return MultiplyByPowerOfTwo(Log((Real(1) + tanh_x) / (Real(1) - tanh_x)),
                               Real(0.5));
-}
-
-template <typename Real>
-DoubleMantissa<Real> Floor(const DoubleMantissa<Real>& value) {
-  DoubleMantissa<Real> floored_value(std::floor(value.Upper()));
-  if (floored_value.Upper() == value.Upper()) {
-    // The upper component is already floored to an integer, so floor the
-    // lower component.
-    floored_value.Lower() = std::floor(value.Lower());
-    floored_value.Reduce();
-  }
-  return floored_value;
-}
-
-template <typename Real>
-DoubleMantissa<Real> Round(const DoubleMantissa<Real>& value) {
-  DoubleMantissa<Real> rounded_value(std::round(value.Upper()));
-  if (rounded_value.Upper() == value.Upper()) {
-    // The upper component is already rounded to an integer, so round the
-    // lower component.
-    rounded_value.Lower() = std::round(value.Lower());
-    rounded_value.Reduce();
-  } else if (std::abs(rounded_value.Upper() - value.Upper()) == Real(0.5)) {
-    // Resolve the tie based on the low word, which we know must round to
-    // zero.
-    // NOTE: It appears that QD incorrectly rounds ties when the upper word
-    // is negative.
-    if (value.Upper() > 0 && value.Lower() < Real(0)) {
-      // Values such as 2.5 - eps, eps > 0, should round to 2 rather than 3.
-      rounded_value.Upper() -= Real(1);
-    } else if (value.Upper() < 0 && value.Lower() > Real(0)) {
-      // Values such as -2.5 + eps, eps > 0< should round to -2 rather than
-      // -3.
-      rounded_value.Upper() += Real(1);
-    }
-  }
-  return rounded_value;
 }
 
 namespace double_mantissa {
