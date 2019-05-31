@@ -1025,6 +1025,18 @@ DoubleMantissa<Real> operator/(const DoubleMantissa<Real>& x,
   return Divide(x, y);
 }
 
+constexpr float Floor(const float& value) MANTIS_NOEXCEPT {
+  return std::floor(value);
+}
+
+constexpr double Floor(const double& value) MANTIS_NOEXCEPT {
+  return std::floor(value);
+}
+
+constexpr long double Floor(const long double& value) MANTIS_NOEXCEPT {
+  return std::floor(value);
+}
+
 template <typename Real>
 constexpr DoubleMantissa<Real> Floor(const DoubleMantissa<Real>& value)
     MANTIS_NOEXCEPT {
@@ -1036,6 +1048,18 @@ constexpr DoubleMantissa<Real> Floor(const DoubleMantissa<Real>& value)
     floored_value.Reduce();
   }
   return floored_value;
+}
+
+constexpr float Round(const float& value) MANTIS_NOEXCEPT {
+  return std::round(value);
+}
+
+constexpr double Round(const double& value) MANTIS_NOEXCEPT {
+  return std::round(value);
+}
+
+constexpr long double Round(const long double& value) MANTIS_NOEXCEPT {
+  return std::round(value);
 }
 
 template <typename Real>
@@ -1091,7 +1115,7 @@ std::ostream& operator<<(std::ostream& out, const DoubleMantissa<Real>& value) {
   return out;
 }
 
-template <typename Real, typename>
+template <typename Real>
 Real LogMax() {
   static const Real log_max = std::log(std::numeric_limits<Real>::max());
   return log_max;
@@ -1099,26 +1123,185 @@ Real LogMax() {
 
 template <typename Real, typename>
 Real LogOf2() {
-  static const Real log_of_2 = std::log(Real{2});
+  static const Real log_of_2 = std::log(Real(2));
   return log_of_2;
 }
 
-template <typename Real, typename>
+template <typename Real>
+Real ComputeLogOf2() {
+  // Calculate log(2) via Eq. (30) from:
+  //
+  //   X. Gourdon and P. Sebah, "The logarithmic constant: log2", Jan. 2004.
+  //
+  // That is,
+  //
+  //   log(2) = (3/4) \sum_{j >= 0} (-1)^j \frac{(j!)^2}{2^j (2 j + 1)!}.
+  //
+  // We follow MPFR -- see Subsection 5.3, "The log2 constant", of
+  //
+  //   The MPFR Team, "The MPFR Library: Algorithms and Proofs",
+  //   URL: https://www.mpfr.org/algorithms.pdf
+  //
+  // by truncating after the first N = floor(w / 3) + 1 iterations, where w
+  // is the number of binary significant digits -- the "working precision".
+  //
+  // However, we do not have access to arbitrary-precision integer types, nor
+  // would we want to make use of dynamic memory allocation, so we cannot
+  // exactly store the (integer) numerator and denominator. And, in single-
+  // precision, it is easy to accidentally overflow in the later iterates.
+  constexpr int needed_digits = std::numeric_limits<Real>::digits;
+  constexpr int num_terms = (needed_digits / 3) + 1;
+
+  // Accumulate the terms of the series.
+  //
+  // The j'th term in the series is related to the (j-1)'th term in the series
+  // via:
+  //
+  //   t_j = (j^2 / (2 * 2 j * (2j + 1))) t_{j - 1}.
+  //
+  // In order to ensure that the denominators of our summed terms from the
+  // series are consistent,
+  //
+  //       (0!)^2             (1!)^2
+  //  ----------------- + ----------------
+  //   2^0 (2 * 0 + 1)!   2^1 (2 * 1 + 1)!
+  Real iterate = 1;
+  Real term = 1;
+  for (int j = 1; j < num_terms; ++j) {
+    // Accumulate the term.
+    // Typically both real numbers are exactly represented.
+    term *= j * j;
+    term /= 2 * (2 * j) * (2 * j + 1);
+    term *= -1;
+
+    iterate += term;
+  }
+  iterate *= 3;
+  iterate /= 4;
+
+  return iterate;
+}
+
+template <typename Real>
+Real LogOf2() {
+  static const Real log_of_2 = ComputeLogOf2<Real>();
+  return log_of_2;
+}
+
+template <typename Real>
 Real LogOf10() {
-  static const Real log_of_10 = std::log(Real{10});
+  static const Real log_of_10 = std::log(Real(10));
   return log_of_10;
 }
 
 template <typename Real, typename>
-Real Pi() {
-  static const Real pi = std::acos(Real{-1});
+Real ComputePi() {
+  typedef typename Real::Base Base;
+
+  // We use the algorithm of
+  //
+  //   A. Schonhage, A. F. W. Grotefeld, and E. Vetter,
+  //   "Fast Algorithms: A Multitape Turing Machine Implementation",
+  //   BI Wissenschaftverlag, 1994.
+  //
+  // as described in
+  //
+  //   The MPFR Team, "The MPFR Library: Algorithms and Proofs".
+  //
+  constexpr int digits = std::numeric_limits<Real>::digits;
+
+  Real a_squared = 1;
+  Real b_squared = Base{1} / 2;
+  Real denominator = Base{1} / 4;
+
+  Real a = 1;
+  Real b, s, diff;
+  Base tolerance = 2 * std::pow(Base{2}, -digits);
+  for (unsigned iter = 0;; ++iter, tolerance *= 2) {
+    s = (a_squared + b_squared) / 4;
+    b = SquareRoot(b_squared);
+    a = (a + b) / 2;
+    a_squared = Square(a);
+    b_squared = 2 * (a_squared - s);
+    diff = a_squared - b_squared;
+    denominator -= LoadExponent(diff, iter);
+    if (std::abs(diff.Upper()) <= tolerance) {
+      break;
+    }
+  }
+
+  const Real pi = b_squared / denominator;
   return pi;
 }
 
 template <typename Real, typename>
+Real Pi() {
+  static const Real pi = std::acos(Real(-1));
+  return pi;
+}
+
+template <typename Real>
+Real Pi() {
+  static const Real pi = ComputePi<Real>();
+  return pi;
+}
+
+template <typename Real>
 Real EulerNumber() {
-  static const Real e = std::exp(Real{0});
+  static const Real e = std::exp(Real(1));
   return e;
+}
+
+template <typename Real, typename>
+constexpr Real Epsilon() {
+  return std::numeric_limits<Real>::epsilon();
+}
+
+template <typename Real>
+constexpr Real Epsilon() {
+  typedef typename Real::Base Base;
+  constexpr Base epsilon_single = std::numeric_limits<Base>::epsilon();
+
+  // The 'numeric_limits' definition of epsilon_single is 2^{1 - p} if the
+  // binary precision is p digits. Thus, if the precision is doubled, epsilon
+  // becomes 2^{1 - 2 p} = (2^{1 - p})^2 / 2 = epsilon_single^2 / 2.
+  //
+  // This approach is preferable because it allows us to compute the new
+  // precision as a constexpr (avoiding pow).
+  constexpr DoubleMantissa<Base> epsilon(epsilon_single * epsilon_single /
+                                         Base{2});
+
+  return epsilon;
+}
+
+template <typename Real, typename>
+constexpr Real Infinity() {
+  return std::numeric_limits<Real>::infinity();
+}
+
+template <typename Real>
+constexpr Real Infinity() {
+  return std::numeric_limits<typename Real::Base>::infinity();
+}
+
+template <typename Real, typename>
+constexpr Real QuietNan() {
+  return std::numeric_limits<Real>::quiet_NaN();
+}
+
+template <typename Real>
+constexpr Real QuietNan() {
+  return std::numeric_limits<typename Real::Base>::quiet_NaN();
+}
+
+template <typename Real, typename>
+constexpr Real SignalingNan() {
+  return std::numeric_limits<Real>::signaling_NaN();
+}
+
+template <typename Real>
+constexpr Real SignalingNan() {
+  return std::numeric_limits<typename Real::Base>::signaling_NaN();
 }
 
 template <typename Real>
@@ -1165,7 +1348,7 @@ DoubleMantissa<Real> SquareRoot(const DoubleMantissa<Real>& value) {
   }
 
   if (value.Upper() < Real{0}) {
-    return double_mantissa::QuietNan<Real>();
+    return QuietNan<DoubleMantissa<Real>>();
   }
 
   DoubleMantissa<Real> iterate;
@@ -1216,7 +1399,7 @@ DoubleMantissa<Real> Exp(const DoubleMantissa<Real>& value) {
   }
   if (value.Upper() >= exp_max) {
     // Overflow to infinity.
-    return double_mantissa::Infinity<Real>();
+    return Infinity<DoubleMantissa<Real>>();
   }
   if (value.Upper() == Real{0}) {
     return DoubleMantissa<Real>(Real{1});
@@ -1226,7 +1409,7 @@ DoubleMantissa<Real> Exp(const DoubleMantissa<Real>& value) {
   // e = exp(1). At the moment, we compute this constant by calling this
   // routine.
 
-  static const DoubleMantissa<Real> log_of_2 = double_mantissa::LogOf2<Real>();
+  static const DoubleMantissa<Real> log_of_2 = LogOf2<DoubleMantissa<Real>>();
   const Real shift = std::floor(value.Upper() / log_of_2.Upper() + Real{0.5});
 
   static constexpr int digits =
@@ -1309,7 +1492,7 @@ DoubleMantissa<Real> IntegerPower(const DoubleMantissa<Real>& value,
   if (exponent == 0) {
     if (value == DoubleMantissa<Real>(Real(0))) {
       // We insist that 0^0 is NaN.
-      return double_mantissa::QuietNan<Real>();
+      return QuietNan<DoubleMantissa<Real>>();
     }
     return DoubleMantissa<Real>(Real(1));
   } else if (exponent == 1) {
@@ -1355,7 +1538,7 @@ DoubleMantissa<Real> Power(const DoubleMantissa<Real>& value,
 template <typename Real>
 DoubleMantissa<Real> Log(const DoubleMantissa<Real>& value) {
   if (value.Upper() <= Real{0}) {
-    return double_mantissa::QuietNan<Real>();
+    return QuietNan<DoubleMantissa<Real>>();
   }
   if (value.Upper() == Real{1} && value.Lower() == Real{0}) {
     return DoubleMantissa<Real>();
@@ -1391,14 +1574,26 @@ DoubleMantissa<Real> Log(const DoubleMantissa<Real>& value) {
   return x;
 }
 
+inline float Log2(const float& value) { return std::log2(value); }
+
+inline double Log2(const double& value) { return std::log2(value); }
+
+inline long double Log2(const long double& value) { return std::log2(value); }
+
 template <typename Real>
 DoubleMantissa<Real> Log2(const DoubleMantissa<Real>& value) {
-  return Log(value) / double_mantissa::LogOf2<Real>();
+  return Log(value) / LogOf2<DoubleMantissa<Real>>();
 }
+
+inline float Log10(const float& value) { return std::log10(value); }
+
+inline double Log10(const double& value) { return std::log10(value); }
+
+inline long double Log10(const long double& value) { return std::log10(value); }
 
 template <typename Real>
 DoubleMantissa<Real> Log10(const DoubleMantissa<Real>& value) {
-  return Log(value) / double_mantissa::LogOf10<Real>();
+  return Log(value) / LogOf10<DoubleMantissa<Real>>();
 }
 
 template <typename Real>
@@ -1421,7 +1616,7 @@ DoubleMantissa<Real> SmallArgSin(const DoubleMantissa<Real>& theta) {
   DoubleMantissa<Real> iterate(theta);
 
   const Real threshold = Real(0.5) * std::abs(theta.Upper()) *
-                         double_mantissa::Epsilon<Real>().Upper();
+                         Epsilon<DoubleMantissa<Real>>().Upper();
 
   DoubleMantissa<Real> coefficient = 1;
   for (int j = 3;; j += 2) {
@@ -1462,7 +1657,7 @@ DoubleMantissa<Real> SmallArgCos(const DoubleMantissa<Real>& theta) {
   DoubleMantissa<Real> iterate =
       DoubleMantissa<Real>(1) + MultiplyByPowerOfTwo(x_power, Real(0.5));
 
-  const Real threshold = Real(0.5) * double_mantissa::Epsilon<Real>().Upper();
+  const Real threshold = Real(0.5) * Epsilon<DoubleMantissa<Real>>().Upper();
 
   for (int j = 4;; j += 2) {
     // Update to the next term's power of x.
@@ -1501,7 +1696,7 @@ template <typename Real>
 void DecomposeSinCosArgument(const DoubleMantissa<Real>& theta,
                              int* num_half_pi_int, int* num_sixteenth_pi_int,
                              DoubleMantissa<Real>* sixteenth_pi_remainder) {
-  static const DoubleMantissa<Real> pi = double_mantissa::Pi<Real>();
+  static const DoubleMantissa<Real> pi = Pi<DoubleMantissa<Real>>();
   static const DoubleMantissa<Real> two_pi = Real(2) * pi;
   const DoubleMantissa<Real> num_two_pi = Round(theta / two_pi);
   const DoubleMantissa<Real> two_pi_remainder = theta - two_pi * num_two_pi;
@@ -1516,7 +1711,7 @@ void DecomposeSinCosArgument(const DoubleMantissa<Real>& theta,
 #ifdef MANTIS_DEBUG
     std::cerr << "Could not find modulus of arg relative to pi / 2."
               << std::endl;
-    *sixteenth_pi_remainder = double_mantissa::QuietNan<Real>();
+    *sixteenth_pi_remainder = QuietNan<DoubleMantissa<Real>>();
     return;
 #endif  // ifdef MANTIS_DEBUG
   }
@@ -1531,7 +1726,7 @@ void DecomposeSinCosArgument(const DoubleMantissa<Real>& theta,
 #ifdef MANTIS_DEBUG
     std::cerr << "Could not find modulus of arg relative to pi / 16."
               << std::endl;
-    *sixteenth_pi_remainder = double_mantissa::QuietNan<Real>();
+    *sixteenth_pi_remainder = QuietNan<DoubleMantissa<Real>>();
 #endif  // ifdef MANTIS_DEBUG
   }
 }
@@ -1542,16 +1737,14 @@ const DoubleMantissa<Real>& SixteenthPiSinTable(int num_sixteenth_pi) {
   if (num_sixteenth_pi < 1 || num_sixteenth_pi > 4) {
     std::cerr << "Only multiples of {1, 2, 3, 4} of pi / 16 supported."
               << std::endl;
-    return double_mantissa::QuietNan<Real>();
+    return QuietNan<DoubleMantissa<Real>>();
   }
 #endif  // ifdef MANTIS_DEBUG
-  static const DoubleMantissa<Real> pi = double_mantissa::Pi<Real>();
+  static const DoubleMantissa<Real> pi = Pi<DoubleMantissa<Real>>();
   static const DoubleMantissa<Real> sixteenth_pi = pi / Real(16);
   static const DoubleMantissa<Real> sin_table[] = {
-      SmallArgSin(sixteenth_pi),
-      SmallArgSin(Real(2) * sixteenth_pi),
-      SmallArgSin(Real(3) * sixteenth_pi),
-      SmallArgSin(Real(4) * sixteenth_pi),
+      SmallArgSin(sixteenth_pi), SmallArgSin(Real(2) * sixteenth_pi),
+      SmallArgSin(Real(3) * sixteenth_pi), SmallArgSin(Real(4) * sixteenth_pi),
   };
   return sin_table[num_sixteenth_pi - 1];
 }
@@ -1562,16 +1755,14 @@ const DoubleMantissa<Real>& SixteenthPiCosTable(int num_sixteenth_pi) {
   if (num_sixteenth_pi < 1 || num_sixteenth_pi > 4) {
     std::cerr << "Only multiples of {1, 2, 3, 4} of pi / 16 supported."
               << std::endl;
-    return double_mantissa::QuietNan<Real>();
+    return QuietNan<DoubleMantissa<Real>>();
   }
 #endif  // ifdef MANTIS_DEBUG
-  static const DoubleMantissa<Real> pi = double_mantissa::Pi<Real>();
+  static const DoubleMantissa<Real> pi = Pi<DoubleMantissa<Real>>();
   static const DoubleMantissa<Real> sixteenth_pi = pi / Real(16);
   static const DoubleMantissa<Real> cos_table[] = {
-      SmallArgCos(sixteenth_pi),
-      SmallArgCos(Real(2) * sixteenth_pi),
-      SmallArgCos(Real(3) * sixteenth_pi),
-      SmallArgCos(Real(4) * sixteenth_pi),
+      SmallArgCos(sixteenth_pi), SmallArgCos(Real(2) * sixteenth_pi),
+      SmallArgCos(Real(3) * sixteenth_pi), SmallArgCos(Real(4) * sixteenth_pi),
   };
   return cos_table[num_sixteenth_pi - 1];
 }
@@ -1856,7 +2047,7 @@ DoubleMantissa<Real> ArcTan(const DoubleMantissa<Real>& tan_theta) {
 template <typename Real>
 DoubleMantissa<Real> ArcTan2(const DoubleMantissa<Real>& y,
                              const DoubleMantissa<Real>& x) {
-  static const DoubleMantissa<Real> pi = double_mantissa::Pi<Real>();
+  static const DoubleMantissa<Real> pi = Pi<DoubleMantissa<Real>>();
   static const DoubleMantissa<Real> half_pi =
       MultiplyByPowerOfTwo(pi, Real(0.5));
   static const DoubleMantissa<Real> quarter_pi =
@@ -1866,7 +2057,7 @@ DoubleMantissa<Real> ArcTan2(const DoubleMantissa<Real>& y,
   if (x.Upper() == Real(0)) {
     if (y.Upper() == Real(0)) {
       // Every value of theta works equally well for the origin.
-      return double_mantissa::QuietNan<Real>();
+      return QuietNan<DoubleMantissa<Real>>();
     }
 
     // We are on the y axis.
@@ -1943,11 +2134,11 @@ template <typename Real>
 DoubleMantissa<Real> ArcSin(const DoubleMantissa<Real>& sin_theta) {
   const DoubleMantissa<Real> abs_sin_theta = Abs(sin_theta);
   if (abs_sin_theta.Upper() > Real(1)) {
-    return double_mantissa::QuietNan<Real>();
+    return QuietNan<DoubleMantissa<Real>>();
   }
   if (abs_sin_theta.Upper() == Real(1) && abs_sin_theta.Lower() == Real(0)) {
     static const DoubleMantissa<Real> half_pi =
-        MultiplyByPowerOfTwo(double_mantissa::Pi<Real>(), Real(0.5));
+        MultiplyByPowerOfTwo(Pi<DoubleMantissa<Real>>(), Real(0.5));
     return sin_theta.Upper() > 0 ? half_pi : -half_pi;
   }
 
@@ -1959,10 +2150,10 @@ template <typename Real>
 DoubleMantissa<Real> ArcCos(const DoubleMantissa<Real>& cos_theta) {
   const DoubleMantissa<Real> abs_cos_theta = Abs(cos_theta);
   if (abs_cos_theta.Upper() > Real(1)) {
-    return double_mantissa::QuietNan<Real>();
+    return QuietNan<DoubleMantissa<Real>>();
   }
   if (abs_cos_theta.Upper() == Real(1) && abs_cos_theta.Lower() == Real(0)) {
-    static const DoubleMantissa<Real> pi = double_mantissa::Pi<Real>();
+    static const DoubleMantissa<Real> pi = Pi<DoubleMantissa<Real>>();
     return cos_theta.Upper() > 0 ? DoubleMantissa<Real>() : pi;
   }
 
@@ -2080,7 +2271,7 @@ DoubleMantissa<Real> ArcHyperbolicSin(const DoubleMantissa<Real>& sinh_x) {
 template <typename Real>
 DoubleMantissa<Real> ArcHyperbolicCos(const DoubleMantissa<Real>& cosh_x) {
   if (cosh_x.Upper() < Real(1)) {
-    return double_mantissa::QuietNan<Real>();
+    return QuietNan<DoubleMantissa<Real>>();
   }
 
   // Combine the identities:
@@ -2097,7 +2288,7 @@ DoubleMantissa<Real> ArcHyperbolicCos(const DoubleMantissa<Real>& cosh_x) {
 template <typename Real>
 DoubleMantissa<Real> ArcHyperbolicTan(const DoubleMantissa<Real>& tanh_x) {
   if (std::abs(tanh_x.Upper()) >= Real(1)) {
-    return double_mantissa::QuietNan<Real>();
+    return QuietNan<DoubleMantissa<Real>>();
   }
 
   // tanh(x) = sinh(x) / cosh(x)
@@ -2120,167 +2311,6 @@ DoubleMantissa<Real> ArcHyperbolicTan(const DoubleMantissa<Real>& tanh_x) {
   return MultiplyByPowerOfTwo(Log((Real(1) + tanh_x) / (Real(1) - tanh_x)),
                               Real(0.5));
 }
-
-namespace double_mantissa {
-
-template <typename Real, typename>
-constexpr DoubleMantissa<Real> Epsilon() {
-  constexpr Real epsilon_single = std::numeric_limits<Real>::epsilon();
-
-  // The 'numeric_limits' definition of epsilon_single is 2^{1 - p} if the
-  // binary precision is p digits. Thus, if the precision is doubled, epsilon
-  // becomes 2^{1 - 2 p} = (2^{1 - p})^2 / 2 = epsilon_single^2 / 2.
-  //
-  // This approach is preferable because it allows us to compute the new
-  // precision as a constexpr (avoiding pow).
-  constexpr DoubleMantissa<Real> epsilon(epsilon_single * epsilon_single /
-                                         Real{2});
-
-  return epsilon;
-}
-
-template <typename Real, typename>
-constexpr DoubleMantissa<Real> Infinity() {
-  constexpr DoubleMantissa<Real> infinity =
-      DoubleMantissa<Real>(std::numeric_limits<Real>::infinity());
-  return infinity;
-}
-
-template <typename Real, typename>
-constexpr DoubleMantissa<Real> QuietNan() {
-  constexpr DoubleMantissa<Real> quiet_nan =
-      DoubleMantissa<Real>(std::numeric_limits<Real>::quiet_NaN());
-  return quiet_nan;
-}
-
-template <typename Real, typename>
-constexpr DoubleMantissa<Real> SignalingNan() {
-  constexpr DoubleMantissa<Real> signaling_nan =
-      DoubleMantissa<Real>(std::numeric_limits<Real>::signaling_NaN());
-  return signaling_nan;
-}
-
-template <typename Real, typename>
-DoubleMantissa<Real> ComputeLogOf2() {
-  // Calculate log(2) via Eq. (30) from:
-  //
-  //   X. Gourdon and P. Sebah, "The logarithmic constant: log2", Jan. 2004.
-  //
-  // That is,
-  //
-  //   log(2) = (3/4) \sum_{j >= 0} (-1)^j \frac{(j!)^2}{2^j (2 j + 1)!}.
-  //
-  // We follow MPFR -- see Subsection 5.3, "The log2 constant", of
-  //
-  //   The MPFR Team, "The MPFR Library: Algorithms and Proofs",
-  //   URL: https://www.mpfr.org/algorithms.pdf
-  //
-  // by truncating after the first N = floor(w / 3) + 1 iterations, where w
-  // is the number of binary significant digits -- the "working precision".
-  //
-  // However, we do not have access to arbitrary-precision integer types, nor
-  // would we want to make use of dynamic memory allocation, so we cannot
-  // exactly store the (integer) numerator and denominator. And, in single-
-  // precision, it is easy to accidentally overflow in the later iterates.
-  constexpr int needed_digits =
-      std::numeric_limits<DoubleMantissa<Real>>::digits;
-  constexpr int num_terms = (needed_digits / 3) + 1;
-
-  // Accumulate the terms of the series.
-  //
-  // The j'th term in the series is related to the (j-1)'th term in the series
-  // via:
-  //
-  //   t_j = (j^2 / (2 * 2 j * (2j + 1))) t_{j - 1}.
-  //
-  // In order to ensure that the denominators of our summed terms from the
-  // series are consistent,
-  //
-  //       (0!)^2             (1!)^2
-  //  ----------------- + ----------------
-  //   2^0 (2 * 0 + 1)!   2^1 (2 * 1 + 1)!
-  DoubleMantissa<Real> iterate = Real{1};
-  DoubleMantissa<Real> term = Real{1};
-  for (int j = 1; j < num_terms; ++j) {
-    // Accumulate the term.
-    // Typically both real numbers are exactly represented.
-    term *= Real(j * j);
-    term /= Real(2 * (2 * j) * (2 * j + 1));
-    term *= -1;
-
-    iterate += term;
-  }
-  iterate *= 3;
-  iterate /= 4;
-
-  return iterate;
-}
-
-template <typename Real, typename>
-DoubleMantissa<Real> LogOf2() {
-  static const DoubleMantissa<Real> log_of_2 = ComputeLogOf2<Real>();
-  return log_of_2;
-}
-
-template <typename Real, typename>
-DoubleMantissa<Real> LogOf10() {
-  // TODO(Jack Poulson): Switch to a fully-accurate representation.
-  static const DoubleMantissa<Real> log_of_10 = Log(DoubleMantissa<Real>(10));
-  return log_of_10;
-}
-
-template <typename Real, typename>
-DoubleMantissa<Real> ComputePi() {
-  // We use the algorithm of
-  //
-  //   A. Schonhage, A. F. W. Grotefeld, and E. Vetter,
-  //   "Fast Algorithms: A Multitape Turing Machine Implementation",
-  //   BI Wissenschaftverlag, 1994.
-  //
-  // as described in
-  //
-  //   The MPFR Team, "The MPFR Library: Algorithms and Proofs".
-  //
-  constexpr int digits = std::numeric_limits<DoubleMantissa<Real>>::digits;
-
-  DoubleMantissa<Real> a_squared = 1;
-  DoubleMantissa<Real> b_squared = Real{1} / Real{2};
-  DoubleMantissa<Real> denominator = Real{1} / Real{4};
-
-  DoubleMantissa<Real> a = 1;
-  DoubleMantissa<Real> b, s, diff;
-  Real tolerance = Real{2} * std::pow(Real{2}, -digits);
-  for (unsigned iter = 0;; ++iter, tolerance *= Real{2}) {
-    s = (a_squared + b_squared) / Real{4};
-    b = SquareRoot(b_squared);
-    a = (a + b) / Real{2};
-    a_squared = Square(a);
-    b_squared = Real{2} * (a_squared - s);
-    diff = a_squared - b_squared;
-    denominator -= LoadExponent(diff, iter);
-    if (std::abs(diff.Upper()) <= tolerance) {
-      break;
-    }
-  }
-
-  const DoubleMantissa<Real> pi = b_squared / denominator;
-
-  return pi;
-}
-
-template <typename Real, typename>
-DoubleMantissa<Real> Pi() {
-  static const DoubleMantissa<Real> pi = ComputePi<Real>();
-  return pi;
-}
-
-template <typename Real, typename>
-DoubleMantissa<Real> EulerNumber() {
-  static const DoubleMantissa<Real> e = std::exp(DoubleMantissa<Real>(1));
-  return e;
-}
-
-}  // namespace double_mantissa
 
 }  // namespace mantis
 

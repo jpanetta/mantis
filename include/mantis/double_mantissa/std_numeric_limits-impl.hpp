@@ -29,22 +29,22 @@ numeric_limits<mantis::DoubleMantissa<float>>::max() {
 
 constexpr mantis::DoubleMantissa<float>
 numeric_limits<mantis::DoubleMantissa<float>>::epsilon() {
-  return mantis::double_mantissa::Epsilon<float>();
+  return mantis::Epsilon<mantis::DoubleMantissa<float>>();
 }
 
 constexpr mantis::DoubleMantissa<float>
 numeric_limits<mantis::DoubleMantissa<float>>::infinity() {
-  return mantis::double_mantissa::Infinity<float>();
+  return mantis::Infinity<mantis::DoubleMantissa<float>>();
 }
 
 constexpr mantis::DoubleMantissa<float>
 numeric_limits<mantis::DoubleMantissa<float>>::quiet_NaN() {
-  return mantis::double_mantissa::QuietNan<float>();
+  return mantis::QuietNan<mantis::DoubleMantissa<float>>();
 }
 
 constexpr mantis::DoubleMantissa<float>
 numeric_limits<mantis::DoubleMantissa<float>>::signaling_NaN() {
-  return mantis::double_mantissa::SignalingNan<float>();
+  return mantis::SignalingNan<mantis::DoubleMantissa<float>>();
 }
 
 constexpr mantis::DoubleMantissa<double>
@@ -64,22 +64,22 @@ numeric_limits<mantis::DoubleMantissa<double>>::max() {
 
 constexpr mantis::DoubleMantissa<double>
 numeric_limits<mantis::DoubleMantissa<double>>::epsilon() {
-  return mantis::double_mantissa::Epsilon<double>();
+  return mantis::Epsilon<mantis::DoubleMantissa<double>>();
 }
 
 constexpr mantis::DoubleMantissa<double>
 numeric_limits<mantis::DoubleMantissa<double>>::infinity() {
-  return mantis::double_mantissa::Infinity<double>();
+  return mantis::Infinity<mantis::DoubleMantissa<double>>();
 }
 
 constexpr mantis::DoubleMantissa<double>
 numeric_limits<mantis::DoubleMantissa<double>>::quiet_NaN() {
-  return mantis::double_mantissa::QuietNan<double>();
+  return mantis::QuietNan<mantis::DoubleMantissa<double>>();
 }
 
 constexpr mantis::DoubleMantissa<double>
 numeric_limits<mantis::DoubleMantissa<double>>::signaling_NaN() {
-  return mantis::double_mantissa::SignalingNan<double>();
+  return mantis::SignalingNan<mantis::DoubleMantissa<double>>();
 }
 
 constexpr mantis::DoubleMantissa<long double>
@@ -99,22 +99,22 @@ numeric_limits<mantis::DoubleMantissa<long double>>::max() {
 
 constexpr mantis::DoubleMantissa<long double>
 numeric_limits<mantis::DoubleMantissa<long double>>::epsilon() {
-  return mantis::double_mantissa::Epsilon<long double>();
+  return mantis::Epsilon<mantis::DoubleMantissa<long double>>();
 }
 
 constexpr mantis::DoubleMantissa<long double>
 numeric_limits<mantis::DoubleMantissa<long double>>::infinity() {
-  return mantis::double_mantissa::Infinity<long double>();
+  return mantis::Infinity<mantis::DoubleMantissa<long double>>();
 }
 
 constexpr mantis::DoubleMantissa<long double>
 numeric_limits<mantis::DoubleMantissa<long double>>::quiet_NaN() {
-  return mantis::double_mantissa::QuietNan<long double>();
+  return mantis::QuietNan<mantis::DoubleMantissa<long double>>();
 }
 
 constexpr mantis::DoubleMantissa<long double>
 numeric_limits<mantis::DoubleMantissa<long double>>::signaling_NaN() {
-  return mantis::double_mantissa::SignalingNan<long double>();
+  return mantis::SignalingNan<mantis::DoubleMantissa<long double>>();
 }
 
 }  // namespace std

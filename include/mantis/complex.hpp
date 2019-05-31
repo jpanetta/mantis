@@ -441,6 +441,20 @@ Complex<long double> Log(const Complex<long double>& x);
 template <typename Real>
 Complex<Real> Log(const Complex<Real>& x);
 
+// Returns the (base two) logarithm of a complex number.
+Complex<float> Log2(const Complex<float>& x);
+Complex<double> Log2(const Complex<double>& x);
+Complex<long double> Log2(const Complex<long double>& x);
+template <typename Real>
+Complex<Real> Log2(const Complex<Real>& x);
+
+// Returns the (base ten) logarithm of a complex number.
+Complex<float> Log10(const Complex<float>& x);
+Complex<double> Log10(const Complex<double>& x);
+Complex<long double> Log10(const Complex<long double>& x);
+template <typename Real>
+Complex<Real> Log10(const Complex<Real>& x);
+
 // Returns the sine of the complex number.
 Complex<float> Sin(const Complex<float>& x);
 Complex<double> Sin(const Complex<double>& x);
@@ -519,6 +533,64 @@ template <typename Real>
 std::ostream& operator<<(std::ostream& out, const Complex<Real>& value);
 
 }  // namespace mantis
+
+namespace std {
+
+template <typename Real>
+Real abs(const mantis::Complex<Real>& x);
+
+template <typename Real>
+Real arg(const mantis::Complex<Real>& x);
+
+template <typename Real>
+mantis::Complex<Real> sqrt(const mantis::Complex<Real>& x);
+
+template <typename Real>
+mantis::Complex<Real> log(const mantis::Complex<Real>& x);
+
+template <typename Real>
+mantis::Complex<Real> log2(const mantis::Complex<Real>& x);
+
+template <typename Real>
+mantis::Complex<Real> log10(const mantis::Complex<Real>& x);
+
+template <typename Real>
+mantis::Complex<Real> cos(const mantis::Complex<Real>& x);
+
+template <typename Real>
+mantis::Complex<Real> sin(const mantis::Complex<Real>& x);
+
+template <typename Real>
+mantis::Complex<Real> tan(const mantis::Complex<Real>& x);
+
+template <typename Real>
+mantis::Complex<Real> acos(const mantis::Complex<Real>& x);
+
+template <typename Real>
+mantis::Complex<Real> asin(const mantis::Complex<Real>& x);
+
+template <typename Real>
+mantis::Complex<Real> atan(const mantis::Complex<Real>& x);
+
+template <typename Real>
+mantis::Complex<Real> cosh(const mantis::Complex<Real>& x);
+
+template <typename Real>
+mantis::Complex<Real> sinh(const mantis::Complex<Real>& x);
+
+template <typename Real>
+mantis::Complex<Real> tanh(const mantis::Complex<Real>& x);
+
+template <typename Real>
+mantis::Complex<Real> acosh(const mantis::Complex<Real>& x);
+
+template <typename Real>
+mantis::Complex<Real> asinh(const mantis::Complex<Real>& x);
+
+template <typename Real>
+mantis::Complex<Real> atanh(const mantis::Complex<Real>& x);
+
+}  // namespace std
 
 #include "mantis/complex-impl.hpp"
 

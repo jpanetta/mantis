@@ -651,6 +651,32 @@ Complex<Real> Log(const Complex<Real>& x) {
   return Complex<Real>(Log(Abs(x)), Arg(x));
 }
 
+inline Complex<float> Log2(const Complex<float>& x) { return std::log2(x); }
+
+inline Complex<double> Log2(const Complex<double>& x) { return std::log2(x); }
+
+inline Complex<long double> Log2(const Complex<long double>& x) {
+  return std::log2(x);
+}
+
+template <typename Real>
+Complex<Real> Log2(const Complex<Real>& x) {
+  return Log(x) / LogOf2<Real>();
+}
+
+inline Complex<float> Log10(const Complex<float>& x) { return std::log10(x); }
+
+inline Complex<double> Log10(const Complex<double>& x) { return std::log10(x); }
+
+inline Complex<long double> Log10(const Complex<long double>& x) {
+  return std::log10(x);
+}
+
+template <typename Real>
+Complex<Real> Log10(const Complex<Real>& x) {
+  return Log(x) / LogOf10<Real>();
+}
+
 inline Complex<float> Sin(const Complex<float>& x) { return std::sin(x); }
 
 inline Complex<double> Sin(const Complex<double>& x) { return std::sin(x); }
@@ -955,5 +981,99 @@ std::ostream& operator<<(std::ostream& out, const Complex<Real>& value) {
 //
 
 }  // namespace mantis
+
+namespace std {
+
+template <typename Real>
+Real abs(const mantis::Complex<Real>& x) {
+  return mantis::Abs(x);
+}
+
+template <typename Real>
+Real arg(const mantis::Complex<Real>& x) {
+  return mantis::Arg(x);
+}
+
+template <typename Real>
+mantis::Complex<Real> sqrt(const mantis::Complex<Real>& x) {
+  return mantis::SquareRoot(x);
+}
+
+template <typename Real>
+mantis::Complex<Real> log(const mantis::Complex<Real>& x) {
+  return mantis::Log(x);
+}
+
+template <typename Real>
+mantis::Complex<Real> log2(const mantis::Complex<Real>& x) {
+  return mantis::Log2(x);
+}
+
+template <typename Real>
+mantis::Complex<Real> log10(const mantis::Complex<Real>& x) {
+  return mantis::Log10(x);
+}
+
+template <typename Real>
+mantis::Complex<Real> cos(const mantis::Complex<Real>& x) {
+  return mantis::Cos(x);
+}
+
+template <typename Real>
+mantis::Complex<Real> sin(const mantis::Complex<Real>& x) {
+  return mantis::Sin(x);
+}
+
+template <typename Real>
+mantis::Complex<Real> tan(const mantis::Complex<Real>& x) {
+  return mantis::Tan(x);
+}
+
+template <typename Real>
+mantis::Complex<Real> acos(const mantis::Complex<Real>& x) {
+  return mantis::ArcCos(x);
+}
+
+template <typename Real>
+mantis::Complex<Real> asin(const mantis::Complex<Real>& x) {
+  return mantis::ArcSin(x);
+}
+
+template <typename Real>
+mantis::Complex<Real> atan(const mantis::Complex<Real>& x) {
+  return mantis::ArcTan(x);
+}
+
+template <typename Real>
+mantis::Complex<Real> cosh(const mantis::Complex<Real>& x) {
+  return mantis::HyperbolicCos(x);
+}
+
+template <typename Real>
+mantis::Complex<Real> sinh(const mantis::Complex<Real>& x) {
+  return mantis::HyperbolicSin(x);
+}
+
+template <typename Real>
+mantis::Complex<Real> tanh(const mantis::Complex<Real>& x) {
+  return mantis::HyperbolicTan(x);
+}
+
+template <typename Real>
+mantis::Complex<Real> acosh(const mantis::Complex<Real>& x) {
+  return mantis::ArcHyperbolicCos(x);
+}
+
+template <typename Real>
+mantis::Complex<Real> asinh(const mantis::Complex<Real>& x) {
+  return mantis::ArcHyperbolicSin(x);
+}
+
+template <typename Real>
+mantis::Complex<Real> atanh(const mantis::Complex<Real>& x) {
+  return mantis::ArcHyperbolicTan(x);
+}
+
+}  // namespace std
 
 #endif  // ifndef MANTIS_COMPLEX_IMPL_H_

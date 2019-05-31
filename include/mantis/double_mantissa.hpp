@@ -560,12 +560,18 @@ template <typename Real>
 DoubleMantissa<Real> operator/(const DoubleMantissa<Real>& x,
                                const DoubleMantissa<Real>& y);
 
-// Returns the rounding of a double-mantissa value to the floored integer.
+// Returns the rounding to the floored integer.
+constexpr float Floor(const float& value) MANTIS_NOEXCEPT;
+constexpr double Floor(const double& value) MANTIS_NOEXCEPT;
+constexpr long double Floor(const long double& value) MANTIS_NOEXCEPT;
 template <typename Real>
 constexpr DoubleMantissa<Real> Floor(const DoubleMantissa<Real>& value)
     MANTIS_NOEXCEPT;
 
-// Returns the rounding of a double-mantissa value to the nearest integer.
+// Returns the rounding to the nearest integer.
+constexpr float Round(const float& value) MANTIS_NOEXCEPT;
+constexpr double Round(const double& value) MANTIS_NOEXCEPT;
+constexpr long double Round(const long double& value) MANTIS_NOEXCEPT;
 template <typename Real>
 constexpr DoubleMantissa<Real> Round(const DoubleMantissa<Real>& value)
     MANTIS_NOEXCEPT;
@@ -582,54 +588,56 @@ DoubleMantissa<Real> Hypot(const DoubleMantissa<Real>& x,
 template <typename Real>
 std::ostream& operator<<(std::ostream& out, const DoubleMantissa<Real>& value);
 
-template <typename Real, typename = DisableIf<IsDoubleMantissa<Real>>>
+template <typename Real>
 Real LogMax();
 
 template <typename Real, typename = DisableIf<IsDoubleMantissa<Real>>>
 Real LogOf2();
 
-template <typename Real, typename = DisableIf<IsDoubleMantissa<Real>>>
+template <typename Real>
+Real LogOf2();
+
+template <typename Real>
+Real ComputeLogOf2();
+
+template <typename Real>
 Real LogOf10();
 
 template <typename Real, typename = DisableIf<IsDoubleMantissa<Real>>>
 Real Pi();
 
-template <typename Real, typename = DisableIf<IsDoubleMantissa<Real>>>
+template <typename Real>
+Real Pi();
+
+template <typename Real, typename = EnableIf<IsDoubleMantissa<Real>>>
+Real ComputePi();
+
+template <typename Real>
 Real EulerNumber();
 
-namespace double_mantissa {
+template <typename Real, typename = DisableIf<IsDoubleMantissa<Real>>>
+constexpr Real Epsilon();
+
+template <typename Real>
+constexpr Real Epsilon();
 
 template <typename Real, typename = DisableIf<IsDoubleMantissa<Real>>>
-constexpr DoubleMantissa<Real> Epsilon();
+constexpr Real Infinity();
+
+template <typename Real>
+constexpr Real Infinity();
 
 template <typename Real, typename = DisableIf<IsDoubleMantissa<Real>>>
-constexpr DoubleMantissa<Real> Infinity();
+constexpr Real QuietNan();
+
+template <typename Real>
+constexpr Real QuietNan();
 
 template <typename Real, typename = DisableIf<IsDoubleMantissa<Real>>>
-constexpr DoubleMantissa<Real> QuietNan();
+constexpr Real SignalingNan();
 
-template <typename Real, typename = DisableIf<IsDoubleMantissa<Real>>>
-constexpr DoubleMantissa<Real> SignalingNan();
-
-template <typename Real, typename = DisableIf<IsDoubleMantissa<Real>>>
-DoubleMantissa<Real> LogOf2();
-
-template <typename Real, typename = DisableIf<IsDoubleMantissa<Real>>>
-DoubleMantissa<Real> ComputeLogOf2();
-
-template <typename Real, typename = DisableIf<IsDoubleMantissa<Real>>>
-DoubleMantissa<Real> LogOf10();
-
-template <typename Real, typename = DisableIf<IsDoubleMantissa<Real>>>
-DoubleMantissa<Real> Pi();
-
-template <typename Real, typename = DisableIf<IsDoubleMantissa<Real>>>
-DoubleMantissa<Real> ComputePi();
-
-template <typename Real, typename = DisableIf<IsDoubleMantissa<Real>>>
-DoubleMantissa<Real> EulerNumber();
-
-}  // namespace double_mantissa
+template <typename Real>
+constexpr Real SignalingNan();
 
 // Returns the absolute value of the double-mantissa value.
 // Like the other routines, it is assumed that the value is reduced.
@@ -677,11 +685,17 @@ DoubleMantissa<Real> Power(const DoubleMantissa<Real>& value,
 template <typename Real>
 DoubleMantissa<Real> Log(const DoubleMantissa<Real>& value);
 
-// Returns the log base-2 of the given positive double-mantissa value.
+// Returns the log base-2 of the given positive value.
+float Log2(const float& value);
+double Log2(const double& value);
+long double Log2(const long double& value);
 template <typename Real>
 DoubleMantissa<Real> Log2(const DoubleMantissa<Real>& value);
 
-// Returns the log base-10 of the given positive double-mantissa value.
+// Returns the log base-10 of the given positive value.
+float Log10(const float& value);
+double Log10(const double& value);
+long double Log10(const long double& value);
 template <typename Real>
 DoubleMantissa<Real> Log10(const DoubleMantissa<Real>& value);
 
