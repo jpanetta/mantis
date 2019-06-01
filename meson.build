@@ -103,3 +103,9 @@ complex_double_exe = executable(
     include_directories : include_dir,
     dependencies : deps + example_deps,
     cpp_args : cxx_args)
+
+# For using mantis as a subproject.
+mantis_dep = declare_dependency(include_directories : include_dir)
+
+# Install include/mantis.hpp and include/mantis/
+install_subdir('include', install_dir : '.')
