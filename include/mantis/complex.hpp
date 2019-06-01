@@ -442,9 +442,7 @@ template <typename Real>
 Complex<Real> Log(const Complex<Real>& x);
 
 // Returns the (base two) logarithm of a complex number.
-Complex<float> Log2(const Complex<float>& x);
-Complex<double> Log2(const Complex<double>& x);
-Complex<long double> Log2(const Complex<long double>& x);
+// NOTE: There is no std::complex std::log2.
 template <typename Real>
 Complex<Real> Log2(const Complex<Real>& x);
 

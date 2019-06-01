@@ -12,35 +12,36 @@
 template <typename Real>
 void RunTest() {
   typedef mantis::DoubleMantissa<Real> DoubleReal;
+
   const mantis::Complex<DoubleReal> a{DoubleReal(1.), DoubleReal(2.)};
   const mantis::Complex<DoubleReal> b{DoubleReal(-1.), DoubleReal(3.)};
   const mantis::Complex<DoubleReal> c = a * b;
   const mantis::Complex<DoubleReal> d = c / a;
   const mantis::Complex<DoubleReal> e = c / b;
 
-  std::cout << "a: " << a << ", |a|: " << mantis::Abs(a) << "\n"
-            << "b: " << b << ", |b|: " << mantis::Abs(b) << "\n"
-            << "c = a * b: " << c << ", |c|: " << mantis::Abs(c) << "\n"
-            << "d = c / a = b: " << d << ", |d|: " << mantis::Abs(d) << "\n"
-            << "e = c / b = a: " << e << ", |e|: " << mantis::Abs(e)
+  std::cout << "a: " << a << ", |a|: " << std::abs(a) << "\n"
+            << "b: " << b << ", |b|: " << std::abs(b) << "\n"
+            << "c = a * b: " << c << ", |c|: " << std::abs(c) << "\n"
+            << "d = c / a = b: " << d << ", |d|: " << std::abs(d) << "\n"
+            << "e = c / b = a: " << e << ", |e|: " << std::abs(e)
             << std::endl;
 
-  std::cout << "sin(a): " << mantis::Sin(a) << ", cos(a): " << mantis::Cos(a)
-            << ", tan(a): " << mantis::Tan(a) << std::endl;
-  std::cout << "sin(b): " << mantis::Sin(b) << ", cos(b): " << mantis::Cos(b)
-            << ", tan(b): " << mantis::Tan(b) << std::endl;
-  std::cout << "sin(c): " << mantis::Sin(c) << ", cos(c): " << mantis::Cos(c)
-            << ", tan(c): " << mantis::Tan(c) << std::endl;
+  std::cout << "sin(a): " << std::sin(a) << ", cos(a): " << std::cos(a)
+            << ", tan(a): " << std::tan(a) << std::endl;
+  std::cout << "sin(b): " << std::sin(b) << ", cos(b): " << std::cos(b)
+            << ", tan(b): " << std::tan(b) << std::endl;
+  std::cout << "sin(c): " << std::sin(c) << ", cos(c): " << std::cos(c)
+            << ", tan(c): " << std::tan(c) << std::endl;
 
-  std::cout << "log(a): " << mantis::Log(a) << std::endl;
-  std::cout << "sqrt(a): " << mantis::SquareRoot(a) << std::endl;
-  std::cout << "arg(a): " << mantis::Arg(a) << std::endl;
-  std::cout << "asin(a):  " << mantis::ArcSin(a) << std::endl;
-  std::cout << "acos(a):  " << mantis::ArcCos(a) << std::endl;
-  std::cout << "atan(a):  " << mantis::ArcTan(a) << std::endl;
-  std::cout << "asinh(a): " << mantis::ArcHyperbolicSin(a) << std::endl;
-  std::cout << "acosh(a): " << mantis::ArcHyperbolicCos(a) << std::endl;
-  std::cout << "atanh(a): " << mantis::ArcHyperbolicTan(a) << std::endl;
+  std::cout << "log(a): " << std::log(a) << std::endl;
+  std::cout << "sqrt(a): " << std::sqrt(a) << std::endl;
+  std::cout << "arg(a): " << std::arg(a) << std::endl;
+  std::cout << "asin(a):  " << std::asin(a) << std::endl;
+  std::cout << "acos(a):  " << std::acos(a) << std::endl;
+  std::cout << "atan(a):  " << std::atan(a) << std::endl;
+  std::cout << "asinh(a): " << std::asinh(a) << std::endl;
+  std::cout << "acosh(a): " << std::acosh(a) << std::endl;
+  std::cout << "atanh(a): " << std::atanh(a) << std::endl;
 }
 
 int main(int argc, char* argv[]) {

@@ -581,8 +581,7 @@ constexpr DoubleMantissa<Real> Round(const DoubleMantissa<Real>& value)
 //     r = sqrt(x^2 + y^2)
 //       = |max_abs(x, y)| sqrt(1 + (min_abs(x, y) / max_abs(x, y))^2).
 template <typename Real>
-DoubleMantissa<Real> Hypot(const DoubleMantissa<Real>& x,
-                           const DoubleMantissa<Real>& y);
+Real Hypot(const Real& x, const Real& y);
 
 // Pretty-prints the extended-precision value.
 template <typename Real>
@@ -641,6 +640,9 @@ constexpr Real SignalingNan();
 
 // Returns the absolute value of the double-mantissa value.
 // Like the other routines, it is assumed that the value is reduced.
+float Abs(const float& value);
+double Abs(const double& value);
+long double Abs(const long double& value);
 template <typename Real>
 DoubleMantissa<Real> Abs(const DoubleMantissa<Real>& value);
 
@@ -649,10 +651,20 @@ template <typename Real>
 DoubleMantissa<Real> Inverse(const DoubleMantissa<Real>& value);
 
 // Returns the square of an extended-precision value.
+float Square(const float& value);
+double Square(const double& value);
+long double Square(const long double& value);
 template <typename Real>
 DoubleMantissa<Real> Square(const DoubleMantissa<Real>& value);
 
+// Returns the square of a single-mantissa value in a double-mantissa result.
+template <typename Real, typename = DisableIf<IsDoubleMantissa<Real>>>
+DoubleMantissa<Real> SquareIntoDouble(const Real& value);
+
 // Returns the square-root of an extended-precision value.
+float SquareRoot(const float& value);
+double SquareRoot(const double& value);
+long double SquareRoot(const long double& value);
 template <typename Real>
 DoubleMantissa<Real> SquareRoot(const DoubleMantissa<Real>& value);
 

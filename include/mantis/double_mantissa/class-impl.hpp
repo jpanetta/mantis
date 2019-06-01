@@ -1089,21 +1089,20 @@ constexpr DoubleMantissa<Real> Round(const DoubleMantissa<Real>& value)
 }
 
 template <typename Real>
-DoubleMantissa<Real> Hypot(const DoubleMantissa<Real>& x,
-                           const DoubleMantissa<Real>& y) {
-  const DoubleMantissa<Real> x_abs = Abs(x);
-  const DoubleMantissa<Real> y_abs = Abs(y);
+Real Hypot(const Real& x, const Real& y) {
+  const Real x_abs = Abs(x);
+  const Real y_abs = Abs(y);
 
-  const DoubleMantissa<Real>& a = y_abs > x_abs ? x : y;
-  const DoubleMantissa<Real>& b = y_abs > x_abs ? y : x;
-  const DoubleMantissa<Real>& a_abs = y_abs > x_abs ? x_abs : y_abs;
+  const Real& a = y_abs > x_abs ? x : y;
+  const Real& b = y_abs > x_abs ? y : x;
+  const Real& a_abs = y_abs > x_abs ? x_abs : y_abs;
 
-  if (a.Upper() == Real(0)) {
-    return DoubleMantissa<Real>();
+  if (a == 0) {
+    return Real();
   }
 
-  const DoubleMantissa<Real> t = b / a;
-  return a_abs * SquareRoot(Real(1) + Square(t));
+  const Real t = b / a;
+  return a_abs * SquareRoot(1 + Square(t));
 }
 
 template <typename Real>
@@ -1309,16 +1308,30 @@ DoubleMantissa<Real> Inverse(const DoubleMantissa<Real>& value) {
   return Real(1) / value;
 }
 
-template <typename Real>
-DoubleMantissa<Real> Square(const Real& value) {
-  return TwoSquare(value);
-}
+inline float Square(const float& value) { return value * value; }
+
+inline double Square(const double& value) { return value * value; }
+
+inline long double Square(const long double& value) { return value * value; }
 
 template <typename Real>
 DoubleMantissa<Real> Square(const DoubleMantissa<Real>& value) {
   DoubleMantissa<Real> product = TwoSquare(value.Upper());
   product.Lower() += Real{2} * value.Lower() * value.Upper();
   return QuickTwoSum(product);
+}
+
+template <typename Real, typename>
+DoubleMantissa<Real> SquareIntoDouble(const Real& value) {
+  return TwoSquare(value);
+}
+
+inline float SquareRoot(const float& value) { return std::sqrt(value); }
+
+inline double SquareRoot(const double& value) { return std::sqrt(value); }
+
+inline long double SquareRoot(const long double& value) {
+  return std::sqrt(value);
 }
 
 template <typename Real>
@@ -1356,7 +1369,7 @@ DoubleMantissa<Real> SquareRoot(const DoubleMantissa<Real>& value) {
     const Real inv_sqrt = Real{1} / std::sqrt(value.Upper());
     const Real left_term = value.Upper() * inv_sqrt;
     const Real right_term =
-        (value - Square(left_term)).Upper() * (inv_sqrt / Real{2});
+        (value - SquareIntoDouble(left_term)).Upper() * (inv_sqrt / Real{2});
     iterate = DoubleMantissa<Real>(left_term, right_term).Reduce();
   }
 
@@ -1364,8 +1377,8 @@ DoubleMantissa<Real> SquareRoot(const DoubleMantissa<Real>& value) {
   if (two_iterations) {
     iterate = DoubleMantissa<Real>(1) / iterate;
     const Real left_term = value.Upper() * iterate.Upper();
-    const Real right_term =
-        (value - Square(left_term)).Upper() * (iterate.Upper() / Real{2});
+    const Real right_term = (value - SquareIntoDouble(left_term)).Upper() *
+                            (iterate.Upper() / Real{2});
     iterate = DoubleMantissa<Real>(left_term, right_term).Reduce();
   }
 
@@ -1595,6 +1608,12 @@ template <typename Real>
 DoubleMantissa<Real> Log10(const DoubleMantissa<Real>& value) {
   return Log(value) / LogOf10<DoubleMantissa<Real>>();
 }
+
+inline float Abs(const float& value) { return std::abs(value); }
+
+inline double Abs(const double& value) { return std::abs(value); }
+
+inline long double Abs(const long double& value) { return std::abs(value); }
 
 template <typename Real>
 DoubleMantissa<Real> Abs(const DoubleMantissa<Real>& value) {

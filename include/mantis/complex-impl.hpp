@@ -600,15 +600,15 @@ constexpr Real Abs(const Complex<Real>& value) {
 }
 
 inline Complex<float> SquareRoot(const Complex<float>& x) {
-  return std::sqrt(x);
+  return std::sqrt(static_cast<const std::complex<float>>(x));
 }
 
 inline Complex<double> SquareRoot(const Complex<double>& x) {
-  return std::sqrt(x);
+  return std::sqrt(static_cast<const std::complex<double>>(x));
 }
 
 inline Complex<long double> SquareRoot(const Complex<long double>& x) {
-  return std::sqrt(x);
+  return std::sqrt(static_cast<const std::complex<long double>>(x));
 }
 
 template <typename Real>
@@ -638,12 +638,16 @@ Real Arg(const Complex<Real>& x) {
   return std::atan2(x.Imag(), x.Real());
 }
 
-inline Complex<float> Log(const Complex<float>& x) { return std::log(x); }
+inline Complex<float> Log(const Complex<float>& x) {
+  return std::log(static_cast<const std::complex<float>&>(x));
+}
 
-inline Complex<double> Log(const Complex<double>& x) { return std::log(x); }
+inline Complex<double> Log(const Complex<double>& x) {
+  return std::log(static_cast<const std::complex<double>&>(x));
+}
 
 inline Complex<long double> Log(const Complex<long double>& x) {
-  return std::log(x);
+  return std::log(static_cast<const std::complex<long double>&>(x));
 }
 
 template <typename Real>
@@ -651,25 +655,21 @@ Complex<Real> Log(const Complex<Real>& x) {
   return Complex<Real>(Log(Abs(x)), Arg(x));
 }
 
-inline Complex<float> Log2(const Complex<float>& x) { return std::log2(x); }
-
-inline Complex<double> Log2(const Complex<double>& x) { return std::log2(x); }
-
-inline Complex<long double> Log2(const Complex<long double>& x) {
-  return std::log2(x);
-}
-
 template <typename Real>
 Complex<Real> Log2(const Complex<Real>& x) {
   return Log(x) / LogOf2<Real>();
 }
 
-inline Complex<float> Log10(const Complex<float>& x) { return std::log10(x); }
+inline Complex<float> Log10(const Complex<float>& x) {
+  return std::log10(static_cast<const std::complex<float>&>(x));
+}
 
-inline Complex<double> Log10(const Complex<double>& x) { return std::log10(x); }
+inline Complex<double> Log10(const Complex<double>& x) {
+  return std::log10(static_cast<const std::complex<double>&>(x));
+}
 
 inline Complex<long double> Log10(const Complex<long double>& x) {
-  return std::log10(x);
+  return std::log10(static_cast<const std::complex<long double>&>(x));
 }
 
 template <typename Real>
@@ -677,12 +677,16 @@ Complex<Real> Log10(const Complex<Real>& x) {
   return Log(x) / LogOf10<Real>();
 }
 
-inline Complex<float> Sin(const Complex<float>& x) { return std::sin(x); }
+inline Complex<float> Sin(const Complex<float>& x) {
+  return std::sin(static_cast<const std::complex<float>&>(x));
+}
 
-inline Complex<double> Sin(const Complex<double>& x) { return std::sin(x); }
+inline Complex<double> Sin(const Complex<double>& x) {
+  return std::sin(static_cast<const std::complex<double>&>(x));
+}
 
 inline Complex<long double> Sin(const Complex<long double>& x) {
-  return std::sin(x);
+  return std::sin(static_cast<const std::complex<long double>&>(x));
 }
 
 template <typename Real>
@@ -694,12 +698,16 @@ Complex<Real> Sin(const Complex<Real>& x) {
   return Complex<Real>(real_sin * imag_cosh, real_cos * imag_sinh);
 }
 
-inline Complex<float> Cos(const Complex<float>& x) { return std::cos(x); }
+inline Complex<float> Cos(const Complex<float>& x) {
+  return std::cos(static_cast<const std::complex<float>&>(x));
+}
 
-inline Complex<double> Cos(const Complex<double>& x) { return std::cos(x); }
+inline Complex<double> Cos(const Complex<double>& x) {
+  return std::cos(static_cast<const std::complex<double>&>(x));
+}
 
 inline Complex<long double> Cos(const Complex<long double>& x) {
-  return std::cos(x);
+  return std::cos(static_cast<const std::complex<long double>&>(x));
 }
 
 template <typename Real>
@@ -740,12 +748,16 @@ void SinCos(const Complex<Real>& x, Complex<Real>* sin_x,
   *cos_x = Complex<Real>(real_cos * imag_cosh, -real_sin * imag_sinh);
 }
 
-inline Complex<float> Tan(const Complex<float>& x) { return std::tan(x); }
+inline Complex<float> Tan(const Complex<float>& x) {
+  return std::tan(static_cast<const std::complex<float>&>(x));
+}
 
-inline Complex<double> Tan(const Complex<double>& x) { return std::tan(x); }
+inline Complex<double> Tan(const Complex<double>& x) {
+  return std::tan(static_cast<const std::complex<double>&>(x));
+}
 
 inline Complex<long double> Tan(const Complex<long double>& x) {
-  return std::tan(x);
+  return std::tan(static_cast<const std::complex<long double>&>(x));
 }
 
 template <typename Real>
@@ -755,12 +767,16 @@ Complex<Real> Tan(const Complex<Real>& x) {
   return sin_x / cos_x;
 }
 
-inline Complex<float> ArcSin(const Complex<float>& x) { return std::asin(x); }
+inline Complex<float> ArcSin(const Complex<float>& x) {
+  return std::asin(static_cast<const std::complex<float>&>(x));
+}
 
-inline Complex<double> ArcSin(const Complex<double>& x) { return std::asin(x); }
+inline Complex<double> ArcSin(const Complex<double>& x) {
+  return std::asin(static_cast<const std::complex<double>&>(x));
+}
 
 inline Complex<long double> ArcSin(const Complex<long double>& x) {
-  return std::asin(x);
+  return std::asin(static_cast<const std::complex<long double>&>(x));
 }
 
 template <typename Real>
@@ -770,12 +786,16 @@ Complex<Real> ArcSin(const Complex<Real>& x) {
   return Complex<Real>(y.Imag(), -y.Real());
 }
 
-inline Complex<float> ArcCos(const Complex<float>& x) { return std::acos(x); }
+inline Complex<float> ArcCos(const Complex<float>& x) {
+  return std::acos(static_cast<const std::complex<float>&>(x));
+}
 
-inline Complex<double> ArcCos(const Complex<double>& x) { return std::acos(x); }
+inline Complex<double> ArcCos(const Complex<double>& x) {
+  return std::acos(static_cast<const std::complex<double>&>(x));
+}
 
 inline Complex<long double> ArcCos(const Complex<long double>& x) {
-  return std::acos(x);
+  return std::acos(static_cast<const std::complex<long double>&>(x));
 }
 
 template <typename Real>
@@ -786,12 +806,16 @@ Complex<Real> ArcCos(const Complex<Real>& x) {
   return Complex<Real>(half_pi - asin_x.Real(), -asin_x.Imag());
 }
 
-inline Complex<float> ArcTan(const Complex<float>& x) { return std::atan(x); }
+inline Complex<float> ArcTan(const Complex<float>& x) {
+  return std::atan(static_cast<const std::complex<float>&>(x));
+}
 
-inline Complex<double> ArcTan(const Complex<double>& x) { return std::atan(x); }
+inline Complex<double> ArcTan(const Complex<double>& x) {
+  return std::atan(static_cast<const std::complex<double>&>(x));
+}
 
 inline Complex<long double> ArcTan(const Complex<long double>& x) {
-  return std::atan(x);
+  return std::atan(static_cast<const std::complex<long double>&>(x));
 }
 
 template <typename Real>
@@ -843,15 +867,15 @@ Complex<Real> ArcTan(const Complex<Real>& x) {
 }
 
 inline Complex<float> ArcHyperbolicSin(const Complex<float>& x) {
-  return std::asinh(x);
+  return std::asinh(static_cast<const std::complex<float>&>(x));
 }
 
 inline Complex<double> ArcHyperbolicSin(const Complex<double>& x) {
-  return std::asinh(x);
+  return std::asinh(static_cast<const std::complex<double>&>(x));
 }
 
 inline Complex<long double> ArcHyperbolicSin(const Complex<long double>& x) {
-  return std::asinh(x);
+  return std::asinh(static_cast<const std::complex<long double>&>(x));
 }
 
 template <typename Real>
@@ -875,15 +899,15 @@ Complex<Real> ArcHyperbolicSin(const Complex<Real>& x) {
 }
 
 inline Complex<float> ArcHyperbolicCos(const Complex<float>& x) {
-  return std::acosh(x);
+  return std::acosh(static_cast<const std::complex<float>&>(x));
 }
 
 inline Complex<double> ArcHyperbolicCos(const Complex<double>& x) {
-  return std::acosh(x);
+  return std::acosh(static_cast<const std::complex<double>&>(x));
 }
 
 inline Complex<long double> ArcHyperbolicCos(const Complex<long double>& x) {
-  return std::acosh(x);
+  return std::acosh(static_cast<const std::complex<long double>&>(x));
 }
 
 template <typename Real>
@@ -907,15 +931,15 @@ Complex<Real> ArcHyperbolicCos(const Complex<Real>& x) {
 }
 
 inline Complex<float> ArcHyperbolicTan(const Complex<float>& x) {
-  return std::atanh(x);
+  return std::atanh(static_cast<const std::complex<float>&>(x));
 }
 
 inline Complex<double> ArcHyperbolicTan(const Complex<double>& x) {
-  return std::atanh(x);
+  return std::atanh(static_cast<const std::complex<double>&>(x));
 }
 
 inline Complex<long double> ArcHyperbolicTan(const Complex<long double>& x) {
-  return std::atanh(x);
+  return std::atanh(static_cast<const std::complex<long double>&>(x));
 }
 
 template <typename Real>
