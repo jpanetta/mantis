@@ -309,7 +309,7 @@ CXX20_CONSTEXPR Complex<long double> operator-(const Complex<long double>& a,
 template <typename Real>
 constexpr Complex<Real> operator-(const Complex<Real>& a,
                                   const Complex<Real>& b) MANTIS_NOEXCEPT {
-  return Complex<Real>(a.Real() - a.Imag(), b.Real() - b.Imag());
+  return Complex<Real>(a.Real() - b.Real(), a.Imag() - b.Imag());
 }
 
 CXX20_CONSTEXPR Complex<float> operator-(const Complex<float>& a,
