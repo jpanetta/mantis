@@ -2,7 +2,7 @@
 
 [**mantis**](https://gitlab.com/hodge_star/mantis) is a
 [C++14](https://en.wikipedia.org/wiki/C%2B%2B14), header-only implementation of
-double-mantissa arithmetic.
+real and complex double-mantissa arithmetic.
 
 [![Join the chat at https://gitter.im/hodge_star/community](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/hodge_star/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
