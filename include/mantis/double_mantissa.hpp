@@ -86,6 +86,13 @@ class DoubleMantissa {
   constexpr DoubleMantissa<Real>& operator=(int value) MANTIS_NOEXCEPT;
 
   // The assignment operator.
+  constexpr DoubleMantissa<Real>& operator=(long int value) MANTIS_NOEXCEPT;
+
+  // The assignment operator.
+  constexpr DoubleMantissa<Real>& operator=(long long int value)
+      MANTIS_NOEXCEPT;
+
+  // The assignment operator.
   constexpr DoubleMantissa<Real>& operator=(const Real& value) MANTIS_NOEXCEPT;
 
   // The assignment operator.
@@ -94,6 +101,13 @@ class DoubleMantissa {
 
   // Adds an integer to the current state.
   constexpr DoubleMantissa<Real>& operator+=(int value) MANTIS_NOEXCEPT;
+
+  // Adds an integer to the current state.
+  constexpr DoubleMantissa<Real>& operator+=(long int value) MANTIS_NOEXCEPT;
+
+  // Adds an integer to the current state.
+  constexpr DoubleMantissa<Real>& operator+=(long long int value)
+      MANTIS_NOEXCEPT;
 
   // Adds a single-mantissa value to the current state.
   constexpr DoubleMantissa<Real>& operator+=(const Real& value) MANTIS_NOEXCEPT;
@@ -105,6 +119,13 @@ class DoubleMantissa {
   // Subtracts an integer from the current state.
   constexpr DoubleMantissa<Real>& operator-=(int value) MANTIS_NOEXCEPT;
 
+  // Subtracts an integer from the current state.
+  constexpr DoubleMantissa<Real>& operator-=(long int value) MANTIS_NOEXCEPT;
+
+  // Subtracts an integer from the current state.
+  constexpr DoubleMantissa<Real>& operator-=(long long int value)
+      MANTIS_NOEXCEPT;
+
   // Subtracts a single-mantissa value from the current state.
   constexpr DoubleMantissa<Real>& operator-=(const Real& value) MANTIS_NOEXCEPT;
 
@@ -115,6 +136,12 @@ class DoubleMantissa {
   // Multiplies the current state by an integer.
   DoubleMantissa<Real>& operator*=(int value) MANTIS_NOEXCEPT;
 
+  // Multiplies the current state by an integer.
+  DoubleMantissa<Real>& operator*=(long int value) MANTIS_NOEXCEPT;
+
+  // Multiplies the current state by an integer.
+  DoubleMantissa<Real>& operator*=(long long int value) MANTIS_NOEXCEPT;
+
   // Multiplies the current state by a single-mantissa value.
   DoubleMantissa<Real>& operator*=(const Real& value) MANTIS_NOEXCEPT;
 
@@ -124,6 +151,12 @@ class DoubleMantissa {
 
   // Divides the current state by an integer.
   DoubleMantissa<Real>& operator/=(int value);
+
+  // Divides the current state by an integer.
+  DoubleMantissa<Real>& operator/=(long int value);
+
+  // Divides the current state by an integer.
+  DoubleMantissa<Real>& operator/=(long long int value);
 
   // Divides the current state by a single-mantissa value.
   DoubleMantissa<Real>& operator/=(const Real& value);
@@ -294,6 +327,16 @@ constexpr bool operator==(int lhs,
 
 // Returns true if the individual components are equivalent.
 template <typename Real>
+constexpr bool operator==(long int lhs,
+                          const DoubleMantissa<Real>& rhs) MANTIS_NOEXCEPT;
+
+// Returns true if the individual components are equivalent.
+template <typename Real>
+constexpr bool operator==(long long int lhs,
+                          const DoubleMantissa<Real>& rhs) MANTIS_NOEXCEPT;
+
+// Returns true if the individual components are equivalent.
+template <typename Real>
 constexpr bool operator==(const Real& lhs,
                           const DoubleMantissa<Real>& rhs) MANTIS_NOEXCEPT;
 
@@ -301,6 +344,16 @@ constexpr bool operator==(const Real& lhs,
 template <typename Real>
 constexpr bool operator==(const DoubleMantissa<Real>& lhs,
                           int rhs) MANTIS_NOEXCEPT;
+
+// Returns true if the individual components are equivalent.
+template <typename Real>
+constexpr bool operator==(const DoubleMantissa<Real>& lhs,
+                          long int rhs) MANTIS_NOEXCEPT;
+
+// Returns true if the individual components are equivalent.
+template <typename Real>
+constexpr bool operator==(const DoubleMantissa<Real>& lhs,
+                          long long int rhs) MANTIS_NOEXCEPT;
 
 // Returns true if the individual components are equivalent.
 template <typename Real>
@@ -319,6 +372,16 @@ constexpr bool operator!=(int lhs,
 
 // Returns true if the individual components vary.
 template <typename Real>
+constexpr bool operator!=(long int lhs,
+                          const DoubleMantissa<Real>& rhs) MANTIS_NOEXCEPT;
+
+// Returns true if the individual components vary.
+template <typename Real>
+constexpr bool operator!=(long long int lhs,
+                          const DoubleMantissa<Real>& rhs) MANTIS_NOEXCEPT;
+
+// Returns true if the individual components vary.
+template <typename Real>
 constexpr bool operator!=(const Real& lhs,
                           const DoubleMantissa<Real>& rhs) MANTIS_NOEXCEPT;
 
@@ -326,6 +389,16 @@ constexpr bool operator!=(const Real& lhs,
 template <typename Real>
 constexpr bool operator!=(const DoubleMantissa<Real>& lhs,
                           int rhs) MANTIS_NOEXCEPT;
+
+// Returns true if the individual components vary.
+template <typename Real>
+constexpr bool operator!=(const DoubleMantissa<Real>& lhs,
+                          long int rhs) MANTIS_NOEXCEPT;
+
+// Returns true if the individual components vary.
+template <typename Real>
+constexpr bool operator!=(const DoubleMantissa<Real>& lhs,
+                          long long int rhs) MANTIS_NOEXCEPT;
 
 // Returns true if the individual components vary.
 template <typename Real>
@@ -344,6 +417,16 @@ constexpr bool operator<(int lhs,
 
 // Returns true if this class's data is less than the given value.
 template <typename Real>
+constexpr bool operator<(long int lhs,
+                         const DoubleMantissa<Real>& rhs) MANTIS_NOEXCEPT;
+
+// Returns true if this class's data is less than the given value.
+template <typename Real>
+constexpr bool operator<(long long int lhs,
+                         const DoubleMantissa<Real>& rhs) MANTIS_NOEXCEPT;
+
+// Returns true if this class's data is less than the given value.
+template <typename Real>
 constexpr bool operator<(const Real& lhs,
                          const DoubleMantissa<Real>& rhs) MANTIS_NOEXCEPT;
 
@@ -351,6 +434,16 @@ constexpr bool operator<(const Real& lhs,
 template <typename Real>
 constexpr bool operator<(const DoubleMantissa<Real>& lhs,
                          int rhs) MANTIS_NOEXCEPT;
+
+// Returns true if the left value is less than the right value.
+template <typename Real>
+constexpr bool operator<(const DoubleMantissa<Real>& lhs,
+                         long int rhs) MANTIS_NOEXCEPT;
+
+// Returns true if the left value is less than the right value.
+template <typename Real>
+constexpr bool operator<(const DoubleMantissa<Real>& lhs,
+                         long long int rhs) MANTIS_NOEXCEPT;
 
 // Returns true if the left value is less than the right value.
 template <typename Real>
@@ -369,6 +462,16 @@ constexpr bool operator<=(int lhs,
 
 // Returns true if the left value is <= the right value.
 template <typename Real>
+constexpr bool operator<=(long int lhs,
+                          const DoubleMantissa<Real>& rhs) MANTIS_NOEXCEPT;
+
+// Returns true if the left value is <= the right value.
+template <typename Real>
+constexpr bool operator<=(long long int lhs,
+                          const DoubleMantissa<Real>& rhs) MANTIS_NOEXCEPT;
+
+// Returns true if the left value is <= the right value.
+template <typename Real>
 constexpr bool operator<=(const Real& lhs,
                           const DoubleMantissa<Real>& rhs) MANTIS_NOEXCEPT;
 
@@ -376,6 +479,16 @@ constexpr bool operator<=(const Real& lhs,
 template <typename Real>
 constexpr bool operator<=(const DoubleMantissa<Real>& lhs,
                           int rhs) MANTIS_NOEXCEPT;
+
+// Returns true if the left value is <= the right value.
+template <typename Real>
+constexpr bool operator<=(const DoubleMantissa<Real>& lhs,
+                          long int rhs) MANTIS_NOEXCEPT;
+
+// Returns true if the left value is <= the right value.
+template <typename Real>
+constexpr bool operator<=(const DoubleMantissa<Real>& lhs,
+                          long long int rhs) MANTIS_NOEXCEPT;
 
 // Returns true if the left value is <= the right value.
 template <typename Real>
@@ -394,6 +507,16 @@ constexpr bool operator>(int lhs,
 
 // Returns true if the left value is greater than the right value.
 template <typename Real>
+constexpr bool operator>(long int lhs,
+                         const DoubleMantissa<Real>& rhs) MANTIS_NOEXCEPT;
+
+// Returns true if the left value is greater than the right value.
+template <typename Real>
+constexpr bool operator>(long long int lhs,
+                         const DoubleMantissa<Real>& rhs) MANTIS_NOEXCEPT;
+
+// Returns true if the left value is greater than the right value.
+template <typename Real>
 constexpr bool operator>(const Real& lhs,
                          const DoubleMantissa<Real>& rhs) MANTIS_NOEXCEPT;
 
@@ -401,6 +524,16 @@ constexpr bool operator>(const Real& lhs,
 template <typename Real>
 constexpr bool operator>(const DoubleMantissa<Real>& lhs,
                          int rhs) MANTIS_NOEXCEPT;
+
+// Returns true if the left value is greater than the right value.
+template <typename Real>
+constexpr bool operator>(const DoubleMantissa<Real>& lhs,
+                         long int rhs) MANTIS_NOEXCEPT;
+
+// Returns true if the left value is greater than the right value.
+template <typename Real>
+constexpr bool operator>(const DoubleMantissa<Real>& lhs,
+                         long long int rhs) MANTIS_NOEXCEPT;
 
 // Returns true if the left value is greater than the right value.
 template <typename Real>
@@ -419,6 +552,16 @@ constexpr bool operator>=(int lhs,
 
 // Returns true if the left value is >= the right value.
 template <typename Real>
+constexpr bool operator>=(long int lhs,
+                          const DoubleMantissa<Real>& rhs) MANTIS_NOEXCEPT;
+
+// Returns true if the left value is >= the right value.
+template <typename Real>
+constexpr bool operator>=(long long int lhs,
+                          const DoubleMantissa<Real>& rhs) MANTIS_NOEXCEPT;
+
+// Returns true if the left value is >= the right value.
+template <typename Real>
 constexpr bool operator>=(const Real& lhs,
                           const DoubleMantissa<Real>& rhs) MANTIS_NOEXCEPT;
 
@@ -426,6 +569,16 @@ constexpr bool operator>=(const Real& lhs,
 template <typename Real>
 constexpr bool operator>=(const DoubleMantissa<Real>& lhs,
                           int rhs) MANTIS_NOEXCEPT;
+
+// Returns true if the left value is >= the right value.
+template <typename Real>
+constexpr bool operator>=(const DoubleMantissa<Real>& lhs,
+                          long int rhs) MANTIS_NOEXCEPT;
+
+// Returns true if the left value is >= the right value.
+template <typename Real>
+constexpr bool operator>=(const DoubleMantissa<Real>& lhs,
+                          long long int rhs) MANTIS_NOEXCEPT;
 
 // Returns true if the left value is >= the right value.
 template <typename Real>
@@ -450,12 +603,32 @@ constexpr DoubleMantissa<Real> operator+(int x, const DoubleMantissa<Real>& y)
 // Returns the sum of the two values.
 template <typename Real>
 constexpr DoubleMantissa<Real> operator+(
+    long int x, const DoubleMantissa<Real>& y) MANTIS_NOEXCEPT;
+
+// Returns the sum of the two values.
+template <typename Real>
+constexpr DoubleMantissa<Real> operator+(
+    long long int x, const DoubleMantissa<Real>& y) MANTIS_NOEXCEPT;
+
+// Returns the sum of the two values.
+template <typename Real>
+constexpr DoubleMantissa<Real> operator+(
     const Real& x, const DoubleMantissa<Real>& y) MANTIS_NOEXCEPT;
 
 // Returns the sum of the two values.
 template <typename Real>
 constexpr DoubleMantissa<Real> operator+(const DoubleMantissa<Real>& x,
                                          int y) MANTIS_NOEXCEPT;
+
+// Returns the sum of the two values.
+template <typename Real>
+constexpr DoubleMantissa<Real> operator+(const DoubleMantissa<Real>& x,
+                                         long int y) MANTIS_NOEXCEPT;
+
+// Returns the sum of the two values.
+template <typename Real>
+constexpr DoubleMantissa<Real> operator+(const DoubleMantissa<Real>& x,
+                                         long long int y) MANTIS_NOEXCEPT;
 
 // Returns the sum of the two values.
 template <typename Real>
@@ -476,12 +649,32 @@ constexpr DoubleMantissa<Real> operator-(int x, const DoubleMantissa<Real>& y)
 // Returns the difference between the two values.
 template <typename Real>
 constexpr DoubleMantissa<Real> operator-(
+    long int x, const DoubleMantissa<Real>& y) MANTIS_NOEXCEPT;
+
+// Returns the difference between the two values.
+template <typename Real>
+constexpr DoubleMantissa<Real> operator-(
+    long long int x, const DoubleMantissa<Real>& y) MANTIS_NOEXCEPT;
+
+// Returns the difference between the two values.
+template <typename Real>
+constexpr DoubleMantissa<Real> operator-(
     const Real& x, const DoubleMantissa<Real>& y) MANTIS_NOEXCEPT;
 
 // Returns the difference between the two values.
 template <typename Real>
 constexpr DoubleMantissa<Real> operator-(const DoubleMantissa<Real>& x,
                                          int y) MANTIS_NOEXCEPT;
+
+// Returns the difference between the two values.
+template <typename Real>
+constexpr DoubleMantissa<Real> operator-(const DoubleMantissa<Real>& x,
+                                         long int y) MANTIS_NOEXCEPT;
+
+// Returns the difference between the two values.
+template <typename Real>
+constexpr DoubleMantissa<Real> operator-(const DoubleMantissa<Real>& x,
+                                         long long int y) MANTIS_NOEXCEPT;
 
 // Returns the difference between the two values.
 template <typename Real>
@@ -501,6 +694,16 @@ template <typename Real>
 DoubleMantissa<Real> operator*(int x,
                                const DoubleMantissa<Real>& y)MANTIS_NOEXCEPT;
 
+// NOTE: This implementation is not constexpr due to std::fma not being.
+template <typename Real>
+DoubleMantissa<Real> operator*(long int x,
+                               const DoubleMantissa<Real>& y)MANTIS_NOEXCEPT;
+
+// NOTE: This implementation is not constexpr due to std::fma not being.
+template <typename Real>
+DoubleMantissa<Real> operator*(long long int x,
+                               const DoubleMantissa<Real>& y)MANTIS_NOEXCEPT;
+
 // Returns the product of the two values.
 //
 // NOTE: This implementation is not constexpr due to std::fma not being.
@@ -514,6 +717,16 @@ DoubleMantissa<Real> operator*(const Real& x,
 template <typename Real>
 DoubleMantissa<Real> operator*(const DoubleMantissa<Real>& x,
                                int y)MANTIS_NOEXCEPT;
+
+// NOTE: This implementation is not constexpr due to std::fma not being.
+template <typename Real>
+DoubleMantissa<Real> operator*(const DoubleMantissa<Real>& x,
+                               long int y)MANTIS_NOEXCEPT;
+
+// NOTE: This implementation is not constexpr due to std::fma not being.
+template <typename Real>
+DoubleMantissa<Real> operator*(const DoubleMantissa<Real>& x,
+                               long long int y)MANTIS_NOEXCEPT;
 
 // Returns the product of the two values.
 //
@@ -535,6 +748,14 @@ DoubleMantissa<Real> operator*(const DoubleMantissa<Real>& x,
 template <typename Real>
 DoubleMantissa<Real> operator/(int x, const DoubleMantissa<Real>& y);
 
+// NOTE: This implementation is not constexpr due to std::fma not being.
+template <typename Real>
+DoubleMantissa<Real> operator/(long int x, const DoubleMantissa<Real>& y);
+
+// NOTE: This implementation is not constexpr due to std::fma not being.
+template <typename Real>
+DoubleMantissa<Real> operator/(long long int x, const DoubleMantissa<Real>& y);
+
 // Returns the ratio of the two values.
 //
 // NOTE: This implementation is not constexpr due to std::fma not being.
@@ -546,6 +767,14 @@ DoubleMantissa<Real> operator/(const Real& x, const DoubleMantissa<Real>& y);
 // NOTE: This implementation is not constexpr due to std::fma not being.
 template <typename Real>
 DoubleMantissa<Real> operator/(const DoubleMantissa<Real>& x, int y);
+
+// NOTE: This implementation is not constexpr due to std::fma not being.
+template <typename Real>
+DoubleMantissa<Real> operator/(const DoubleMantissa<Real>& x, long int y);
+
+// NOTE: This implementation is not constexpr due to std::fma not being.
+template <typename Real>
+DoubleMantissa<Real> operator/(const DoubleMantissa<Real>& x, long long int y);
 
 // Returns the ratio of the two values.
 //

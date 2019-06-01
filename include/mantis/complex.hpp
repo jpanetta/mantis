@@ -22,13 +22,31 @@ namespace mantis {
 // outside of this set, such as DoubleMantissa, often does not allow routines
 // such as the std::complex version of std::exp to properly resolve calls to
 // real math functions such as std::exp(DoubleMantissa).
-template <typename RealType>
+template <typename RealT>
 class Complex {
  public:
+  // The underlying real type of the complex class.
+  typedef RealT RealType;
+
+  constexpr Complex() MANTIS_NOEXCEPT {}
+
+  constexpr Complex(const Complex<RealType>& value) MANTIS_NOEXCEPT
+      : real_(value.Real()),
+        imag_(value.Imag()) {}
+
   constexpr Complex(const RealType& real_val,
                     const RealType& imag_val) MANTIS_NOEXCEPT
       : real_(real_val),
         imag_(imag_val) {}
+
+  constexpr Complex(const RealType& real_val) MANTIS_NOEXCEPT
+      : real_(real_val) {}
+
+  constexpr Complex(int real_val) MANTIS_NOEXCEPT : real_(real_val) {}
+
+  constexpr Complex(long int real_val) MANTIS_NOEXCEPT : real_(real_val) {}
+
+  constexpr Complex(long long int real_val) MANTIS_NOEXCEPT : real_(real_val) {}
 
   constexpr const RealType real() const MANTIS_NOEXCEPT { return real_; }
   constexpr const RealType Real() const MANTIS_NOEXCEPT { return real_; }
@@ -175,6 +193,19 @@ class Complex<DoubleMantissa<RealBase>> {
 
   constexpr Complex(const Complex<RealType>& value) MANTIS_NOEXCEPT;
 
+  // A copy constructor from a real variable.
+  template <typename RealInputType>
+  constexpr Complex(const RealInputType& input) MANTIS_NOEXCEPT;
+
+  // A copy constructor from real and imaginary parts.
+  template <typename RealInputType, class ImagInputType>
+  constexpr Complex(const RealInputType& real,
+                    const ImagInputType& imag) MANTIS_NOEXCEPT;
+
+  // A copy constructor from a Complex variable.
+  template <typename RealInputType>
+  constexpr Complex(const Complex<RealInputType>& input) MANTIS_NOEXCEPT;
+
   constexpr Complex<RealType>& operator=(const Complex<RealType>& rhs)
       MANTIS_NOEXCEPT;
   constexpr Complex<RealType>& operator+=(const Complex<RealType>& rhs)
@@ -193,6 +224,11 @@ class Complex<DoubleMantissa<RealBase>> {
  private:
   RealType real_, imag_;
 };
+
+template <typename Real>
+constexpr bool operator==(const Complex<Real>& lhs, const Complex<Real>& rhs);
+template <typename Real>
+constexpr bool operator!=(const Complex<Real>& lhs, const Complex<Real>& rhs);
 
 namespace complex_base {
 
@@ -388,7 +424,7 @@ template <typename Real>
 constexpr Complex<Real> operator/(const Real& a, const Complex<Real>& b);
 
 // Returns the real part of a real scalar.
-template <typename Real>
+template <typename Real, typename = DisableIf<IsComplex<Real>>>
 constexpr Real RealPart(const Real& value) MANTIS_NOEXCEPT;
 
 // Returns the real part of a complex scalar.
@@ -400,7 +436,7 @@ template <typename Real>
 constexpr Real RealPart(const Complex<Real>& value) MANTIS_NOEXCEPT;
 
 // Returns the imaginary part of a real scalar (zero).
-template <typename Real>
+template <typename Real, typename = DisableIf<IsComplex<Real>>>
 constexpr Real ImagPart(const Real& value) MANTIS_NOEXCEPT;
 
 // Returns the imaginary part of a complex scalar.
@@ -412,7 +448,7 @@ template <typename Real>
 constexpr Real ImagPart(const Complex<Real>& value) MANTIS_NOEXCEPT;
 
 // Returns the complex-conjugate of a real value (the value itself).
-template <typename Real>
+template <typename Real, typename = DisableIf<IsComplex<Real>>>
 constexpr Real Conjugate(const Real& value) MANTIS_NOEXCEPT;
 
 // Returns the complex-conjugate of a complex value.
@@ -533,6 +569,24 @@ std::ostream& operator<<(std::ostream& out, const Complex<Real>& value);
 }  // namespace mantis
 
 namespace std {
+
+template <typename Real>
+Real real(const Real& x);
+
+template <typename Real>
+Real real(const mantis::Complex<Real>& x);
+
+template <typename Real>
+Real imag(const Real& x);
+
+template <typename Real>
+Real imag(const mantis::Complex<Real>& x);
+
+template <typename Real>
+Real conj(const Real& x);
+
+template <typename Real>
+mantis::Complex<Real> conj(const mantis::Complex<Real>& x);
 
 template <typename Real>
 Real abs(const mantis::Complex<Real>& x);

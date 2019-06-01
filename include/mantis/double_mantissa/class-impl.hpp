@@ -86,6 +86,22 @@ constexpr DoubleMantissa<Real>& DoubleMantissa<Real>::operator=(int value)
 }
 
 template <typename Real>
+constexpr DoubleMantissa<Real>& DoubleMantissa<Real>::operator=(long int value)
+    MANTIS_NOEXCEPT {
+  Upper() = value;
+  Lower() = 0;
+  return *this;
+}
+
+template <typename Real>
+constexpr DoubleMantissa<Real>& DoubleMantissa<Real>::operator=(
+    long long int value) MANTIS_NOEXCEPT {
+  Upper() = value;
+  Lower() = 0;
+  return *this;
+}
+
+template <typename Real>
 constexpr DoubleMantissa<Real>& DoubleMantissa<Real>::operator=(
     const Real& value) MANTIS_NOEXCEPT {
   Upper() = value;
@@ -104,6 +120,18 @@ constexpr DoubleMantissa<Real>& DoubleMantissa<Real>::operator=(
 template <typename Real>
 constexpr DoubleMantissa<Real>& DoubleMantissa<Real>::operator+=(int value)
     MANTIS_NOEXCEPT {
+  return *this += Real(value);
+}
+
+template <typename Real>
+constexpr DoubleMantissa<Real>& DoubleMantissa<Real>::operator+=(long int value)
+    MANTIS_NOEXCEPT {
+  return *this += Real(value);
+}
+
+template <typename Real>
+constexpr DoubleMantissa<Real>& DoubleMantissa<Real>::operator+=(
+    long long int value) MANTIS_NOEXCEPT {
   return *this += Real(value);
 }
 
@@ -148,6 +176,18 @@ constexpr DoubleMantissa<Real>& DoubleMantissa<Real>::operator-=(int value)
 }
 
 template <typename Real>
+constexpr DoubleMantissa<Real>& DoubleMantissa<Real>::operator-=(long int value)
+    MANTIS_NOEXCEPT {
+  return *this -= Real(value);
+}
+
+template <typename Real>
+constexpr DoubleMantissa<Real>& DoubleMantissa<Real>::operator-=(
+    long long int value) MANTIS_NOEXCEPT {
+  return *this -= Real(value);
+}
+
+template <typename Real>
 constexpr DoubleMantissa<Real>& DoubleMantissa<Real>::operator-=(
     const Real& value) MANTIS_NOEXCEPT {
   DoubleMantissa<Real> upper_diff = TwoDiff(Upper(), value);
@@ -186,6 +226,18 @@ DoubleMantissa<Real>& DoubleMantissa<Real>::operator*=(int value)
 }
 
 template <typename Real>
+DoubleMantissa<Real>& DoubleMantissa<Real>::operator*=(long int value)
+    MANTIS_NOEXCEPT {
+  return *this *= Real(value);
+}
+
+template <typename Real>
+DoubleMantissa<Real>& DoubleMantissa<Real>::operator*=(long long int value)
+    MANTIS_NOEXCEPT {
+  return *this *= Real(value);
+}
+
+template <typename Real>
 DoubleMantissa<Real>& DoubleMantissa<Real>::operator*=(const Real& value)
     MANTIS_NOEXCEPT {
   DoubleMantissa<Real> product = TwoProd(Upper(), value);
@@ -206,6 +258,16 @@ DoubleMantissa<Real>& DoubleMantissa<Real>::operator*=(
 
 template <typename Real>
 DoubleMantissa<Real>& DoubleMantissa<Real>::operator/=(int value) {
+  return *this /= Real(value);
+}
+
+template <typename Real>
+DoubleMantissa<Real>& DoubleMantissa<Real>::operator/=(long int value) {
+  return *this /= Real(value);
+}
+
+template <typename Real>
+DoubleMantissa<Real>& DoubleMantissa<Real>::operator/=(long long int value) {
   return *this /= Real(value);
 }
 
@@ -720,12 +782,36 @@ constexpr bool operator==(const DoubleMantissa<Real>& lhs,
 
 template <typename Real>
 constexpr bool operator==(const DoubleMantissa<Real>& lhs,
+                          long int rhs) MANTIS_NOEXCEPT {
+  return lhs.Upper() == rhs && lhs.Lower() == Real();
+}
+
+template <typename Real>
+constexpr bool operator==(const DoubleMantissa<Real>& lhs,
+                          long long int rhs) MANTIS_NOEXCEPT {
+  return lhs.Upper() == rhs && lhs.Lower() == Real();
+}
+
+template <typename Real>
+constexpr bool operator==(const DoubleMantissa<Real>& lhs,
                           const Real& rhs) MANTIS_NOEXCEPT {
   return lhs.Upper() == rhs && lhs.Lower() == Real();
 }
 
 template <typename Real>
 constexpr bool operator==(int lhs,
+                          const DoubleMantissa<Real>& rhs) MANTIS_NOEXCEPT {
+  return rhs == lhs;
+}
+
+template <typename Real>
+constexpr bool operator==(long int lhs,
+                          const DoubleMantissa<Real>& rhs) MANTIS_NOEXCEPT {
+  return rhs == lhs;
+}
+
+template <typename Real>
+constexpr bool operator==(long long int lhs,
                           const DoubleMantissa<Real>& rhs) MANTIS_NOEXCEPT {
   return rhs == lhs;
 }
@@ -750,12 +836,36 @@ constexpr bool operator!=(const DoubleMantissa<Real>& lhs,
 
 template <typename Real>
 constexpr bool operator!=(const DoubleMantissa<Real>& lhs,
+                          long int rhs) MANTIS_NOEXCEPT {
+  return !(lhs == rhs);
+}
+
+template <typename Real>
+constexpr bool operator!=(const DoubleMantissa<Real>& lhs,
+                          long long int rhs) MANTIS_NOEXCEPT {
+  return !(lhs == rhs);
+}
+
+template <typename Real>
+constexpr bool operator!=(const DoubleMantissa<Real>& lhs,
                           const Real& rhs) MANTIS_NOEXCEPT {
   return !(lhs == rhs);
 }
 
 template <typename Real>
 constexpr bool operator!=(int lhs,
+                          const DoubleMantissa<Real>& rhs) MANTIS_NOEXCEPT {
+  return !(rhs == lhs);
+}
+
+template <typename Real>
+constexpr bool operator!=(long int lhs,
+                          const DoubleMantissa<Real>& rhs) MANTIS_NOEXCEPT {
+  return !(rhs == lhs);
+}
+
+template <typename Real>
+constexpr bool operator!=(long long int lhs,
                           const DoubleMantissa<Real>& rhs) MANTIS_NOEXCEPT {
   return !(rhs == lhs);
 }
@@ -780,12 +890,36 @@ constexpr bool operator<(const DoubleMantissa<Real>& lhs,
 
 template <typename Real>
 constexpr bool operator<(const DoubleMantissa<Real>& lhs,
+                         long int rhs) MANTIS_NOEXCEPT {
+  return lhs.Upper() < rhs || (lhs.Upper() == rhs && lhs.Lower() < Real());
+}
+
+template <typename Real>
+constexpr bool operator<(const DoubleMantissa<Real>& lhs,
+                         long long int rhs) MANTIS_NOEXCEPT {
+  return lhs.Upper() < rhs || (lhs.Upper() == rhs && lhs.Lower() < Real());
+}
+
+template <typename Real>
+constexpr bool operator<(const DoubleMantissa<Real>& lhs,
                          const Real& rhs) MANTIS_NOEXCEPT {
   return lhs.Upper() < rhs || (lhs.Upper() == rhs && lhs.Lower() < Real());
 }
 
 template <typename Real>
 constexpr bool operator<(int lhs,
+                         const DoubleMantissa<Real>& rhs) MANTIS_NOEXCEPT {
+  return lhs < rhs.Upper() || (lhs == rhs.Upper() && Real() < rhs.Lower());
+}
+
+template <typename Real>
+constexpr bool operator<(long int lhs,
+                         const DoubleMantissa<Real>& rhs) MANTIS_NOEXCEPT {
+  return lhs < rhs.Upper() || (lhs == rhs.Upper() && Real() < rhs.Lower());
+}
+
+template <typename Real>
+constexpr bool operator<(long long int lhs,
                          const DoubleMantissa<Real>& rhs) MANTIS_NOEXCEPT {
   return lhs < rhs.Upper() || (lhs == rhs.Upper() && Real() < rhs.Lower());
 }
@@ -811,6 +945,18 @@ constexpr bool operator<=(const DoubleMantissa<Real>& lhs,
 
 template <typename Real>
 constexpr bool operator<=(const DoubleMantissa<Real>& lhs,
+                          long int rhs) MANTIS_NOEXCEPT {
+  return !(rhs < lhs);
+}
+
+template <typename Real>
+constexpr bool operator<=(const DoubleMantissa<Real>& lhs,
+                          long long int rhs) MANTIS_NOEXCEPT {
+  return !(rhs < lhs);
+}
+
+template <typename Real>
+constexpr bool operator<=(const DoubleMantissa<Real>& lhs,
                           const Real& rhs) MANTIS_NOEXCEPT {
   return !(rhs < lhs);
 }
@@ -828,6 +974,18 @@ constexpr bool operator>(int lhs,
 }
 
 template <typename Real>
+constexpr bool operator>(long int lhs,
+                         const DoubleMantissa<Real>& rhs) MANTIS_NOEXCEPT {
+  return rhs < lhs;
+}
+
+template <typename Real>
+constexpr bool operator>(long long int lhs,
+                         const DoubleMantissa<Real>& rhs) MANTIS_NOEXCEPT {
+  return rhs < lhs;
+}
+
+template <typename Real>
 constexpr bool operator>(const Real& lhs,
                          const DoubleMantissa<Real>& rhs) MANTIS_NOEXCEPT {
   return rhs < lhs;
@@ -836,6 +994,18 @@ constexpr bool operator>(const Real& lhs,
 template <typename Real>
 constexpr bool operator>(const DoubleMantissa<Real>& lhs,
                          int rhs) MANTIS_NOEXCEPT {
+  return rhs < lhs;
+}
+
+template <typename Real>
+constexpr bool operator>(const DoubleMantissa<Real>& lhs,
+                         long int rhs) MANTIS_NOEXCEPT {
+  return rhs < lhs;
+}
+
+template <typename Real>
+constexpr bool operator>(const DoubleMantissa<Real>& lhs,
+                         long long int rhs) MANTIS_NOEXCEPT {
   return rhs < lhs;
 }
 
@@ -858,6 +1028,18 @@ constexpr bool operator>=(int lhs,
 }
 
 template <typename Real>
+constexpr bool operator>=(long int lhs,
+                          const DoubleMantissa<Real>& rhs) MANTIS_NOEXCEPT {
+  return !(lhs < rhs);
+}
+
+template <typename Real>
+constexpr bool operator>=(long long int lhs,
+                          const DoubleMantissa<Real>& rhs) MANTIS_NOEXCEPT {
+  return !(lhs < rhs);
+}
+
+template <typename Real>
 constexpr bool operator>=(const Real& lhs,
                           const DoubleMantissa<Real>& rhs) MANTIS_NOEXCEPT {
   return !(lhs < rhs);
@@ -866,6 +1048,18 @@ constexpr bool operator>=(const Real& lhs,
 template <typename Real>
 constexpr bool operator>=(const DoubleMantissa<Real>& lhs,
                           int rhs) MANTIS_NOEXCEPT {
+  return !(lhs < rhs);
+}
+
+template <typename Real>
+constexpr bool operator>=(const DoubleMantissa<Real>& lhs,
+                          long int rhs) MANTIS_NOEXCEPT {
+  return !(lhs < rhs);
+}
+
+template <typename Real>
+constexpr bool operator>=(const DoubleMantissa<Real>& lhs,
+                          long long int rhs) MANTIS_NOEXCEPT {
   return !(lhs < rhs);
 }
 
@@ -895,6 +1089,18 @@ constexpr DoubleMantissa<Real> operator+(int x, const DoubleMantissa<Real>& y)
 
 template <typename Real>
 constexpr DoubleMantissa<Real> operator+(
+    long int x, const DoubleMantissa<Real>& y) MANTIS_NOEXCEPT {
+  return Real(x) + y;
+}
+
+template <typename Real>
+constexpr DoubleMantissa<Real> operator+(
+    long long int x, const DoubleMantissa<Real>& y) MANTIS_NOEXCEPT {
+  return Real(x) + y;
+}
+
+template <typename Real>
+constexpr DoubleMantissa<Real> operator+(
     const Real& x, const DoubleMantissa<Real>& y) MANTIS_NOEXCEPT {
   DoubleMantissa<Real> z(y);
   z += x;
@@ -904,6 +1110,18 @@ constexpr DoubleMantissa<Real> operator+(
 template <typename Real>
 constexpr DoubleMantissa<Real> operator+(const DoubleMantissa<Real>& x,
                                          int y) MANTIS_NOEXCEPT {
+  return x + Real(y);
+}
+
+template <typename Real>
+constexpr DoubleMantissa<Real> operator+(const DoubleMantissa<Real>& x,
+                                         long int y) MANTIS_NOEXCEPT {
+  return x + Real(y);
+}
+
+template <typename Real>
+constexpr DoubleMantissa<Real> operator+(const DoubleMantissa<Real>& x,
+                                         long long int y) MANTIS_NOEXCEPT {
   return x + Real(y);
 }
 
@@ -932,6 +1150,18 @@ constexpr DoubleMantissa<Real> operator-(int x, const DoubleMantissa<Real>& y)
 
 template <typename Real>
 constexpr DoubleMantissa<Real> operator-(
+    long int x, const DoubleMantissa<Real>& y) MANTIS_NOEXCEPT {
+  return Real(x) - y;
+}
+
+template <typename Real>
+constexpr DoubleMantissa<Real> operator-(
+    long long int x, const DoubleMantissa<Real>& y) MANTIS_NOEXCEPT {
+  return Real(x) - y;
+}
+
+template <typename Real>
+constexpr DoubleMantissa<Real> operator-(
     const Real& x, const DoubleMantissa<Real>& y) MANTIS_NOEXCEPT {
   DoubleMantissa<Real> z(-y);
   z += x;
@@ -941,6 +1171,18 @@ constexpr DoubleMantissa<Real> operator-(
 template <typename Real>
 constexpr DoubleMantissa<Real> operator-(const DoubleMantissa<Real>& x,
                                          int y) MANTIS_NOEXCEPT {
+  return x - Real(y);
+}
+
+template <typename Real>
+constexpr DoubleMantissa<Real> operator-(const DoubleMantissa<Real>& x,
+                                         long int y) MANTIS_NOEXCEPT {
+  return x - Real(y);
+}
+
+template <typename Real>
+constexpr DoubleMantissa<Real> operator-(const DoubleMantissa<Real>& x,
+                                         long long int y) MANTIS_NOEXCEPT {
   return x - Real(y);
 }
 
@@ -963,6 +1205,18 @@ constexpr DoubleMantissa<Real> operator-(const DoubleMantissa<Real>& x,
 
 template <typename Real>
 DoubleMantissa<Real> operator*(int x,
+                               const DoubleMantissa<Real>& y)MANTIS_NOEXCEPT {
+  return Real(x) * y;
+}
+
+template <typename Real>
+DoubleMantissa<Real> operator*(long int x,
+                               const DoubleMantissa<Real>& y)MANTIS_NOEXCEPT {
+  return Real(x) * y;
+}
+
+template <typename Real>
+DoubleMantissa<Real> operator*(long long int x,
                                const DoubleMantissa<Real>& y)MANTIS_NOEXCEPT {
   return Real(x) * y;
 }
@@ -1003,12 +1257,32 @@ DoubleMantissa<Real> operator/(int x, const DoubleMantissa<Real>& y) {
 }
 
 template <typename Real>
+DoubleMantissa<Real> operator/(long int x, const DoubleMantissa<Real>& y) {
+  return Real(x) / y;
+}
+
+template <typename Real>
+DoubleMantissa<Real> operator/(long long int x, const DoubleMantissa<Real>& y) {
+  return Real(x) / y;
+}
+
+template <typename Real>
 DoubleMantissa<Real> operator/(const Real& x, const DoubleMantissa<Real>& y) {
   return Divide(DoubleMantissa<Real>(x), y);
 }
 
 template <typename Real>
 DoubleMantissa<Real> operator/(const DoubleMantissa<Real>& x, int y) {
+  return x / Real(y);
+}
+
+template <typename Real>
+DoubleMantissa<Real> operator/(const DoubleMantissa<Real>& x, long int y) {
+  return x / Real(y);
+}
+
+template <typename Real>
+DoubleMantissa<Real> operator/(const DoubleMantissa<Real>& x, long long int y) {
   return x / Real(y);
 }
 
@@ -1093,9 +1367,9 @@ Real Hypot(const Real& x, const Real& y) {
   const Real x_abs = Abs(x);
   const Real y_abs = Abs(y);
 
-  const Real& a = y_abs > x_abs ? x : y;
-  const Real& b = y_abs > x_abs ? y : x;
-  const Real& a_abs = y_abs > x_abs ? x_abs : y_abs;
+  const Real& a = y_abs > x_abs ? y : x;
+  const Real& b = y_abs > x_abs ? x : y;
+  const Real& a_abs = y_abs > x_abs ? y_abs : x_abs;
 
   if (a == 0) {
     return Real();
@@ -1762,8 +2036,10 @@ const DoubleMantissa<Real>& SixteenthPiSinTable(int num_sixteenth_pi) {
   static const DoubleMantissa<Real> pi = Pi<DoubleMantissa<Real>>();
   static const DoubleMantissa<Real> sixteenth_pi = pi / Real(16);
   static const DoubleMantissa<Real> sin_table[] = {
-      SmallArgSin(sixteenth_pi), SmallArgSin(Real(2) * sixteenth_pi),
-      SmallArgSin(Real(3) * sixteenth_pi), SmallArgSin(Real(4) * sixteenth_pi),
+      SmallArgSin(sixteenth_pi),
+      SmallArgSin(Real(2) * sixteenth_pi),
+      SmallArgSin(Real(3) * sixteenth_pi),
+      SmallArgSin(Real(4) * sixteenth_pi),
   };
   return sin_table[num_sixteenth_pi - 1];
 }
@@ -1780,8 +2056,10 @@ const DoubleMantissa<Real>& SixteenthPiCosTable(int num_sixteenth_pi) {
   static const DoubleMantissa<Real> pi = Pi<DoubleMantissa<Real>>();
   static const DoubleMantissa<Real> sixteenth_pi = pi / Real(16);
   static const DoubleMantissa<Real> cos_table[] = {
-      SmallArgCos(sixteenth_pi), SmallArgCos(Real(2) * sixteenth_pi),
-      SmallArgCos(Real(3) * sixteenth_pi), SmallArgCos(Real(4) * sixteenth_pi),
+      SmallArgCos(sixteenth_pi),
+      SmallArgCos(Real(2) * sixteenth_pi),
+      SmallArgCos(Real(3) * sixteenth_pi),
+      SmallArgCos(Real(4) * sixteenth_pi),
   };
   return cos_table[num_sixteenth_pi - 1];
 }

@@ -99,6 +99,25 @@ constexpr Complex<DoubleMantissa<RealBase>>::Complex(
     : real_(value.real_),
       imag_(value.imag_) {}
 
+template <class RealBase>
+template <class RealInputType>
+constexpr Complex<DoubleMantissa<RealBase>>::Complex(const RealInputType& input)
+    MANTIS_NOEXCEPT : real_(static_cast<RealType>(input)) {}
+
+template <class RealBase>
+template <class RealInputType>
+constexpr Complex<DoubleMantissa<RealBase>>::Complex(
+    const Complex<RealInputType>& input) MANTIS_NOEXCEPT
+    : real_(static_cast<RealType>(input.Real())),
+      imag_(static_cast<RealType>(input.Imag())) {}
+
+template <class RealBase>
+template <class RealInputType, class ImagInputType>
+constexpr Complex<DoubleMantissa<RealBase>>::Complex(const RealInputType& real,
+                                                     const ImagInputType& imag)
+    MANTIS_NOEXCEPT : real_(static_cast<RealType>(real)),
+                      imag_(static_cast<RealType>(imag)) {}
+
 template <typename RealBase>
 constexpr Complex<DoubleMantissa<RealBase>>& Complex<DoubleMantissa<RealBase>>::
 operator=(const Complex<DoubleMantissa<RealBase>>& rhs) MANTIS_NOEXCEPT {
@@ -139,6 +158,16 @@ operator/=(const Complex<DoubleMantissa<RealBase>>& rhs) {
   Complex<DoubleMantissa<RealBase>> a = *this;
   *this = SmithDiv(a, rhs);
   return *this;
+}
+
+template <typename Real>
+constexpr bool operator==(const Complex<Real>& lhs, const Complex<Real>& rhs) {
+  return lhs.Real() == rhs.Real() && lhs.Imag() == rhs.Imag();
+}
+
+template <typename Real>
+constexpr bool operator!=(const Complex<Real>& lhs, const Complex<Real>& rhs) {
+  return !(lhs == rhs);
 }
 
 CXX20_CONSTEXPR Complex<float> operator-(const Complex<float>& value)
@@ -538,7 +567,7 @@ constexpr Complex<Real> operator/(const Real& a, const Complex<Real>& b) {
   }
 }
 
-template <typename Real>
+template <typename Real, typename>
 constexpr Real RealPart(const Real& value) MANTIS_NOEXCEPT {
   return value;
 }
@@ -561,7 +590,7 @@ constexpr Real RealPart(const Complex<Real>& value) MANTIS_NOEXCEPT {
   return value.Real();
 }
 
-template <typename Real>
+template <typename Real, typename>
 constexpr Real ImagPart(const Real& value) MANTIS_NOEXCEPT {
   return 0;
 }
@@ -584,7 +613,7 @@ constexpr Real ImagPart(const Complex<Real>& value) MANTIS_NOEXCEPT {
   return value.Imag();
 }
 
-template <typename Real>
+template <typename Real, typename>
 constexpr Real Conjugate(const Real& value) MANTIS_NOEXCEPT {
   return value;
 }
@@ -1007,6 +1036,36 @@ std::ostream& operator<<(std::ostream& out, const Complex<Real>& value) {
 }  // namespace mantis
 
 namespace std {
+
+template <typename Real>
+Real real(const Real& x) {
+  return x;
+}
+
+template <typename Real>
+Real real(const mantis::Complex<Real>& x) {
+  return x.Real();
+}
+
+template <typename Real>
+Real imag(const Real& x) {
+  return 0;
+}
+
+template <typename Real>
+Real imag(const mantis::Complex<Real>& x) {
+  return x.Imag();
+}
+
+template <typename Real>
+Real conj(const Real& x) {
+  return x;
+}
+
+template <typename Real>
+mantis::Complex<Real> conj(const mantis::Complex<Real>& x) {
+  return mantis::Conjugate(x);
+}
 
 template <typename Real>
 Real abs(const mantis::Complex<Real>& x) {
