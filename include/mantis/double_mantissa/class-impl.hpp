@@ -1025,15 +1025,15 @@ DoubleMantissa<Real> operator/(const DoubleMantissa<Real>& x,
   return Divide(x, y);
 }
 
-constexpr float Floor(const float& value) MANTIS_NOEXCEPT {
+inline float Floor(const float& value) MANTIS_NOEXCEPT {
   return std::floor(value);
 }
 
-constexpr double Floor(const double& value) MANTIS_NOEXCEPT {
+inline double Floor(const double& value) MANTIS_NOEXCEPT {
   return std::floor(value);
 }
 
-constexpr long double Floor(const long double& value) MANTIS_NOEXCEPT {
+inline long double Floor(const long double& value) MANTIS_NOEXCEPT {
   return std::floor(value);
 }
 
@@ -1050,15 +1050,15 @@ constexpr DoubleMantissa<Real> Floor(const DoubleMantissa<Real>& value)
   return floored_value;
 }
 
-constexpr float Round(const float& value) MANTIS_NOEXCEPT {
+inline float Round(const float& value) MANTIS_NOEXCEPT {
   return std::round(value);
 }
 
-constexpr double Round(const double& value) MANTIS_NOEXCEPT {
+inline double Round(const double& value) MANTIS_NOEXCEPT {
   return std::round(value);
 }
 
-constexpr long double Round(const long double& value) MANTIS_NOEXCEPT {
+inline long double Round(const long double& value) MANTIS_NOEXCEPT {
   return std::round(value);
 }
 

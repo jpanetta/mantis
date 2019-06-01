@@ -561,17 +561,17 @@ DoubleMantissa<Real> operator/(const DoubleMantissa<Real>& x,
                                const DoubleMantissa<Real>& y);
 
 // Returns the rounding to the floored integer.
-constexpr float Floor(const float& value) MANTIS_NOEXCEPT;
-constexpr double Floor(const double& value) MANTIS_NOEXCEPT;
-constexpr long double Floor(const long double& value) MANTIS_NOEXCEPT;
+float Floor(const float& value) MANTIS_NOEXCEPT;
+double Floor(const double& value) MANTIS_NOEXCEPT;
+long double Floor(const long double& value) MANTIS_NOEXCEPT;
 template <typename Real>
 constexpr DoubleMantissa<Real> Floor(const DoubleMantissa<Real>& value)
     MANTIS_NOEXCEPT;
 
 // Returns the rounding to the nearest integer.
-constexpr float Round(const float& value) MANTIS_NOEXCEPT;
-constexpr double Round(const double& value) MANTIS_NOEXCEPT;
-constexpr long double Round(const long double& value) MANTIS_NOEXCEPT;
+float Round(const float& value) MANTIS_NOEXCEPT;
+double Round(const double& value) MANTIS_NOEXCEPT;
+long double Round(const long double& value) MANTIS_NOEXCEPT;
 template <typename Real>
 constexpr DoubleMantissa<Real> Round(const DoubleMantissa<Real>& value)
     MANTIS_NOEXCEPT;
