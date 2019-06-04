@@ -1578,6 +1578,7 @@ mantis::DoubleMantissa<Real> tanh(const mantis::DoubleMantissa<Real>& value);
 }  // namespace std
 
 #include "mantis/double_mantissa/class-impl.hpp"
+#include "mantis/double_mantissa/math-impl.hpp"
 #include "mantis/double_mantissa/std_math-impl.hpp"
 #include "mantis/double_mantissa/std_normal_distribution-impl.hpp"
 #include "mantis/double_mantissa/std_numeric_limits-impl.hpp"
