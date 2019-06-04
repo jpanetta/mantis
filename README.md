@@ -8,7 +8,7 @@ The library is meant as a revival of the [QD library](https://github.com/scibuil
 
     Yozo Hida, Xiaoye S. Li, and David H. Bailey,
     "Library for Double-Double and Quad-Double Arithmetic", May 8, 2008.
-    URL: [www.davidhbailey.com/dhbpapers/qd.pdf](https://www.davidhbailey.com/dhbpapers/qd.pdf)
+    URL: https://www.davidhbailey.com/dhbpapers/qd.pdf
 
 The original library does not appear to have an official distribution channel,
 but it is unofficially available at [github.com/scibuilder/QD](https://github.com/scibuilder/QD).
