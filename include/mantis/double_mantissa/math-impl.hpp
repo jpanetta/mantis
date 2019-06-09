@@ -540,7 +540,7 @@ DoubleMantissa<Real> Abs(const DoubleMantissa<Real>& value) {
 }
 
 template <typename Real>
-DoubleMantissa<Real> SmallArgSin(const DoubleMantissa<Real>& theta) {
+DoubleMantissa<Real> SinTaylorSeries(const DoubleMantissa<Real>& theta) {
   if (theta.Upper() == Real(0)) {
     return DoubleMantissa<Real>();
   }
@@ -580,7 +580,7 @@ DoubleMantissa<Real> SmallArgSin(const DoubleMantissa<Real>& theta) {
 }
 
 template <typename Real>
-DoubleMantissa<Real> SmallArgCos(const DoubleMantissa<Real>& theta) {
+DoubleMantissa<Real> CosTaylorSeries(const DoubleMantissa<Real>& theta) {
   if (theta.Upper() == Real(0)) {
     return DoubleMantissa<Real>(Real(1));
   }
@@ -681,10 +681,9 @@ const DoubleMantissa<Real>& SixteenthPiSinTable(int num_sixteenth_pi) {
   static const DoubleMantissa<Real> pi = Pi<DoubleMantissa<Real>>();
   static const DoubleMantissa<Real> sixteenth_pi = pi / Real(16);
   static const DoubleMantissa<Real> sin_table[] = {
-      SmallArgSin(sixteenth_pi),
-      SmallArgSin(Real(2) * sixteenth_pi),
-      SmallArgSin(Real(3) * sixteenth_pi),
-      SmallArgSin(Real(4) * sixteenth_pi),
+      SinTaylorSeries(sixteenth_pi), SinTaylorSeries(Real(2) * sixteenth_pi),
+      SinTaylorSeries(Real(3) * sixteenth_pi),
+      SinTaylorSeries(Real(4) * sixteenth_pi),
   };
   return sin_table[num_sixteenth_pi - 1];
 }
@@ -701,10 +700,9 @@ const DoubleMantissa<Real>& SixteenthPiCosTable(int num_sixteenth_pi) {
   static const DoubleMantissa<Real> pi = Pi<DoubleMantissa<Real>>();
   static const DoubleMantissa<Real> sixteenth_pi = pi / Real(16);
   static const DoubleMantissa<Real> cos_table[] = {
-      SmallArgCos(sixteenth_pi),
-      SmallArgCos(Real(2) * sixteenth_pi),
-      SmallArgCos(Real(3) * sixteenth_pi),
-      SmallArgCos(Real(4) * sixteenth_pi),
+      CosTaylorSeries(sixteenth_pi), CosTaylorSeries(Real(2) * sixteenth_pi),
+      CosTaylorSeries(Real(3) * sixteenth_pi),
+      CosTaylorSeries(Real(4) * sixteenth_pi),
   };
   return cos_table[num_sixteenth_pi - 1];
 }
@@ -715,29 +713,50 @@ DoubleMantissa<Real> Sin(const DoubleMantissa<Real>& theta) {
     return DoubleMantissa<Real>();
   }
 
+  // We follow the basic approach of the QD library of Hida et al. by
+  // decomposing theta into three components:
+  //
+  //   sin(theta) = sin(k (2 pi) + m (pi / 2) + n (pi / 16) + gamma)
+  //              = sin(m (pi / 2) + n (pi / 16) + gamma),
+  //
+  // where k, m, and n are integers. The contribution of m (pi / 2) is
+  // taken care of via branching between {+-sin, +-cos}, and the reduced term,
+  //
+  //   sin(n (pi / 16) + gamma),
+  //
+  // is handled via thorough usage of
+  //
+  //   sin(a + b) = sin(a) cos(b) + cos(a) sin(b),
+  //
+  // given
+  //
+  //   a = |num_sixteenth_pi_int * sixteenth_pi| = |n pi / 16| and
+  //   b = sixteenth_pi_remainder = gamma.
+  //
+  // The only components which are not known a priori are sin(b) and cos(b);
+  // thanks to |b| <= pi / 16, the Taylor series expansions for sin(b) and
+  // cos(b) can be efficiently evaluated.
+  //
+
   int num_half_pi_int, num_sixteenth_pi_int;
   DoubleMantissa<Real> sixteenth_pi_remainder;
   DecomposeSinCosArgument(theta, &num_half_pi_int, &num_sixteenth_pi_int,
                           &sixteenth_pi_remainder);
   const int abs_num_sixteenth_pi_int = std::abs(num_sixteenth_pi_int);
 
-  // We make thorough usage of sin(a + b) = sin(a) cos(b) + cos(a) sin(b)
-  // given a = |num_sixteenth_pi_int * sixteenth_pi| and
-  // b = sixteenth_pi_remainder.
-
   if (num_sixteenth_pi_int == 0) {
     if (num_half_pi_int == 0) {
       // sin(a + b) = sin(b).
-      return SmallArgSin(sixteenth_pi_remainder);
+      return SinTaylorSeries(sixteenth_pi_remainder);
     } else if (num_half_pi_int == 1) {
       // sin(a + b + (pi / 2)) = sin(b + (pi / 2)) = cos(b).
-      return SmallArgCos(sixteenth_pi_remainder);
+      return CosTaylorSeries(sixteenth_pi_remainder);
     } else if (num_half_pi_int == -1) {
       // sin(a + b - (pi / 2)) = sin(b - (pi / 2)) = -cos(b).
-      return -SmallArgCos(sixteenth_pi_remainder);
+      return -CosTaylorSeries(sixteenth_pi_remainder);
     } else {
       // sin(a + b + pi) = sin(b + pi) = -sin(b).
-      return -SmallArgSin(sixteenth_pi_remainder);
+      return -SinTaylorSeries(sixteenth_pi_remainder);
     }
   }
 
@@ -746,7 +765,7 @@ DoubleMantissa<Real> Sin(const DoubleMantissa<Real>& theta) {
   const DoubleMantissa<Real> cos_a =
       SixteenthPiCosTable<Real>(abs_num_sixteenth_pi_int);
 
-  const DoubleMantissa<Real> sin_b = SmallArgSin(sixteenth_pi_remainder);
+  const DoubleMantissa<Real> sin_b = SinTaylorSeries(sixteenth_pi_remainder);
   const DoubleMantissa<Real> cos_b = SinCosDualMagnitude(sin_b);
 
   DoubleMantissa<Real> sin_theta;
@@ -796,29 +815,50 @@ DoubleMantissa<Real> Cos(const DoubleMantissa<Real>& theta) {
     return DoubleMantissa<Real>(Real(1));
   }
 
+  // We follow the basic approach of the QD library of Hida et al. by
+  // decomposing theta into three components:
+  //
+  //   cos(theta) = cos(k (2 pi) + m (pi / 2) + n (pi / 16) + gamma)
+  //              = cos(m (pi / 2) + n (pi / 16) + gamma),
+  //
+  // where k, m, and n are integers. The contribution of m (pi / 2) is
+  // taken care of via branching between {+-sin, +-cos}, and the reduced term,
+  //
+  //   cos(n (pi / 16) + gamma),
+  //
+  // is handled via thorough usage of
+  //
+  //   cos(a + b) = cos(a) cos(b) - sin(a) sin(b),
+  //
+  // given
+  //
+  //   a = |num_sixteenth_pi_int * sixteenth_pi| = |n pi / 16| and
+  //   b = sixteenth_pi_remainder = gamma.
+  //
+  // The only components which are not known a priori are sin(b) and cos(b);
+  // thanks to |b| <= pi / 16, the Taylor series expansions for sin(b) and
+  // cos(b) can be efficiently evaluated.
+  //
+
   int num_half_pi_int, num_sixteenth_pi_int;
   DoubleMantissa<Real> sixteenth_pi_remainder;
   DecomposeSinCosArgument(theta, &num_half_pi_int, &num_sixteenth_pi_int,
                           &sixteenth_pi_remainder);
   const int abs_num_sixteenth_pi_int = std::abs(num_sixteenth_pi_int);
 
-  // We make thorough usage of cos(a + b) = cos(a) cos(b) - sin(a) sin(b)
-  // given a = |num_sixteenth_pi_int * sixteenth_pi| and
-  // b = sixteenth_pi_remainder.
-
   if (num_sixteenth_pi_int == 0) {
     if (num_half_pi_int == 0) {
       // cos(a + b) = cos(b).
-      return SmallArgCos(sixteenth_pi_remainder);
+      return CosTaylorSeries(sixteenth_pi_remainder);
     } else if (num_half_pi_int == 1) {
       // cos(a + b + (pi / 2)) = cos(b + (pi / 2)) = -sin(b).
-      return -SmallArgSin(sixteenth_pi_remainder);
+      return -SinTaylorSeries(sixteenth_pi_remainder);
     } else if (num_half_pi_int == -1) {
       // cos(a + b - (pi / 2)) = cos(b - (pi / 2)) = sin(b).
-      return SmallArgSin(sixteenth_pi_remainder);
+      return SinTaylorSeries(sixteenth_pi_remainder);
     } else {
       // cos(a + b + pi) = cos(b + pi) = -cos(b).
-      return -SmallArgCos(sixteenth_pi_remainder);
+      return -CosTaylorSeries(sixteenth_pi_remainder);
     }
   }
 
@@ -827,7 +867,7 @@ DoubleMantissa<Real> Cos(const DoubleMantissa<Real>& theta) {
   const DoubleMantissa<Real> cos_a =
       SixteenthPiCosTable<Real>(abs_num_sixteenth_pi_int);
 
-  const DoubleMantissa<Real> sin_b = SmallArgSin(sixteenth_pi_remainder);
+  const DoubleMantissa<Real> sin_b = SinTaylorSeries(sixteenth_pi_remainder);
   const DoubleMantissa<Real> cos_b = SinCosDualMagnitude(sin_b);
 
   DoubleMantissa<Real> cos_theta;
@@ -877,17 +917,16 @@ void SinCos(const DoubleMantissa<Real>& theta, DoubleMantissa<Real>* sin_theta,
     return;
   }
 
+  // We blend the above decompositional approaches to sin and cos to avoid
+  // duplication.
+
   int num_half_pi_int, num_sixteenth_pi_int;
   DoubleMantissa<Real> sixteenth_pi_remainder;
   DecomposeSinCosArgument(theta, &num_half_pi_int, &num_sixteenth_pi_int,
                           &sixteenth_pi_remainder);
   const int abs_num_sixteenth_pi_int = std::abs(num_sixteenth_pi_int);
 
-  // We make thorough usage of sin(a + b) = sin(a) cos(b) + cos(a) sin(b)
-  // given a = |num_sixteenth_pi_int * sixteenth_pi| and
-  // b = sixteenth_pi_remainder.
-
-  const DoubleMantissa<Real> sin_b = SmallArgSin(sixteenth_pi_remainder);
+  const DoubleMantissa<Real> sin_b = SinTaylorSeries(sixteenth_pi_remainder);
   const DoubleMantissa<Real> cos_b = SinCosDualMagnitude(sin_b);
 
   if (num_sixteenth_pi_int == 0) {

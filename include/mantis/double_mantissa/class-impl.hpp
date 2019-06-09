@@ -1373,4 +1373,16 @@ std::ostream& operator<<(std::ostream& out, const DoubleMantissa<Real>& value) {
 
 }  // namespace mantis
 
+namespace std {
+
+template <typename Real>
+string to_string(const mantis::DoubleMantissa<Real>& value) {
+  constexpr int max_digits10 =
+      numeric_limits<mantis::DoubleMantissa<Real>>::max_digits10;
+  const mantis::DecimalNotation rep = value.ToDecimal(max_digits10);
+  return rep.ToString();
+}
+
+}  // namespace std
+
 #endif  // ifndef MANTIS_DOUBLE_MANTISSA_CLASS_IMPL_H_

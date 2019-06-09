@@ -1009,6 +1009,10 @@ DoubleMantissa<Real> ArcHyperbolicTan(const DoubleMantissa<Real>& tanh_x);
 
 namespace std {
 
+// A conversion from a double-mantissa value to a string.
+template <typename Real>
+string to_string(const mantis::DoubleMantissa<Real>& value);
+
 // We specialize std::numeric_limits for each of the standard concrete instances
 // of DoubleMantissa<Real>, where Real is either float, double, or long double.
 //
