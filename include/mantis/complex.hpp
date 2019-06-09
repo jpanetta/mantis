@@ -571,6 +571,9 @@ std::ostream& operator<<(std::ostream& out, const Complex<Real>& value);
 namespace std {
 
 template <typename Real>
+string to_string(const mantis::Complex<Real>& value);
+
+template <typename Real>
 Real real(const Real& x);
 
 template <typename Real>
