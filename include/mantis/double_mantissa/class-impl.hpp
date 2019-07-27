@@ -440,8 +440,7 @@ DecimalNotation DoubleMantissa<Real>::ToDecimal(int num_digits) const {
   // We round the very last digit and floor the rest.
   rep.digits.resize(num_digits);
   for (int digit = 0; digit < num_digits - 1; ++digit) {
-    // TODO(Jack Poulson): Assert floored_value >= 0 && floored_value < 10.
-    const int floored_value = std::floor(value.Upper());
+    const int floored_value = std::max(0, int(std::floor(value.Upper())));
     rep.digits[digit] = floored_value;
     value -= Real(floored_value);
     value *= Real(10);

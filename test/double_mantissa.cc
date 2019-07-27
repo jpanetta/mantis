@@ -15,6 +15,13 @@ using mantis::BinaryNotation;
 using mantis::DecimalNotation;
 using mantis::DoubleMantissa;
 
+TEST_CASE("Assignment [double]", "[Assign double]") {
+  DoubleMantissa<double> value = 0.999;
+  REQUIRE(value.Upper() == 0.999);
+  REQUIRE(value.Lower() == 0.);
+  REQUIRE(value < 1.);
+}
+
 TEST_CASE("Add [float]", "[Add float]") {
   DoubleMantissa<float> value(1.f, 2.f);
   REQUIRE(value.Upper() == 1.f);
