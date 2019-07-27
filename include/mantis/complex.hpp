@@ -571,19 +571,25 @@ std::ostream& operator<<(std::ostream& out, const Complex<Real>& value);
 namespace std {
 
 template <typename Real>
+string to_string(const mantis::Complex<Real>& value);
+
+template <typename Real,
+    typename=mantis::EnableIf<mantis::IsDoubleMantissa<Real>>>
 Real real(const Real& x);
 
 template <typename Real>
 Real real(const mantis::Complex<Real>& x);
 
-template <typename Real>
+template <typename Real,
+    typename=mantis::EnableIf<mantis::IsDoubleMantissa<Real>>>
 Real imag(const Real& x);
 
 template <typename Real>
 Real imag(const mantis::Complex<Real>& x);
 
-template <typename Real>
-Real conj(const Real& x);
+template <typename Real,
+    typename=mantis::EnableIf<mantis::IsDoubleMantissa<Real>>>
+mantis::Complex<Real> conj(const Real& x);
 
 template <typename Real>
 mantis::Complex<Real> conj(const mantis::Complex<Real>& x);

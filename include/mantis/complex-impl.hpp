@@ -1038,6 +1038,12 @@ std::ostream& operator<<(std::ostream& out, const Complex<Real>& value) {
 namespace std {
 
 template <typename Real>
+string to_string(const mantis::Complex<Real>& value) {
+  return std::to_string(value.Real()) + " + " + std::to_string(value.Imag()) +
+      "i";
+}
+
+template <typename Real, typename>
 Real real(const Real& x) {
   return x;
 }
@@ -1047,7 +1053,7 @@ Real real(const mantis::Complex<Real>& x) {
   return x.Real();
 }
 
-template <typename Real>
+template <typename Real, typename>
 Real imag(const Real& x) {
   return 0;
 }
@@ -1057,9 +1063,9 @@ Real imag(const mantis::Complex<Real>& x) {
   return x.Imag();
 }
 
-template <typename Real>
-Real conj(const Real& x) {
-  return x;
+template <typename Real, typename>
+mantis::Complex<Real> conj(const Real& x) {
+  return mantis::Complex<Real>(x);
 }
 
 template <typename Real>

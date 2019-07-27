@@ -4,6 +4,15 @@
 [C++14](https://en.wikipedia.org/wiki/C%2B%2B14), header-only implementation of
 real and complex double-mantissa arithmetic.
 
+The library is meant as a revival of the [QD library](https://github.com/scibuilder/QD) of Yozo Hida, Xiaoye S. Li, and David H. Bailey, which is described in:
+
+    Yozo Hida, Xiaoye S. Li, and David H. Bailey,
+    "Library for Double-Double and Quad-Double Arithmetic", May 8, 2008.
+    URL: https://www.davidhbailey.com/dhbpapers/qd.pdf
+
+The original library does not appear to have an official distribution channel,
+but it is unofficially available at [github.com/scibuilder/QD](https://github.com/scibuilder/QD).
+
 [![Join the chat at https://gitter.im/hodge_star/community](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/hodge_star/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ### Dependencies
