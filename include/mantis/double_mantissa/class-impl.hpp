@@ -1236,6 +1236,18 @@ DoubleMantissa<Real> operator*(const DoubleMantissa<Real>& x,
 
 template <typename Real>
 DoubleMantissa<Real> operator*(const DoubleMantissa<Real>& x,
+                               long int y)MANTIS_NOEXCEPT {
+  return x * Real(y);
+}
+
+template <typename Real>
+DoubleMantissa<Real> operator*(const DoubleMantissa<Real>& x,
+                               long long int y)MANTIS_NOEXCEPT {
+  return x * Real(y);
+}
+
+template <typename Real>
+DoubleMantissa<Real> operator*(const DoubleMantissa<Real>& x,
                                const Real& y)MANTIS_NOEXCEPT {
   DoubleMantissa<Real> z(x);
   z *= y;
