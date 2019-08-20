@@ -12,76 +12,38 @@
 
 namespace mantis {
 
-constexpr Complex<float>::Complex() MANTIS_NOEXCEPT : std::complex<float>() {}
+template <typename RealT>
+constexpr Complex<RealT, EnableIf<IsStandardFloat<RealT>>>::Complex()
+    MANTIS_NOEXCEPT : std::complex<RealT>() {}
 
-constexpr Complex<double>::Complex() MANTIS_NOEXCEPT : std::complex<double>() {}
+template <typename RealT>
+constexpr Complex<RealT, EnableIf<IsStandardFloat<RealT>>>::Complex(
+    const Complex<RealT>& input) MANTIS_NOEXCEPT
+    : std::complex<RealT>(input.real(), input.imag()) {}
 
-constexpr Complex<long double>::Complex() MANTIS_NOEXCEPT
-    : std::complex<long double>() {}
+template <typename RealT>
+constexpr Complex<RealT, EnableIf<IsStandardFloat<RealT>>>::Complex(
+    const std::complex<RealT>& input) MANTIS_NOEXCEPT
+    : std::complex<RealT>(input) {}
 
-constexpr Complex<float>::Complex(const Complex<float>& input) MANTIS_NOEXCEPT
-    : std::complex<float>(input.real(), input.imag()) {}
+template <typename RealT>
+template <typename RealInputType>
+constexpr Complex<RealT, EnableIf<IsStandardFloat<RealT>>>::Complex(
+    const RealInputType& input) MANTIS_NOEXCEPT
+    : std::complex<RealT>(static_cast<RealT>(input)) {}
 
-constexpr Complex<double>::Complex(const Complex<double>& input) MANTIS_NOEXCEPT
-    : std::complex<double>(input.real(), input.imag()) {}
+template <typename RealT>
+template <typename RealInputType>
+constexpr Complex<RealT, EnableIf<IsStandardFloat<RealT>>>::Complex(
+    const Complex<RealInputType>& input) MANTIS_NOEXCEPT
+    : std::complex<RealT>(static_cast<RealT>(input.real()),
+                          static_cast<RealT>(input.imag())) {}
 
-constexpr Complex<long double>::Complex(const Complex<long double>& input)
-    MANTIS_NOEXCEPT : std::complex<long double>(input.real(), input.imag()) {}
-
-constexpr Complex<float>::Complex(const std::complex<float>& input)
-    MANTIS_NOEXCEPT : std::complex<float>(input) {}
-
-constexpr Complex<double>::Complex(const std::complex<double>& input)
-    MANTIS_NOEXCEPT : std::complex<double>(input) {}
-
-constexpr Complex<long double>::Complex(const std::complex<long double>& input)
-    MANTIS_NOEXCEPT : std::complex<long double>(input) {}
-
-template <class RealInputType>
-constexpr Complex<float>::Complex(const RealInputType& input) MANTIS_NOEXCEPT
-    : std::complex<float>(static_cast<float>(input)) {}
-
-template <class RealInputType>
-constexpr Complex<double>::Complex(const RealInputType& input) MANTIS_NOEXCEPT
-    : std::complex<double>(static_cast<double>(input)) {}
-
-template <class RealInputType>
-constexpr Complex<long double>::Complex(const RealInputType& input)
-    MANTIS_NOEXCEPT
-    : std::complex<long double>(static_cast<long double>(input)) {}
-
-template <class RealInputType>
-constexpr Complex<float>::Complex(const Complex<RealInputType>& input)
-    MANTIS_NOEXCEPT : std::complex<float>(static_cast<float>(input.real()),
-                                          static_cast<float>(input.imag())) {}
-
-template <class RealInputType>
-constexpr Complex<double>::Complex(const Complex<RealInputType>& input)
-    MANTIS_NOEXCEPT : std::complex<double>(static_cast<double>(input.real()),
-                                           static_cast<double>(input.imag())) {}
-
-template <class RealInputType>
-constexpr Complex<long double>::Complex(const Complex<RealInputType>& input)
-    MANTIS_NOEXCEPT
-    : std::complex<long double>(static_cast<long double>(input.real()),
-                                static_cast<long double>(input.imag())) {}
-
-template <class RealInputType, class ImagInputType>
-constexpr Complex<float>::Complex(const RealInputType& real,
-                                  const ImagInputType& imag) MANTIS_NOEXCEPT
-    : std::complex<float>(static_cast<float>(real), static_cast<float>(imag)) {}
-
-template <class RealInputType, class ImagInputType>
-constexpr Complex<double>::Complex(const RealInputType& real,
-                                   const ImagInputType& imag) MANTIS_NOEXCEPT
-    : std::complex<double>(static_cast<double>(real),
-                           static_cast<double>(imag)) {}
-
-template <class RealInputType, class ImagInputType>
-constexpr Complex<long double>::Complex(
+template <typename RealT>
+template <typename RealInputType, typename ImagInputType>
+constexpr Complex<RealT, EnableIf<IsStandardFloat<RealT>>>::Complex(
     const RealInputType& real, const ImagInputType& imag) MANTIS_NOEXCEPT
-    : std::complex<long double>(static_cast<long double>(real),
-                                static_cast<long double>(imag)) {}
+    : std::complex<RealT>(static_cast<RealT>(real), static_cast<RealT>(imag)) {}
 
 template <typename RealBase>
 constexpr Complex<DoubleMantissa<RealBase>>::Complex() MANTIS_NOEXCEPT {}
@@ -99,20 +61,20 @@ constexpr Complex<DoubleMantissa<RealBase>>::Complex(
     : real_(value.real_),
       imag_(value.imag_) {}
 
-template <class RealBase>
-template <class RealInputType>
+template <typename RealBase>
+template <typename RealInputType>
 constexpr Complex<DoubleMantissa<RealBase>>::Complex(const RealInputType& input)
     MANTIS_NOEXCEPT : real_(static_cast<RealType>(input)) {}
 
-template <class RealBase>
-template <class RealInputType>
+template <typename RealBase>
+template <typename RealInputType>
 constexpr Complex<DoubleMantissa<RealBase>>::Complex(
     const Complex<RealInputType>& input) MANTIS_NOEXCEPT
     : real_(static_cast<RealType>(input.Real())),
       imag_(static_cast<RealType>(input.Imag())) {}
 
-template <class RealBase>
-template <class RealInputType, class ImagInputType>
+template <typename RealBase>
+template <typename RealInputType, typename ImagInputType>
 constexpr Complex<DoubleMantissa<RealBase>>::Complex(const RealInputType& real,
                                                      const ImagInputType& imag)
     MANTIS_NOEXCEPT : real_(static_cast<RealType>(real)),
@@ -170,227 +132,160 @@ constexpr bool operator!=(const Complex<Real>& lhs, const Complex<Real>& rhs) {
   return !(lhs == rhs);
 }
 
-CXX20_CONSTEXPR Complex<float> operator-(const Complex<float>& value)
+template <typename Real, typename>
+CXX20_CONSTEXPR Complex<Real> operator-(const Complex<Real>& value)
     MANTIS_NOEXCEPT {
-  const std::complex<float>& value_std =
-      static_cast<const std::complex<float>&>(value);
+  const std::complex<Real>& value_std =
+      static_cast<const std::complex<Real>&>(value);
   return -value_std;
 }
 
-CXX20_CONSTEXPR Complex<double> operator-(const Complex<double>& value)
-    MANTIS_NOEXCEPT {
-  const std::complex<double>& value_std =
-      static_cast<const std::complex<double>&>(value);
-  return -value_std;
-}
-
-CXX20_CONSTEXPR Complex<long double> operator-(
-    const Complex<long double>& value) MANTIS_NOEXCEPT {
-  const std::complex<long double>& value_std =
-      static_cast<const std::complex<long double>&>(value);
-  return -value_std;
-}
-
-template <typename Real>
+template <typename Real, typename, typename>
 constexpr Complex<Real> operator-(const Complex<Real>& value) MANTIS_NOEXCEPT {
   return Complex<Real>(-value.Real(), -value.Imag());
 }
 
-CXX20_CONSTEXPR Complex<float> operator+(
-    const Complex<float>& a, const Complex<float>& b) MANTIS_NOEXCEPT {
-  const std::complex<float>& a_std = static_cast<const std::complex<float>&>(a);
-  const std::complex<float>& b_std = static_cast<const std::complex<float>&>(b);
+template <typename Real, typename>
+CXX20_CONSTEXPR Complex<Real> operator+(
+    const Complex<Real>& a, const Complex<Real>& b) MANTIS_NOEXCEPT {
+  const std::complex<Real>& a_std = static_cast<const std::complex<Real>&>(a);
+  const std::complex<Real>& b_std = static_cast<const std::complex<Real>&>(b);
   return a_std + b_std;
 }
 
-CXX20_CONSTEXPR Complex<double> operator+(
-    const Complex<double>& a, const Complex<double>& b) MANTIS_NOEXCEPT {
-  const std::complex<double>& a_std =
-      static_cast<const std::complex<double>&>(a);
-  const std::complex<double>& b_std =
-      static_cast<const std::complex<double>&>(b);
-  return a_std + b_std;
-}
-
-CXX20_CONSTEXPR Complex<long double> operator+(const Complex<long double>& a,
-                                               const Complex<long double>& b)
-    MANTIS_NOEXCEPT {
-  const std::complex<long double>& a_std =
-      static_cast<const std::complex<long double>&>(a);
-  const std::complex<long double>& b_std =
-      static_cast<const std::complex<long double>&>(b);
-  return a_std + b_std;
-}
-
-template <typename Real>
+template <typename Real, typename, typename>
 constexpr Complex<Real> operator+(const Complex<Real>& a,
                                   const Complex<Real>& b) MANTIS_NOEXCEPT {
   return Complex<Real>(a.Real() + b.Real(), a.Imag() + b.Imag());
 }
 
-CXX20_CONSTEXPR Complex<float> operator+(const Complex<float>& a,
-                                         const float& b) MANTIS_NOEXCEPT {
-  const std::complex<float>& a_std = static_cast<const std::complex<float>&>(a);
+template <typename Real, typename>
+CXX20_CONSTEXPR Complex<Real> operator+(const Complex<Real>& a,
+                                        const Real& b) MANTIS_NOEXCEPT {
+  const std::complex<Real>& a_std = static_cast<const std::complex<Real>&>(a);
   return a_std + b;
 }
 
-CXX20_CONSTEXPR Complex<double> operator+(const Complex<double>& a,
-                                          const double& b) MANTIS_NOEXCEPT {
-  const std::complex<double>& a_std =
-      static_cast<const std::complex<double>&>(a);
-  return a_std + b;
-}
-
-CXX20_CONSTEXPR Complex<long double> operator+(
-    const Complex<long double>& a, const long double& b) MANTIS_NOEXCEPT {
-  const std::complex<long double>& a_std =
-      static_cast<const std::complex<long double>&>(a);
-  return a_std + b;
-}
-
-template <typename Real>
+template <typename Real, typename, typename>
 constexpr Complex<Real> operator+(const Complex<Real>& a,
                                   const Real& b) MANTIS_NOEXCEPT {
   return Complex<Real>(a.Real() + b, a.Imag());
 }
 
-CXX20_CONSTEXPR Complex<float> operator+(
-    const float& a, const Complex<float>& b) MANTIS_NOEXCEPT {
-  const std::complex<float>& b_std = static_cast<const std::complex<float>&>(b);
+template <typename Real, typename>
+CXX20_CONSTEXPR Complex<Real> operator+(const Real& a, const Complex<Real>& b)
+    MANTIS_NOEXCEPT {
+  const std::complex<Real>& b_std = static_cast<const std::complex<Real>&>(b);
   return a + b_std;
 }
 
-CXX20_CONSTEXPR Complex<double> operator+(
-    const double& a, const Complex<double>& b) MANTIS_NOEXCEPT {
-  const std::complex<double>& b_std =
-      static_cast<const std::complex<double>&>(b);
-  return a + b_std;
-}
-
-CXX20_CONSTEXPR Complex<long double> operator+(
-    const long double& a, const Complex<long double>& b) MANTIS_NOEXCEPT {
-  const std::complex<long double>& b_std =
-      static_cast<const std::complex<long double>&>(b);
-  return a + b_std;
-}
-
-template <typename Real>
+template <typename Real, typename, typename>
 constexpr Complex<Real> operator+(const Real& a,
                                   const Complex<Real>& b) MANTIS_NOEXCEPT {
   return Complex<Real>(a + b.Real(), b.Imag());
 }
 
-CXX20_CONSTEXPR Complex<float> operator-(
-    const Complex<float>& a, const Complex<float>& b) MANTIS_NOEXCEPT {
-  const std::complex<float>& a_std = static_cast<const std::complex<float>&>(a);
-  const std::complex<float>& b_std = static_cast<const std::complex<float>&>(b);
+template <typename Real, typename Integral, typename, typename>
+CXX20_CONSTEXPR Complex<Real> operator+(const Complex<Real>& a,
+                                        const Integral& b) MANTIS_NOEXCEPT {
+  const std::complex<Real>& a_std = static_cast<const std::complex<Real>&>(a);
+  return a_std + Real(b);
+}
+
+template <typename Real, typename Integral, typename, typename, typename>
+constexpr Complex<Real> operator+(const Complex<Real>& a,
+                                  const Integral& b) MANTIS_NOEXCEPT {
+  return Complex<Real>(a.Real() + b, a.Imag());
+}
+
+template <typename Real, typename Integral, typename, typename>
+CXX20_CONSTEXPR Complex<Real> operator+(
+    const Integral& a, const Complex<Real>& b) MANTIS_NOEXCEPT {
+  const std::complex<Real>& b_std = static_cast<const std::complex<Real>&>(b);
+  return Real(a) + b_std;
+}
+
+template <typename Real, typename Integral, typename, typename, typename>
+constexpr Complex<Real> operator+(const Integral& a,
+                                  const Complex<Real>& b) MANTIS_NOEXCEPT {
+  return Complex<Real>(b.Real() + a, b.Imag());
+}
+
+template <typename Real, typename>
+CXX20_CONSTEXPR Complex<Real> operator-(
+    const Complex<Real>& a, const Complex<Real>& b) MANTIS_NOEXCEPT {
+  const std::complex<Real>& a_std = static_cast<const std::complex<Real>&>(a);
+  const std::complex<Real>& b_std = static_cast<const std::complex<Real>&>(b);
   return a_std - b_std;
 }
 
-CXX20_CONSTEXPR Complex<double> operator-(
-    const Complex<double>& a, const Complex<double>& b) MANTIS_NOEXCEPT {
-  const std::complex<double>& a_std =
-      static_cast<const std::complex<double>&>(a);
-  const std::complex<double>& b_std =
-      static_cast<const std::complex<double>&>(b);
-  return a_std - b_std;
-}
-
-CXX20_CONSTEXPR Complex<long double> operator-(const Complex<long double>& a,
-                                               const Complex<long double>& b)
-    MANTIS_NOEXCEPT {
-  const std::complex<long double>& a_std =
-      static_cast<const std::complex<long double>&>(a);
-  const std::complex<long double>& b_std =
-      static_cast<const std::complex<long double>&>(b);
-  return a_std - b_std;
-}
-
-template <typename Real>
+template <typename Real, typename, typename>
 constexpr Complex<Real> operator-(const Complex<Real>& a,
                                   const Complex<Real>& b) MANTIS_NOEXCEPT {
   return Complex<Real>(a.Real() - b.Real(), a.Imag() - b.Imag());
 }
 
-CXX20_CONSTEXPR Complex<float> operator-(const Complex<float>& a,
-                                         const float& b) MANTIS_NOEXCEPT {
-  const std::complex<float>& a_std = static_cast<const std::complex<float>&>(a);
+template <typename Real, typename>
+CXX20_CONSTEXPR Complex<Real> operator-(const Complex<Real>& a,
+                                        const Real& b) MANTIS_NOEXCEPT {
+  const std::complex<Real>& a_std = static_cast<const std::complex<Real>&>(a);
   return a_std - b;
 }
 
-CXX20_CONSTEXPR Complex<double> operator-(const Complex<double>& a,
-                                          const double& b) MANTIS_NOEXCEPT {
-  const std::complex<double>& a_std =
-      static_cast<const std::complex<double>&>(a);
-  return a_std - b;
-}
-
-CXX20_CONSTEXPR Complex<long double> operator-(
-    const Complex<long double>& a, const long double& b) MANTIS_NOEXCEPT {
-  const std::complex<long double>& a_std =
-      static_cast<const std::complex<long double>&>(a);
-  return a_std - b;
-}
-
-template <typename Real>
+template <typename Real, typename, typename>
 constexpr Complex<Real> operator-(const Complex<Real>& a,
                                   const Real& b) MANTIS_NOEXCEPT {
   return Complex<Real>(a.Real() - b, a.Imag());
 }
 
-CXX20_CONSTEXPR Complex<float> operator-(
-    const float& a, const Complex<float>& b) MANTIS_NOEXCEPT {
-  const std::complex<float>& b_std = static_cast<const std::complex<float>&>(b);
+template <typename Real, typename>
+CXX20_CONSTEXPR Complex<Real> operator-(const Real& a, const Complex<Real>& b)
+    MANTIS_NOEXCEPT {
+  const std::complex<Real>& b_std = static_cast<const std::complex<Real>&>(b);
   return a - b_std;
 }
 
-CXX20_CONSTEXPR Complex<double> operator-(
-    const double& a, const Complex<double>& b) MANTIS_NOEXCEPT {
-  const std::complex<double>& b_std =
-      static_cast<const std::complex<double>&>(b);
-  return a - b_std;
-}
-
-CXX20_CONSTEXPR Complex<long double> operator-(
-    const long double& a, const Complex<long double>& b) MANTIS_NOEXCEPT {
-  const std::complex<long double>& b_std =
-      static_cast<const std::complex<long double>&>(b);
-  return a - b_std;
-}
-
-template <typename Real>
+template <typename Real, typename, typename>
 constexpr Complex<Real> operator-(const Real& a,
                                   const Complex<Real>& b) MANTIS_NOEXCEPT {
   return Complex<Real>(a - b.Real(), -b.Imag());
 }
 
-CXX20_CONSTEXPR Complex<float> operator*(
-    const Complex<float>& a, const Complex<float>& b)MANTIS_NOEXCEPT {
-  const std::complex<float>& a_std = static_cast<const std::complex<float>&>(a);
-  const std::complex<float>& b_std = static_cast<const std::complex<float>&>(b);
+template <typename Real, typename Integral, typename, typename>
+CXX20_CONSTEXPR Complex<Real> operator-(const Complex<Real>& a,
+                                        const Integral& b) MANTIS_NOEXCEPT {
+  const std::complex<Real>& a_std = static_cast<const std::complex<Real>&>(a);
+  return a_std - Real(b);
+}
+
+template <typename Real, typename Integral, typename, typename, typename>
+constexpr Complex<Real> operator-(const Complex<Real>& a,
+                                  const Integral& b) MANTIS_NOEXCEPT {
+  return Complex<Real>(a.Real() - b, a.Imag());
+}
+
+template <typename Real, typename Integral, typename, typename>
+CXX20_CONSTEXPR Complex<Real> operator-(
+    const Integral& a, const Complex<Real>& b) MANTIS_NOEXCEPT {
+  const std::complex<Real>& b_std = static_cast<const std::complex<Real>&>(b);
+  return Real(a) - b_std;
+}
+
+template <typename Real, typename Integral, typename, typename, typename>
+constexpr Complex<Real> operator-(const Integral& a,
+                                  const Complex<Real>& b) MANTIS_NOEXCEPT {
+  return Complex<Real>(a - b.Real(), -b.Imag());
+}
+
+template <typename Real, typename>
+CXX20_CONSTEXPR Complex<Real> operator*(const Complex<Real>& a,
+                                        const Complex<Real>& b)MANTIS_NOEXCEPT {
+  const std::complex<Real>& a_std = static_cast<const std::complex<Real>&>(a);
+  const std::complex<Real>& b_std = static_cast<const std::complex<Real>&>(b);
   return a_std * b_std;
 }
 
-CXX20_CONSTEXPR Complex<double> operator*(
-    const Complex<double>& a, const Complex<double>& b)MANTIS_NOEXCEPT {
-  const std::complex<double>& a_std =
-      static_cast<const std::complex<double>&>(a);
-  const std::complex<double>& b_std =
-      static_cast<const std::complex<double>&>(b);
-  return a_std * b_std;
-}
-
-CXX20_CONSTEXPR Complex<long double> operator*(const Complex<long double>& a,
-                                               const Complex<long double>& b)
-    MANTIS_NOEXCEPT {
-  const std::complex<long double>& a_std =
-      static_cast<const std::complex<long double>&>(a);
-  const std::complex<long double>& b_std =
-      static_cast<const std::complex<long double>&>(b);
-  return a_std * b_std;
-}
-
-template <typename Real>
+template <typename Real, typename, typename>
 constexpr Complex<Real> operator*(const Complex<Real>& a,
                                   const Complex<Real>& b)MANTIS_NOEXCEPT {
   const Real real = a.Real() * b.Real() - a.Imag() * b.Imag();
@@ -398,54 +293,54 @@ constexpr Complex<Real> operator*(const Complex<Real>& a,
   return Complex<Real>(real, imag);
 }
 
-CXX20_CONSTEXPR Complex<float> operator*(const Complex<float>& a,
-                                         const float& b)MANTIS_NOEXCEPT {
-  const std::complex<float>& a_std = static_cast<const std::complex<float>&>(a);
+template <typename Real, typename>
+CXX20_CONSTEXPR Complex<Real> operator*(const Complex<Real>& a,
+                                        const Real& b)MANTIS_NOEXCEPT {
+  const std::complex<Real>& a_std = static_cast<const std::complex<Real>&>(a);
   return a_std * b;
 }
 
-CXX20_CONSTEXPR Complex<double> operator*(const Complex<double>& a,
-                                          const double& b)MANTIS_NOEXCEPT {
-  const std::complex<double>& a_std =
-      static_cast<const std::complex<double>&>(a);
-  return a_std * b;
-}
-
-CXX20_CONSTEXPR Complex<long double> operator*(
-    const Complex<long double>& a, const long double& b)MANTIS_NOEXCEPT {
-  const std::complex<long double>& a_std =
-      static_cast<const std::complex<long double>&>(a);
-  return a_std * b;
-}
-
-template <typename Real>
+template <typename Real, typename, typename>
 constexpr Complex<Real> operator*(const Complex<Real>& a,
                                   const Real& b)MANTIS_NOEXCEPT {
   return Complex<Real>(a.Real() * b, a.Imag() * b);
 }
 
-CXX20_CONSTEXPR Complex<float> operator*(
-    const float& a, const Complex<float>& b)MANTIS_NOEXCEPT {
-  const std::complex<float>& b_std = static_cast<const std::complex<float>&>(b);
+template <typename Real, typename>
+CXX20_CONSTEXPR Complex<Real> operator*(const Real& a,
+                                        const Complex<Real>& b)MANTIS_NOEXCEPT {
+  const std::complex<Real>& b_std = static_cast<const std::complex<Real>&>(b);
   return a * b_std;
 }
 
-CXX20_CONSTEXPR Complex<double> operator*(
-    const double& a, const Complex<double>& b)MANTIS_NOEXCEPT {
-  const std::complex<double>& b_std =
-      static_cast<const std::complex<double>&>(b);
-  return a * b_std;
-}
-
-CXX20_CONSTEXPR Complex<long double> operator*(
-    const long double& a, const Complex<long double>& b)MANTIS_NOEXCEPT {
-  const std::complex<long double>& b_std =
-      static_cast<const std::complex<long double>&>(b);
-  return a * b_std;
-}
-
-template <typename Real>
+template <typename Real, typename, typename>
 constexpr Complex<Real> operator*(const Real& a,
+                                  const Complex<Real>& b)MANTIS_NOEXCEPT {
+  return Complex<Real>(a * b.Real(), a * b.Imag());
+}
+
+template <typename Real, typename Integral, typename, typename>
+CXX20_CONSTEXPR Complex<Real> operator*(const Complex<Real>& a,
+                                        const Integral& b)MANTIS_NOEXCEPT {
+  const std::complex<Real>& a_std = static_cast<const std::complex<Real>&>(a);
+  return a_std * Real(b);
+}
+
+template <typename Real, typename Integral, typename, typename, typename>
+constexpr Complex<Real> operator*(const Complex<Real>& a,
+                                  const Integral& b)MANTIS_NOEXCEPT {
+  return Complex<Real>(a.Real() * b, a.Imag() * b);
+}
+
+template <typename Real, typename Integral, typename, typename>
+CXX20_CONSTEXPR Complex<Real> operator*(const Integral& a,
+                                        const Complex<Real>& b)MANTIS_NOEXCEPT {
+  const std::complex<Real>& b_std = static_cast<const std::complex<Real>&>(b);
+  return Real(a) * b_std;
+}
+
+template <typename Real, typename Integral, typename, typename, typename>
+constexpr Complex<Real> operator*(const Integral& a,
                                   const Complex<Real>& b)MANTIS_NOEXCEPT {
   return Complex<Real>(a * b.Real(), a * b.Imag());
 }
@@ -477,83 +372,38 @@ constexpr Complex<Real> SmithDiv(const Complex<Real>& a,
   }
 }
 
-CXX20_CONSTEXPR Complex<float> operator/(const Complex<float>& a,
-                                         const Complex<float>& b) {
-  const std::complex<float>& a_std = static_cast<const std::complex<float>&>(a);
-  const std::complex<float>& b_std = static_cast<const std::complex<float>&>(b);
+template <typename Real, typename>
+CXX20_CONSTEXPR Complex<Real> operator/(const Complex<Real>& a,
+                                        const Complex<Real>& b) {
+  const std::complex<Real>& a_std = static_cast<const std::complex<Real>&>(a);
+  const std::complex<Real>& b_std = static_cast<const std::complex<Real>&>(b);
   return a_std / b_std;
 }
 
-CXX20_CONSTEXPR Complex<double> operator/(const Complex<double>& a,
-                                          const Complex<double>& b) {
-  const std::complex<double>& a_std =
-      static_cast<const std::complex<double>&>(a);
-  const std::complex<double>& b_std =
-      static_cast<const std::complex<double>&>(b);
-  return a_std / b_std;
-}
-
-CXX20_CONSTEXPR Complex<long double> operator/(const Complex<long double>& a,
-                                               const Complex<long double>& b) {
-  const std::complex<long double>& a_std =
-      static_cast<const std::complex<long double>&>(a);
-  const std::complex<long double>& b_std =
-      static_cast<const std::complex<long double>&>(b);
-  return a_std / b_std;
-}
-
-template <typename Real>
+template <typename Real, typename, typename>
 constexpr Complex<Real> operator/(const Complex<Real>& a,
                                   const Complex<Real>& b) {
   return SmithDiv(a, b);
 }
 
-CXX20_CONSTEXPR Complex<float> operator/(const Complex<float>& a,
-                                         const float& b) {
-  const std::complex<float>& a_std = static_cast<const std::complex<float>&>(a);
+template <typename Real, typename>
+CXX20_CONSTEXPR Complex<Real> operator/(const Complex<Real>& a, const Real& b) {
+  const std::complex<Real>& a_std = static_cast<const std::complex<Real>&>(a);
   return a_std / b;
 }
 
-CXX20_CONSTEXPR Complex<double> operator/(const Complex<double>& a,
-                                          const double& b) {
-  const std::complex<double>& a_std =
-      static_cast<const std::complex<double>&>(a);
-  return a_std / b;
-}
-
-CXX20_CONSTEXPR Complex<long double> operator/(const Complex<long double>& a,
-                                               const long double& b) {
-  const std::complex<long double>& a_std =
-      static_cast<const std::complex<long double>&>(a);
-  return a_std / b;
-}
-
-template <typename Real>
+template <typename Real, typename, typename>
 constexpr Complex<Real> operator/(const Complex<Real>& a, const Real& b) {
   return Complex<Real>(a.Real() / b, a.Imag() / b);
 }
 
-CXX20_CONSTEXPR Complex<float> operator/(const float& a,
-                                         const Complex<float>& b) {
-  const std::complex<float>& b_std = static_cast<const std::complex<float>&>(b);
+template <typename Real, typename>
+CXX20_CONSTEXPR Complex<Real> operator/(const Real& a, const Complex<Real>& b) {
+  const std::complex<Real>& b_std = static_cast<const std::complex<Real>&>(b);
   return a / b_std;
 }
 
-CXX20_CONSTEXPR Complex<double> operator/(const double& a,
-                                          const Complex<double>& b) {
-  const std::complex<double>& b_std =
-      static_cast<const std::complex<double>&>(b);
-  return a / b_std;
-}
-
-CXX20_CONSTEXPR Complex<long double> operator/(const long double& a,
-                                               const Complex<long double>& b) {
-  const std::complex<long double>& b_std =
-      static_cast<const std::complex<long double>&>(b);
-  return a / b_std;
-}
-
-template <typename Real>
+template <typename Real, typename, typename>
 constexpr Complex<Real> operator/(const Real& a, const Complex<Real>& b) {
   // Run a specialization of Smith's division algorithm.
   if (std::abs(b.Imag()) <= std::abs(b.Real())) {
@@ -567,25 +417,43 @@ constexpr Complex<Real> operator/(const Real& a, const Complex<Real>& b) {
   }
 }
 
+template <typename Real, typename Integral, typename, typename>
+CXX20_CONSTEXPR Complex<Real> operator/(const Complex<Real>& a,
+                                        const Integral& b) MANTIS_NOEXCEPT {
+  const std::complex<Real>& a_std = static_cast<const std::complex<Real>&>(a);
+  return a_std / Real(b);
+}
+
+template <typename Real, typename Integral, typename, typename, typename>
+constexpr Complex<Real> operator/(const Complex<Real>& a,
+                                  const Integral& b) MANTIS_NOEXCEPT {
+  return Complex<Real>(a.Real() / b, a.Imag() / b);
+}
+
+template <typename Real, typename Integral, typename, typename>
+CXX20_CONSTEXPR Complex<Real> operator/(
+    const Integral& a, const Complex<Real>& b) MANTIS_NOEXCEPT {
+  const std::complex<Real>& b_std = static_cast<const std::complex<Real>&>(b);
+  return Real(a) / b_std;
+}
+
+template <typename Real, typename Integral, typename, typename, typename>
+constexpr Complex<Real> operator/(const Integral& a,
+                                  const Complex<Real>& b) MANTIS_NOEXCEPT {
+  return Real(a) / b;
+}
+
 template <typename Real, typename>
 constexpr Real RealPart(const Real& value) MANTIS_NOEXCEPT {
   return value;
 }
 
-constexpr float RealPart(const Complex<float>& value) MANTIS_NOEXCEPT {
+template <typename Real, typename>
+constexpr Real RealPart(const Complex<Real>& value) MANTIS_NOEXCEPT {
   return value.real();
 }
 
-constexpr double RealPart(const Complex<double>& value) MANTIS_NOEXCEPT {
-  return value.real();
-}
-
-constexpr long double RealPart(const Complex<long double>& value)
-    MANTIS_NOEXCEPT {
-  return value.real();
-}
-
-template <typename Real>
+template <typename Real, typename, typename>
 constexpr Real RealPart(const Complex<Real>& value) MANTIS_NOEXCEPT {
   return value.Real();
 }
@@ -595,20 +463,12 @@ constexpr Real ImagPart(const Real& value) MANTIS_NOEXCEPT {
   return 0;
 }
 
-constexpr float ImagPart(const Complex<float>& value) MANTIS_NOEXCEPT {
+template <typename Real, typename>
+constexpr Real ImagPart(const Complex<Real>& value) MANTIS_NOEXCEPT {
   return value.imag();
 }
 
-constexpr double ImagPart(const Complex<double>& value) MANTIS_NOEXCEPT {
-  return value.imag();
-}
-
-constexpr long double ImagPart(const Complex<long double>& value)
-    MANTIS_NOEXCEPT {
-  return value.imag();
-}
-
-template <typename Real>
+template <typename Real, typename, typename>
 constexpr Real ImagPart(const Complex<Real>& value) MANTIS_NOEXCEPT {
   return value.Imag();
 }
@@ -628,19 +488,12 @@ constexpr Real Abs(const Complex<Real>& value) {
   return Hypot(value.Real(), value.Imag());
 }
 
-inline Complex<float> SquareRoot(const Complex<float>& x) {
-  return std::sqrt(static_cast<const std::complex<float>>(x));
+template <typename Real, typename>
+Complex<Real> SquareRoot(const Complex<Real>& x) {
+  return std::sqrt(static_cast<const std::complex<Real>>(x));
 }
 
-inline Complex<double> SquareRoot(const Complex<double>& x) {
-  return std::sqrt(static_cast<const std::complex<double>>(x));
-}
-
-inline Complex<long double> SquareRoot(const Complex<long double>& x) {
-  return std::sqrt(static_cast<const std::complex<long double>>(x));
-}
-
-template <typename Real>
+template <typename Real, typename, typename>
 Complex<Real> SquareRoot(const Complex<Real>& x) {
   // TODO(Jack Poulson): Document the branch cuts and formulae.
   if (x.Real() == 0) {
@@ -667,19 +520,12 @@ Real Arg(const Complex<Real>& x) {
   return std::atan2(x.Imag(), x.Real());
 }
 
-inline Complex<float> Log(const Complex<float>& x) {
-  return std::log(static_cast<const std::complex<float>&>(x));
+template <typename Real, typename>
+Complex<Real> Log(const Complex<Real>& x) {
+  return std::log(static_cast<const std::complex<Real>&>(x));
 }
 
-inline Complex<double> Log(const Complex<double>& x) {
-  return std::log(static_cast<const std::complex<double>&>(x));
-}
-
-inline Complex<long double> Log(const Complex<long double>& x) {
-  return std::log(static_cast<const std::complex<long double>&>(x));
-}
-
-template <typename Real>
+template <typename Real, typename, typename>
 Complex<Real> Log(const Complex<Real>& x) {
   return Complex<Real>(Log(Abs(x)), Arg(x));
 }
@@ -689,36 +535,22 @@ Complex<Real> Log2(const Complex<Real>& x) {
   return Log(x) / LogOf2<Real>();
 }
 
-inline Complex<float> Log10(const Complex<float>& x) {
-  return std::log10(static_cast<const std::complex<float>&>(x));
+template <typename Real, typename>
+Complex<Real> Log10(const Complex<Real>& x) {
+  return std::log10(static_cast<const std::complex<Real>&>(x));
 }
 
-inline Complex<double> Log10(const Complex<double>& x) {
-  return std::log10(static_cast<const std::complex<double>&>(x));
-}
-
-inline Complex<long double> Log10(const Complex<long double>& x) {
-  return std::log10(static_cast<const std::complex<long double>&>(x));
-}
-
-template <typename Real>
+template <typename Real, typename, typename>
 Complex<Real> Log10(const Complex<Real>& x) {
   return Log(x) / LogOf10<Real>();
 }
 
-inline Complex<float> Sin(const Complex<float>& x) {
-  return std::sin(static_cast<const std::complex<float>&>(x));
+template <typename Real, typename>
+Complex<Real> Sin(const Complex<Real>& x) {
+  return std::sin(static_cast<const std::complex<Real>&>(x));
 }
 
-inline Complex<double> Sin(const Complex<double>& x) {
-  return std::sin(static_cast<const std::complex<double>&>(x));
-}
-
-inline Complex<long double> Sin(const Complex<long double>& x) {
-  return std::sin(static_cast<const std::complex<long double>&>(x));
-}
-
-template <typename Real>
+template <typename Real, typename, typename>
 Complex<Real> Sin(const Complex<Real>& x) {
   Real real_sin, real_cos;
   SinCos(x.Real(), &real_sin, &real_cos);
@@ -727,19 +559,12 @@ Complex<Real> Sin(const Complex<Real>& x) {
   return Complex<Real>(real_sin * imag_cosh, real_cos * imag_sinh);
 }
 
-inline Complex<float> Cos(const Complex<float>& x) {
-  return std::cos(static_cast<const std::complex<float>&>(x));
+template <typename Real, typename>
+Complex<Real> Cos(const Complex<Real>& x) {
+  return std::cos(static_cast<const std::complex<Real>&>(x));
 }
 
-inline Complex<double> Cos(const Complex<double>& x) {
-  return std::cos(static_cast<const std::complex<double>&>(x));
-}
-
-inline Complex<long double> Cos(const Complex<long double>& x) {
-  return std::cos(static_cast<const std::complex<long double>&>(x));
-}
-
-template <typename Real>
+template <typename Real, typename, typename>
 Complex<Real> Cos(const Complex<Real>& x) {
   Real real_sin, real_cos;
   SinCos(x.Real(), &real_sin, &real_cos);
@@ -748,25 +573,14 @@ Complex<Real> Cos(const Complex<Real>& x) {
   return Complex<Real>(real_cos * imag_cosh, -real_sin * imag_sinh);
 }
 
-inline void SinCos(const Complex<float>& x, Complex<float>* sin_x,
-                   Complex<float>* cos_x) {
+template <typename Real, typename>
+void SinCos(const Complex<Real>& x, Complex<Real>* sin_x,
+            Complex<Real>* cos_x) {
   *sin_x = std::sin(x);
   *cos_x = std::cos(x);
 }
 
-inline void SinCos(const Complex<double>& x, Complex<double>* sin_x,
-                   Complex<double>* cos_x) {
-  *sin_x = std::sin(x);
-  *cos_x = std::cos(x);
-}
-
-inline void SinCos(const Complex<long double>& x, Complex<long double>* sin_x,
-                   Complex<long double>* cos_x) {
-  *sin_x = std::sin(x);
-  *cos_x = std::cos(x);
-}
-
-template <typename Real>
+template <typename Real, typename, typename>
 void SinCos(const Complex<Real>& x, Complex<Real>* sin_x,
             Complex<Real>* cos_x) {
   Real real_sin, real_cos;
@@ -777,57 +591,36 @@ void SinCos(const Complex<Real>& x, Complex<Real>* sin_x,
   *cos_x = Complex<Real>(real_cos * imag_cosh, -real_sin * imag_sinh);
 }
 
-inline Complex<float> Tan(const Complex<float>& x) {
-  return std::tan(static_cast<const std::complex<float>&>(x));
+template <typename Real, typename>
+Complex<Real> Tan(const Complex<Real>& x) {
+  return std::tan(static_cast<const std::complex<Real>&>(x));
 }
 
-inline Complex<double> Tan(const Complex<double>& x) {
-  return std::tan(static_cast<const std::complex<double>&>(x));
-}
-
-inline Complex<long double> Tan(const Complex<long double>& x) {
-  return std::tan(static_cast<const std::complex<long double>&>(x));
-}
-
-template <typename Real>
+template <typename Real, typename, typename>
 Complex<Real> Tan(const Complex<Real>& x) {
   Complex<Real> sin_x, cos_x;
   SinCos(x, &sin_x, &cos_x);
   return sin_x / cos_x;
 }
 
-inline Complex<float> ArcSin(const Complex<float>& x) {
-  return std::asin(static_cast<const std::complex<float>&>(x));
+template <typename Real, typename>
+Complex<Real> ArcSin(const Complex<Real>& x) {
+  return std::asin(static_cast<const std::complex<Real>&>(x));
 }
 
-inline Complex<double> ArcSin(const Complex<double>& x) {
-  return std::asin(static_cast<const std::complex<double>&>(x));
-}
-
-inline Complex<long double> ArcSin(const Complex<long double>& x) {
-  return std::asin(static_cast<const std::complex<long double>&>(x));
-}
-
-template <typename Real>
+template <typename Real, typename, typename>
 Complex<Real> ArcSin(const Complex<Real>& x) {
   // Arcsin(x) = -i Arcsinh(i x)
   const Complex<Real> y = ArcHyperbolicSin(Complex<Real>(-x.Imag(), x.Real()));
   return Complex<Real>(y.Imag(), -y.Real());
 }
 
-inline Complex<float> ArcCos(const Complex<float>& x) {
-  return std::acos(static_cast<const std::complex<float>&>(x));
+template <typename Real, typename>
+Complex<Real> ArcCos(const Complex<Real>& x) {
+  return std::acos(static_cast<const std::complex<Real>&>(x));
 }
 
-inline Complex<double> ArcCos(const Complex<double>& x) {
-  return std::acos(static_cast<const std::complex<double>&>(x));
-}
-
-inline Complex<long double> ArcCos(const Complex<long double>& x) {
-  return std::acos(static_cast<const std::complex<long double>&>(x));
-}
-
-template <typename Real>
+template <typename Real, typename, typename>
 Complex<Real> ArcCos(const Complex<Real>& x) {
   static const Real pi = std::acos(Real(-1));
   static const Real half_pi = pi / Real(2);
@@ -835,19 +628,12 @@ Complex<Real> ArcCos(const Complex<Real>& x) {
   return Complex<Real>(half_pi - asin_x.Real(), -asin_x.Imag());
 }
 
-inline Complex<float> ArcTan(const Complex<float>& x) {
-  return std::atan(static_cast<const std::complex<float>&>(x));
+template <typename Real, typename>
+Complex<Real> ArcTan(const Complex<Real>& x) {
+  return std::atan(static_cast<const std::complex<Real>&>(x));
 }
 
-inline Complex<double> ArcTan(const Complex<double>& x) {
-  return std::atan(static_cast<const std::complex<double>&>(x));
-}
-
-inline Complex<long double> ArcTan(const Complex<long double>& x) {
-  return std::atan(static_cast<const std::complex<long double>&>(x));
-}
-
-template <typename Real>
+template <typename Real, typename, typename>
 Complex<Real> ArcTan(const Complex<Real>& x) {
   // The solution follows that of [Abramowitz/Stegun-1972]:
   //
@@ -895,19 +681,12 @@ Complex<Real> ArcTan(const Complex<Real>& x) {
   return Complex<Real>(atan_x_real, atan_x_imag);
 }
 
-inline Complex<float> ArcHyperbolicSin(const Complex<float>& x) {
-  return std::asinh(static_cast<const std::complex<float>&>(x));
+template <typename Real, typename>
+Complex<Real> ArcHyperbolicSin(const Complex<Real>& x) {
+  return std::asinh(static_cast<const std::complex<Real>&>(x));
 }
 
-inline Complex<double> ArcHyperbolicSin(const Complex<double>& x) {
-  return std::asinh(static_cast<const std::complex<double>&>(x));
-}
-
-inline Complex<long double> ArcHyperbolicSin(const Complex<long double>& x) {
-  return std::asinh(static_cast<const std::complex<long double>&>(x));
-}
-
-template <typename Real>
+template <typename Real, typename, typename>
 Complex<Real> ArcHyperbolicSin(const Complex<Real>& x) {
   // The solution follows that of [Abramowitz/Stegun-1972]:
   //
@@ -927,19 +706,12 @@ Complex<Real> ArcHyperbolicSin(const Complex<Real>& x) {
   return Log(tau + x);
 }
 
-inline Complex<float> ArcHyperbolicCos(const Complex<float>& x) {
-  return std::acosh(static_cast<const std::complex<float>&>(x));
+template <typename Real, typename>
+Complex<Real> ArcHyperbolicCos(const Complex<Real>& x) {
+  return std::acosh(static_cast<const std::complex<Real>&>(x));
 }
 
-inline Complex<double> ArcHyperbolicCos(const Complex<double>& x) {
-  return std::acosh(static_cast<const std::complex<double>&>(x));
-}
-
-inline Complex<long double> ArcHyperbolicCos(const Complex<long double>& x) {
-  return std::acosh(static_cast<const std::complex<long double>&>(x));
-}
-
-template <typename Real>
+template <typename Real, typename, typename>
 Complex<Real> ArcHyperbolicCos(const Complex<Real>& x) {
   // The solution follows that of [Abramowitz/Stegun-1972]:
   //
@@ -959,19 +731,12 @@ Complex<Real> ArcHyperbolicCos(const Complex<Real>& x) {
   return Log(tau + x);
 }
 
-inline Complex<float> ArcHyperbolicTan(const Complex<float>& x) {
-  return std::atanh(static_cast<const std::complex<float>&>(x));
+template <typename Real, typename>
+Complex<Real> ArcHyperbolicTan(const Complex<Real>& x) {
+  return std::atanh(static_cast<const std::complex<Real>&>(x));
 }
 
-inline Complex<double> ArcHyperbolicTan(const Complex<double>& x) {
-  return std::atanh(static_cast<const std::complex<double>&>(x));
-}
-
-inline Complex<long double> ArcHyperbolicTan(const Complex<long double>& x) {
-  return std::atanh(static_cast<const std::complex<long double>&>(x));
-}
-
-template <typename Real>
+template <typename Real, typename, typename>
 Complex<Real> ArcHyperbolicTan(const Complex<Real>& x) {
   // The solution follows that of [Abramowitz/Stegun-1972]:
   //
@@ -1040,7 +805,7 @@ namespace std {
 template <typename Real>
 string to_string(const mantis::Complex<Real>& value) {
   return std::to_string(value.Real()) + " + " + std::to_string(value.Imag()) +
-      "i";
+         "i";
 }
 
 template <typename Real, typename>
