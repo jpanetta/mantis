@@ -25,7 +25,7 @@ inline float MultiplyAdd(const float& x, const float& y,
 // The QD package of Hida et al. also allows for usage of the "_Asm_fma"
 // macro on Intel and HP compilers for IA 64.
 #ifdef FP_FAST_FMAF
-  return std::fmaf(x, y, z)
+  return std::fmaf(x, y, z);
 #elif defined(MANTIS_XLC_FUSED_MULTIPLY_ADD)
   return __fmadds(x, y, z);
 #elif defined(MANTIS_GCC_FUSED_MULTIPLY_ADD)
